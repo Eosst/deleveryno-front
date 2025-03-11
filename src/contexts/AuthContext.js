@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   // Initialize axios with the base URL
-  axios.defaults.baseURL = 'http://localhost:8000/';
+  axios.defaults.baseURL = 'http://localhost:8000/api/';
   
   // Add token to axios requests if available
   axios.interceptors.request.use(

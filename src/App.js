@@ -4,17 +4,17 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 // Auth components
-import Login from './components/Auth/Login';
-import SellerRegistration from './components/Auth/RegisterSeller';
-import DriverRegistration from './components/Auth/RegisterDriver';
+import Login from './components/authentification/Login';
+import SellerRegistration from './components/authentification/RegisterSeller';
+import DriverRegistration from './components/authentification/RegisterDriver';
 
 // Layout components
 import MainLayout from './components/layouts/MainLayout';
 
 // Admin pages
-import AdminDashboard from './components/admin/AdminDashboard';
-import UserApproval from './components/admin/UserApproval';
-import AllOrders from './components/admin/AllOrders';
+import AdminDashboard from './components/Admine/AdminDashboard';
+import UserApproval from './components/Admine/UserApproval';
+import AllOrders from './components/Admine/AllOrders';
 
 // Seller pages
 import SellerDashboard from './components/seller/SellerDashboard';
