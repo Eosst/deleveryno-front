@@ -1,4 +1,4 @@
-// src/contexts/AuthContext.js
+// src/contexts/AuthContext.js - Updated version
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,8 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Initialize axios with the base URL
-  axios.defaults.baseURL = 'http://localhost:8000/api/';
+  // Set the correct base URL
+  axios.defaults.baseURL = 'http://localhost:8000/api';
   
   // Add token to axios requests if available
   axios.interceptors.request.use(
