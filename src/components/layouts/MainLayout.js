@@ -1,5 +1,4 @@
-// src/components/layouts/MainLayout.js
-import React, { useContext } from 'react';
+import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { 
   AppBar, 
@@ -23,12 +22,12 @@ import {
   Person as ProfileIcon,
   Logout as LogoutIcon
 } from '@mui/icons-material';
-import AuthContext from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const drawerWidth = 240;
 
 const MainLayout = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {

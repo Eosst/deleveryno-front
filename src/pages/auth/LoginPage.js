@@ -1,5 +1,5 @@
-// src/pages/auth/LoginPage.js
-import React, { useState, useContext } from 'react';
+// src/pages/auth/LoginPage.js - Updated version
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -20,7 +20,8 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const [credentials, setCredentials] = useState({
-    username: '',
+    // Changed from username to email
+    email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
@@ -99,12 +100,12 @@ const LoginPage = () => {
               margin="normal"
               required
               fullWidth
-              id="username"
-              label="Username"
-              name="username"
-              autoComplete="username"
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
               autoFocus
-              value={credentials.username}
+              value={credentials.email}
               onChange={handleChange}
             />
             <TextField

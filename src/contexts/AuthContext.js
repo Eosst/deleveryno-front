@@ -1,8 +1,16 @@
-// src/contexts/AuthContext.js
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { login as apiLogin } from '../api/auth';
+// src/contexts/AuthContext.js - FIXED VERSION
+import React, { createContext, useState, useEffect } from 'react';
+import { login as apiLogin, getUserProfile, updateUserProfile } from '../api/auth';
 
-const AuthContext = createContext(null);
+// Create the context with a default value
+const AuthContext = createContext({
+  user: null,
+  login: () => {},
+  logout: () => {},
+  updateProfile: () => {},
+  loading: true,
+  error: null
+});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -48,11 +56,52 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateProfile = async (userData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const updatedUser = await updateUserProfile(userData);
+      
+      // Update stored user data
+      const newUserData = { ...user, ...updatedUser };
+      localStorage.setItem('user', JSON.stringify(newUserData));
+      setUser(newUserData);
+      
+      return updatedUser;
+    } catch (err) {
+      setError('Failed to update profile');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create a value object with all the context data
+  const contextValue = {
+    user,
+    login,
+    logout,
+    updateProfile,
+    loading,
+    error
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, error }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// Export the context itself
+export default AuthContext;
+
+// Export a custom hook to use the auth context
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

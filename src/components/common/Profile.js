@@ -1,5 +1,4 @@
-// src/components/common/Profile.js
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Paper, 
   Typography, 
@@ -10,10 +9,10 @@ import {
   Alert,
   CircularProgress 
 } from '@mui/material';
-import AuthContext from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Profile = () => {
-  const { user, updateProfile, error } = useContext(AuthContext);
+  const { user, updateProfile, error: authError } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [profileError, setProfileError] = useState('');
@@ -88,9 +87,9 @@ const Profile = () => {
         </Alert>
       )}
       
-      {error && (
+      {authError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {authError}
         </Alert>
       )}
       

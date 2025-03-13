@@ -1,5 +1,5 @@
 // src/pages/seller/Dashboard.js
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect , useContext } from 'react';
 import { 
   Box, 
   Typography, 
@@ -29,7 +29,7 @@ import {
   PendingActions as PendingIcon,
   Add as AddIcon
 } from '@mui/icons-material';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
   return (
@@ -66,7 +66,7 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
 };
 
 const SellerDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(useAuth);
   const [orders, setOrders] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);

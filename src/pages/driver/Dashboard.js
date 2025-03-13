@@ -1,6 +1,5 @@
 // src/pages/driver/Dashboard.js
-import React, { useState, useEffect, useContext } from 'react';
-import Alert from '@mui/material/Alert';
+import React, { useState, useEffect ,useContext } from 'react';
 import { 
   Box, 
   Typography, 
@@ -11,12 +10,9 @@ import {
   Button,
   CircularProgress,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   Chip,
-  Divider
+  Divider,
+  Alert
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getDriverOrders } from '../../api/orders';
@@ -29,7 +25,7 @@ import {
   LocationOn as LocationIcon,
   Phone as PhoneIcon
 } from '@mui/icons-material';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
   return (
@@ -66,7 +62,7 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
 };
 
 const DriverDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(useAuth);
   const [orders, setOrders] = useState([]);
   const [activeOrders, setActiveOrders] = useState([]);
   const [orderStats, setOrderStats] = useState({
