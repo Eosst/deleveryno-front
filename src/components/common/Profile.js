@@ -10,9 +10,11 @@ import {
   CircularProgress 
 } from '@mui/material';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-  const { user, updateProfile, error: authError } = useAuth();
+  const navigate = useNavigate();
+  const { user, updateProfile, error: authError, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [profileError, setProfileError] = useState('');
@@ -26,6 +28,12 @@ const Profile = () => {
   });
 
   useEffect(() => {
+    // Redirect to login if no user is found after loading completes
+    if (!user && !authLoading) {
+      navigate('/login');
+      return;
+    }
+
     if (user) {
       setFormData({
         first_name: user.first_name || '',
@@ -35,7 +43,7 @@ const Profile = () => {
         city: user.city || ''
       });
     }
-  }, [user]);
+  }, [user, authLoading, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +72,7 @@ const Profile = () => {
     }
   };
 
-  if (!user) {
+  if (authLoading || (!user && !authLoading)) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
         <CircularProgress />

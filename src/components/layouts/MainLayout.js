@@ -35,6 +35,9 @@ const MainLayout = () => {
     navigate('/login');
   };
 
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin';
+
   // Determine navigation items based on user role
   const getNavItems = () => {
     if (user?.role === 'admin') {
@@ -68,10 +71,21 @@ const MainLayout = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             DeliveryNo - {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)} Panel
           </Typography>
-          <Button color="inherit" onClick={() => navigate('/profile')}>
-            {user?.username || 'Profile'}
-          </Button>
-          <Button color="inherit" onClick={handleLogout}>
+          {/* Only show Profile button for admin */}
+          {isAdmin && (
+            <Button 
+              color="inherit" 
+              onClick={() => navigate('/profile')}
+              sx={{ cursor: 'pointer' }}
+            >
+              {user?.username || 'Profile'}
+            </Button>
+          )}
+          <Button 
+            color="inherit" 
+            onClick={handleLogout}
+            sx={{ cursor: 'pointer' }}
+          >
             Logout
           </Button>
         </Toolbar>
@@ -95,6 +109,7 @@ const MainLayout = () => {
                 button 
                 key={item.text} 
                 onClick={() => navigate(item.path)}
+                sx={{ cursor: 'pointer' }}
               >
                 <ListItemIcon>
                   {item.icon}
@@ -103,13 +118,24 @@ const MainLayout = () => {
               </ListItem>
             ))}
             <Divider />
-            <ListItem button onClick={() => navigate('/profile')}>
-              <ListItemIcon>
-                <ProfileIcon />
-              </ListItemIcon>
-              <ListItemText primary="Profile" />
-            </ListItem>
-            <ListItem button onClick={handleLogout}>
+            {/* Only show Profile item for admin */}
+            {isAdmin && (
+              <ListItem 
+                button 
+                onClick={() => navigate('/profile')}
+                sx={{ cursor: 'pointer' }}
+              >
+                <ListItemIcon>
+                  <ProfileIcon />
+                </ListItemIcon>
+                <ListItemText primary="Profile" />
+              </ListItem>
+            )}
+            <ListItem 
+              button 
+              onClick={handleLogout}
+              sx={{ cursor: 'pointer' }}
+            >
               <ListItemIcon>
                 <LogoutIcon />
               </ListItemIcon>

@@ -170,7 +170,9 @@ const AdminOrders = () => {
     try {
       // Fetch available drivers
       const response = await getUsers({ role: 'driver', approved: true });
-      setAvailableDrivers(response.results || []);
+      // Filter out non-drivers (as a safeguard)
+      const drivers = (response.results || []).filter(user => user.role === 'driver');
+      setAvailableDrivers(drivers);
     } catch (err) {
       console.error('Error fetching drivers:', err);
       setError('Failed to load available drivers. Please try again.');

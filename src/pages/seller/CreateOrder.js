@@ -78,11 +78,11 @@ const CreateOrder = () => {
     }
     
     // Validate phone number format (simple validation)
-    const phoneRegex = /^\+?[0-9]{10,15}$/;
-    if (!phoneRegex.test(formData.customer_phone)) {
-      setError('Please enter a valid phone number');
-      return false;
-    }
+    // const phoneRegex = /^\+?[0-9]{10,15}$/;
+    // if (!phoneRegex.test(formData.customer_phone)) {
+    //   setError('Please enter a valid phone number');
+    //   return false;
+    // }
     
     // Validate quantity is positive
     if (formData.quantity <= 0) {

@@ -66,7 +66,7 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
 };
 
 const SellerDashboard = () => {
-  const { user } = useContext(useAuth);
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);

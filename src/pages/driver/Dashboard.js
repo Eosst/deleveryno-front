@@ -62,7 +62,7 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
 };
 
 const DriverDashboard = () => {
-  const { user } = useContext(useAuth);
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [activeOrders, setActiveOrders] = useState([]);
   const [orderStats, setOrderStats] = useState({
