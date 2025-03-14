@@ -31,9 +31,11 @@ import {
   CheckCircle as ApproveIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
+  Visibility as ViewIcon,
   FilterList as FilterIcon
 } from '@mui/icons-material';
 import { getUsers, approveUser, deleteUser } from '../../api/users';
+import { Link } from 'react-router-dom';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -247,6 +249,14 @@ const UserManagement = () => {
                     )}
                   </TableCell>
                   <TableCell>
+                    <IconButton 
+                      color="primary" 
+                      component={Link}
+                      to={`/admin/users/${user.id}`}
+                      title="View User Details"
+                    >
+                      <ViewIcon />
+                    </IconButton>
                     {!user.approved && (
                       <IconButton 
                         color="success" 

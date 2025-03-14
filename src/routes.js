@@ -20,6 +20,7 @@ import UserManagement from './pages/admin/UserManagement';
 import AdminOrders from './pages/admin/Orders';
 import AdminCreateOrder from './pages/admin/CreateOrder';
 import AdminOrderDetail from './pages/admin/OrderDetail';
+import UserDetail from './pages/admin/UserDetail';
 
 // Seller pages
 import SellerDashboard from './pages/seller/Dashboard';
@@ -53,6 +54,7 @@ const AppRoutes = () => {
           <Route element={<MainLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/admin/users/:id" element={<UserDetail />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/orders/create" element={<AdminCreateOrder />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
