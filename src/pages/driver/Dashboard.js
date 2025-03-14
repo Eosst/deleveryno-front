@@ -1,5 +1,5 @@
 // src/pages/driver/Dashboard.js
-import React, { useState, useEffect ,useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -12,10 +12,17 @@ import {
   Paper,
   Chip,
   Divider,
-  Alert
+  Alert,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Collapse,
+  IconButton
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { getDriverOrders } from '../../api/orders';
+import { getDriverOrders, updateOrderStatus } from '../../api/orders';
 import { 
   LocalShipping as OrderIcon, 
   CheckCircle as DeliveredIcon,
@@ -23,7 +30,9 @@ import {
   PendingActions as PendingIcon,
   Person as CustomerIcon,
   LocationOn as LocationIcon,
-  Phone as PhoneIcon
+  Phone as PhoneIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -61,57 +70,61 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
   );
 };
 
-const DriverDashboard = () => {
-  const { user } = useAuth();
-  const [orders, setOrders] = useState([]);
-  const [activeOrders, setActiveOrders] = useState([]);
-  const [orderStats, setOrderStats] = useState({
-    total: 0,
-    inTransit: 0,
-    delivered: 0
-  });
-  const [loading, setLoading] = useState(true);
+const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [actionType, setActionType] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch driver orders
-        const ordersData = await getDriverOrders();
-        const ordersList = Array.isArray(ordersData) ? ordersData : [];
-        setOrders(ordersList);
+  const handleUpdateStatus = async (newStatus) => {
+    setLoading(true);
+    setError(null);
 
-        // Get active orders (not delivered or canceled)
-        const active = ordersList.filter(order => 
-          !['delivered', 'canceled'].includes(order.status)
-        );
-        setActiveOrders(active);
-
-        // Calculate order statistics
-        const inTransitOrders = ordersList.filter(order => 
-          order.status === 'in_transit' || order.status === 'assigned'
-        ).length;
-        const deliveredOrders = ordersList.filter(order => 
-          order.status === 'delivered'
-        ).length;
-        
-        setOrderStats({
-          total: ordersList.length,
-          inTransit: inTransitOrders,
-          delivered: deliveredOrders
-        });
-      } catch (err) {
-        console.error('Error fetching driver dashboard data:', err);
-        setError('Failed to load dashboard data. Please try again.');
-      } finally {
-        setLoading(false);
+    try {
+      await updateOrderStatus(order.id, newStatus);
+      if (onStatusUpdate) {
+        onStatusUpdate(order.id, newStatus);
       }
-    };
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      setError('Failed to update order status. Please try again.');
+    } finally {
+      setLoading(false);
+      setStatusDialogOpen(false);
+      setConfirmDialogOpen(false);
+    }
+  };
 
-    fetchData();
-  }, []);
+  const handleConfirmAction = async () => {
+    switch (actionType) {
+      case 'accept':
+        await handleUpdateStatus('in_transit');
+        break;
+      case 'delivered':
+        await handleUpdateStatus('delivered');
+        break;
+      case 'no_answer':
+        await handleUpdateStatus('no_answer');
+        break;
+      case 'postponed':
+        await handleUpdateStatus('postponed');
+        break;
+      default:
+        break;
+    }
+  };
 
-  const getOrderStatusChip = (status) => {
+  const prepareAction = (type) => {
+    setActionType(type);
+    setConfirmDialogOpen(true);
+  };
+
+  const getStatusChip = (status) => {
     switch (status) {
       case 'assigned':
         return <Chip label="Assigned" color="primary" size="small" />;
@@ -128,6 +141,282 @@ const DriverDashboard = () => {
     }
   };
 
+  const getStatusActionMessage = () => {
+    switch (actionType) {
+      case 'accept':
+        return "Are you sure you want to accept this order and mark it as 'In Transit'?";
+      case 'delivered':
+        return "Confirm that this order has been delivered successfully?";
+      case 'no_answer':
+        return "Confirm that the customer didn't answer?";
+      case 'postponed':
+        return "Confirm that this delivery should be postponed?";
+      default:
+        return "Are you sure you want to update this order's status?";
+    }
+  };
+
+  const renderActionButtons = () => {
+    if (order.status === 'assigned') {
+      return (
+        <Button 
+          variant="contained" 
+          color="success" 
+          fullWidth
+          onClick={() => prepareAction('accept')}
+          disabled={loading}
+        >
+          Accept Order
+        </Button>
+      );
+    } else if (order.status === 'in_transit') {
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Button 
+            variant="contained" 
+            color="success"
+            onClick={() => prepareAction('delivered')}
+            disabled={loading}
+            fullWidth
+          >
+            Mark Delivered
+          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button 
+              variant="outlined" 
+              color="warning"
+              onClick={() => prepareAction('no_answer')}
+              disabled={loading}
+              sx={{ flex: 1 }}
+            >
+              No Answer
+            </Button>
+            <Button 
+              variant="outlined" 
+              color="secondary"
+              onClick={() => prepareAction('postponed')}
+              disabled={loading}
+              sx={{ flex: 1 }}
+            >
+              Postpone
+            </Button>
+            <Button 
+              variant="outlined" 
+              color="error"
+              onClick={() => prepareAction('canceled')}
+              disabled={loading}
+              sx={{ flex: 1 }}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      );
+    }
+    return (
+      <Button 
+        component={Link} 
+        to={`/driver/orders/${order.id}`}
+        variant="outlined" 
+        color="primary"
+        fullWidth
+      >
+        View Details
+      </Button>
+    );
+  };
+
+  return (
+    <Card>
+      <CardContent>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">
+            Order #{order.id}
+          </Typography>
+          {getStatusChip(order.status)}
+        </Box>
+        
+        <Box display="flex" alignItems="center" mt={1} mb={1}>
+          <CustomerIcon sx={{ mr: 1, color: 'primary.main' }} />
+          <Typography variant="body1">
+            {order.customer_name}
+          </Typography>
+        </Box>
+        
+        <Box display="flex" alignItems="center" mb={1}>
+          <PhoneIcon sx={{ mr: 1, color: 'primary.main' }} />
+          <Typography variant="body1">
+            <a href={`tel:${order.customer_phone}`}>{order.customer_phone}</a>
+          </Typography>
+        </Box>
+        
+        <Box display="flex" alignItems="flex-start" mb={1}>
+          <LocationIcon sx={{ mr: 1, color: 'primary.main', mt: 0.5 }} />
+          <Typography variant="body1">
+            {order.delivery_street}, {order.delivery_city}
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Item: {order.item} (Qty: {order.quantity})
+          </Typography>
+          <IconButton onClick={() => setExpanded(!expanded)} size="small">
+            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          </IconButton>
+        </Box>
+
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Box mt={2}>
+            <Divider sx={{ mb: 2 }} />
+            {order.delivery_location && (
+              <Button 
+                variant="outlined" 
+                size="small"
+                component="a"
+                href={`https://maps.google.com?q=${order.delivery_location}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                startIcon={<LocationIcon />}
+                sx={{ mb: 2 }}
+                fullWidth
+              >
+                Open in Maps
+              </Button>
+            )}
+            <Button 
+              component={Link} 
+              to={`/driver/orders/${order.id}`}
+              variant="text" 
+              color="primary"
+              size="small"
+              fullWidth
+            >
+              View Full Details
+            </Button>
+          </Box>
+        </Collapse>
+      </CardContent>
+
+      <CardActions sx={{ px: 2, pb: 2 }}>
+        {renderActionButtons()}
+      </CardActions>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Action</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {getStatusActionMessage()}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleConfirmAction} 
+            color="primary"
+            autoFocus
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+    </Card>
+  );
+};
+
+const DriverDashboard = () => {
+  const { user } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [activeOrders, setActiveOrders] = useState([]);
+  const [orderStats, setOrderStats] = useState({
+    total: 0,
+    inTransit: 0,
+    delivered: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      // Fetch driver orders
+      const ordersData = await getDriverOrders();
+      const ordersList = Array.isArray(ordersData) ? ordersData : [];
+      setOrders(ordersList);
+
+      // Get active orders (not delivered or canceled)
+      const active = ordersList.filter(order => 
+        !['delivered', 'canceled'].includes(order.status)
+      );
+      setActiveOrders(active);
+
+      // Calculate order statistics
+      const inTransitOrders = ordersList.filter(order => 
+        order.status === 'in_transit' || order.status === 'assigned'
+      ).length;
+      const deliveredOrders = ordersList.filter(order => 
+        order.status === 'delivered'
+      ).length;
+      
+      setOrderStats({
+        total: ordersList.length,
+        inTransit: inTransitOrders,
+        delivered: deliveredOrders
+      });
+    } catch (err) {
+      console.error('Error fetching driver dashboard data:', err);
+      setError('Failed to load dashboard data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleStatusUpdate = (orderId, newStatus) => {
+    // Update orders in state to avoid refetching
+    const updatedOrders = orders.map(order => 
+      order.id === orderId ? { ...order, status: newStatus } : order
+    );
+    setOrders(updatedOrders);
+    
+    // Update active orders
+    const active = updatedOrders.filter(order => 
+      !['delivered', 'canceled'].includes(order.status)
+    );
+    setActiveOrders(active);
+    
+    // Update stats
+    const inTransitOrders = updatedOrders.filter(order => 
+      order.status === 'in_transit' || order.status === 'assigned'
+    ).length;
+    const deliveredOrders = updatedOrders.filter(order => 
+      order.status === 'delivered'
+    ).length;
+    
+    setOrderStats({
+      total: updatedOrders.length,
+      inTransit: inTransitOrders,
+      delivered: deliveredOrders
+    });
+
+    // Show success message
+    setSuccess(`Order status updated successfully to: ${newStatus}`);
+    setTimeout(() => setSuccess(null), 3000);
+  };
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
@@ -140,6 +429,12 @@ const DriverDashboard = () => {
           </Typography>
         </Box>
       </Box>
+
+      {success && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          {success}
+        </Alert>
+      )}
 
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} md={4}>
@@ -203,58 +498,11 @@ const DriverDashboard = () => {
         <Grid container spacing={3}>
           {activeOrders.map(order => (
             <Grid item xs={12} md={6} key={order.id}>
-              <Paper sx={{ p: 2 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Typography variant="h6">
-                    Order #{order.id}
-                  </Typography>
-                  {getOrderStatusChip(order.status)}
-                </Box>
-                
-                <Divider sx={{ mb: 2 }} />
-                
-                <Box display="flex" alignItems="center" mb={1}>
-                  <CustomerIcon sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="body1">
-                    {order.customer_name}
-                  </Typography>
-                </Box>
-                
-                <Box display="flex" alignItems="center" mb={1}>
-                  <PhoneIcon sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="body1">
-                    {order.customer_phone}
-                  </Typography>
-                </Box>
-                
-                <Box display="flex" alignItems="flex-start" mb={1}>
-                  <LocationIcon sx={{ mr: 1, color: 'primary.main', mt: 0.5 }} />
-                  <Typography variant="body1">
-                    {order.delivery_street}, {order.delivery_city}
-                  </Typography>
-                </Box>
-                
-                <Divider sx={{ my: 2 }} />
-                
-                <Typography variant="subtitle2" gutterBottom>
-                  Order Details:
-                </Typography>
-                <Typography variant="body1">
-                  {order.item} (Qty: {order.quantity})
-                </Typography>
-                
-                <Box mt={2} display="flex" justifyContent="flex-end">
-                  <Button 
-                    component={Link} 
-                    to={`/driver/orders/${order.id}`}
-                    variant="contained" 
-                    color="primary"
-                    size="small"
-                  >
-                    Update Status
-                  </Button>
-                </Box>
-              </Paper>
+              <OrderCard 
+                order={order} 
+                onStatusUpdate={handleStatusUpdate}
+                onRefresh={fetchData}
+              />
             </Grid>
           ))}
         </Grid>

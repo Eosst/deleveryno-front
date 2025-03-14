@@ -45,6 +45,7 @@ const MainLayout = () => {
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
         { text: 'User Approval', icon: <UsersIcon />, path: '/admin/users' },
         { text: 'All Orders', icon: <OrdersIcon />, path: '/admin/orders' },
+        { text: 'Stock Approval', icon: <StockIcon />, path: '/admin/stock' },
       ];
     } else if (user?.role === 'seller') {
       return [

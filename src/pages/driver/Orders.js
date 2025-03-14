@@ -4,15 +4,15 @@ import {
   Box,
   Typography,
   Paper,
-  Card,
-  CardContent,
-  CardActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Button,
-  Grid,
   Chip,
-  Divider,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   CircularProgress,
@@ -21,12 +21,14 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import {
+  Visibility as ViewIcon,
   Phone as PhoneIcon,
-  LocationOn as LocationIcon,
-  Person as CustomerIcon
+  LocationOn as LocationIcon
 } from '@mui/icons-material';
 import { getDriverOrders, updateOrderStatus } from '../../api/orders';
 import { Link } from 'react-router-dom';
@@ -39,8 +41,8 @@ const DriverOrders = () => {
   const [success, setSuccess] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   
-  // For status update dialog
-  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  // For confirmation dialog
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [newStatus, setNewStatus] = useState('');
   const [updateLoading, setUpdateLoading] = useState(false);
@@ -74,45 +76,47 @@ const DriverOrders = () => {
     }
   };
 
-  const handleOpenUpdateDialog = (order) => {
-    setSelectedOrder(order);
-    setNewStatus(order.status);
-    setUpdateDialogOpen(true);
+  const handleStatusChange = (order, event) => {
+    const status = event.target.value;
+    if (status !== order.status) {
+      setSelectedOrder(order);
+      setNewStatus(status);
+      setConfirmDialogOpen(true);
+    }
   };
 
-  const handleCloseUpdateDialog = () => {
-    setUpdateDialogOpen(false);
-    setSelectedOrder(null);
-    setNewStatus('');
-  };
-
-  const handleStatusChange = (e) => {
-    setNewStatus(e.target.value);
-  };
-
-  const handleUpdateStatus = async () => {
+  const handleConfirmUpdate = async () => {
     if (!selectedOrder || !newStatus) return;
     
     setUpdateLoading(true);
-    setError(null);
     
     try {
-      const updatedOrder = await updateOrderStatus(selectedOrder.id, newStatus);
+      await updateOrderStatus(selectedOrder.id, newStatus);
       
-      // Update the order in the local state
-      setOrders(orders.map(order => 
-        order.id === selectedOrder.id ? { ...order, status: updatedOrder.status } : order
-      ));
+      // Update orders in state
+      const updatedOrders = orders.map(order => 
+        order.id === selectedOrder.id ? { ...order, status: newStatus } : order
+      );
+      setOrders(updatedOrders);
       
-      setSuccess(`Order status updated to: ${getStatusLabel(updatedOrder.status)}`);
+      // Update filtered orders
+      if (statusFilter === 'all') {
+        setFilteredOrders(updatedOrders);
+      } else {
+        setFilteredOrders(updatedOrders.filter(order => order.status === statusFilter));
+      }
+      
+      // Show success message
+      setSuccess(`Order #${selectedOrder.id} status updated to: ${getStatusLabel(newStatus)}`);
       setTimeout(() => setSuccess(null), 3000);
-      
-      handleCloseUpdateDialog();
     } catch (err) {
       console.error('Error updating order status:', err);
       setError('Failed to update order status. Please try again.');
     } finally {
       setUpdateLoading(false);
+      setConfirmDialogOpen(false);
+      setSelectedOrder(null);
+      setNewStatus('');
     }
   };
 
@@ -128,26 +132,15 @@ const DriverOrders = () => {
         return <Chip label="No Answer" color="warning" size="small" />;
       case 'postponed':
         return <Chip label="Postponed" color="secondary" size="small" />;
+      case 'canceled':
+        return <Chip label="Canceled" color="error" size="small" />;
       default:
         return <Chip label={status} size="small" />;
     }
   };
 
   const getStatusLabel = (status) => {
-    switch (status) {
-      case 'assigned':
-        return 'Assigned';
-      case 'in_transit':
-        return 'In Transit';
-      case 'delivered':
-        return 'Delivered';
-      case 'no_answer':
-        return 'No Answer';
-      case 'postponed':
-        return 'Postponed';
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    }
+    return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
   };
 
   // Get allowed next statuses based on current status
@@ -188,12 +181,11 @@ const DriverOrders = () => {
       )}
       
       <Paper sx={{ p: 2, mb: 3 }}>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel>Filter by Status</InputLabel>
+        <FormControl variant="outlined" sx={{ minWidth: 200 }}>
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            label="Filter by Status"
+            displayEmpty
           >
             <MenuItem value="all">All Orders</MenuItem>
             <MenuItem value="assigned">Assigned</MenuItem>
@@ -222,135 +214,122 @@ const DriverOrders = () => {
           </Typography>
         </Paper>
       ) : (
-        <Grid container spacing={3}>
-          {filteredOrders.map(order => (
-            <Grid item xs={12} md={6} key={order.id}>
-              <Card>
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Typography variant="h6">
-                      Order #{order.id}
-                    </Typography>
-                    {getStatusChip(order.status)}
-                  </Box>
-                  
-                  <Divider sx={{ mb: 2 }} />
-                  
-                  <Box display="flex" alignItems="center" mb={1}>
-                    <CustomerIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="body1">
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Order ID</TableCell>
+                <TableCell>Customer</TableCell>
+                <TableCell>Item</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Update Status</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredOrders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>#{order.id}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       {order.customer_name}
-                    </Typography>
-                  </Box>
-                  
-                  <Box display="flex" alignItems="center" mb={1}>
-                    <PhoneIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="body1">
-                      <a href={`tel:${order.customer_phone}`}>{order.customer_phone}</a>
-                    </Typography>
-                  </Box>
-                  
-                  <Box display="flex" alignItems="flex-start" mb={1}>
-                    <LocationIcon sx={{ mr: 1, color: 'primary.main', mt: 0.5 }} />
-                    <Typography variant="body1">
-                      {order.delivery_street}, {order.delivery_city}
-                    </Typography>
-                  </Box>
-                  
-                  {order.delivery_location && (
-                    <Box display="flex" justifyContent="flex-end" mt={1}>
-                      <Button 
-                        variant="outlined" 
-                        size="small"
-                        component="a"
-                        href={`https://maps.google.com?q=${order.delivery_location}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Open in Maps
-                      </Button>
+                      <Tooltip title="Call Customer">
+                        <IconButton 
+                          size="small" 
+                          color="primary" 
+                          component="a" 
+                          href={`tel:${order.customer_phone}`}
+                          sx={{ ml: 1 }}
+                        >
+                          <PhoneIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
-                  )}
-                  
-                  <Divider sx={{ my: 2 }} />
-                  
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Order Details:
-                      </Typography>
-                      <Typography variant="body1">
-                        {order.item} (Qty: {order.quantity})
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="subtitle2">Seller:</Typography>
-                      <Typography variant="body2">
-                        {order.seller?.username || 'Unknown'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="subtitle2">Created:</Typography>
-                      <Typography variant="body2">
-                        {new Date(order.created_at).toLocaleDateString()}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-                <CardActions>
-                  <Button 
-                    size="small" 
-                    color="primary"
-                    fullWidth
-                    variant="contained"
-                    onClick={() => handleOpenUpdateDialog(order)}
-                    disabled={['delivered', 'canceled'].includes(order.status)}
-                  >
-                    Update Status
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-      
-      {/* Status Update Dialog */}
-      <Dialog
-        open={updateDialogOpen}
-        onClose={handleCloseUpdateDialog}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Update Order Status</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ mb: 2 }}>
-            Change the status for Order #{selectedOrder?.id} ({selectedOrder?.item})
-          </DialogContentText>
-          
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>New Status</InputLabel>
-            <Select
-              value={newStatus}
-              onChange={handleStatusChange}
-              label="New Status"
-            >
-              {selectedOrder && getAllowedStatuses(selectedOrder.status).map(status => (
-                <MenuItem key={status} value={status}>
-                  {getStatusLabel(status)}
-                </MenuItem>
+                  </TableCell>
+                  <TableCell>{order.item} (x{order.quantity})</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {order.delivery_city}
+                      {order.delivery_location && (
+                        <Tooltip title="Open in Maps">
+                          <IconButton 
+                            size="small" 
+                            color="primary" 
+                            component="a" 
+                            href={`https://maps.google.com?q=${order.delivery_location}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ ml: 1 }}
+                          >
+                            <LocationIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell>{getStatusChip(order.status)}</TableCell>
+                  <TableCell>
+                    <FormControl fullWidth size="small">
+                      <Select
+                        value={order.status}
+                        onChange={(e) => handleStatusChange(order, e)}
+                        disabled={['delivered', 'canceled'].includes(order.status) || updateLoading}
+                        displayEmpty
+                        renderValue={() => "Update Status"}
+                        sx={{ 
+                          '& .MuiSelect-select': { 
+                            color: ['delivered', 'canceled'].includes(order.status) ? 'text.disabled' : 'primary.main',
+                            fontWeight: 500
+                          } 
+                        }}
+                      >
+                        {getAllowedStatuses(order.status).map(status => (
+                          <MenuItem key={status} value={status}>
+                            {getStatusLabel(status)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      component={Link}
+                      to={`/driver/orders/${order.id}`}
+                      variant="outlined"
+                      size="small"
+                      startIcon={<ViewIcon />}
+                    >
+                      Details
+                    </Button>
+                  </TableCell>
+                </TableRow>
               ))}
-            </Select>
-          </FormControl>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Status Change</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to change the status of Order #{selectedOrder?.id} 
+            to "{newStatus && getStatusLabel(newStatus)}"?
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseUpdateDialog}>Cancel</Button>
+          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
           <Button 
-            onClick={handleUpdateStatus} 
+            onClick={handleConfirmUpdate} 
             color="primary"
-            disabled={updateLoading || !newStatus || newStatus === selectedOrder?.status}
+            disabled={updateLoading}
           >
-            {updateLoading ? <CircularProgress size={24} /> : 'Update'}
+            {updateLoading ? <CircularProgress size={24} /> : 'Confirm'}
           </Button>
         </DialogActions>
       </Dialog>

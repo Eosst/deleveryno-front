@@ -21,6 +21,7 @@ import AdminOrders from './pages/admin/Orders';
 import AdminCreateOrder from './pages/admin/CreateOrder';
 import AdminOrderDetail from './pages/admin/OrderDetail';
 import UserDetail from './pages/admin/UserDetail';
+import AdminStockManagement from './pages/admin/StockManagement';
 
 // Seller pages
 import SellerDashboard from './pages/seller/Dashboard';
@@ -60,6 +61,7 @@ const AppRoutes = () => {
             <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
             <Route path="/admin/stock" element={<StockManagement />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin/stock" element={<AdminStockManagement />} />
           </Route>
         </Route>
         

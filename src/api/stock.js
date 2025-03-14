@@ -25,3 +25,9 @@ export const deleteStockItem = async (id) => {
   const response = await api.delete(`/stock/${id}/`);
   return response.data;
 };
+
+// Add this new function for approving stock
+export const approveStockItem = async (id) => {
+  const response = await api.patch(`/stock/${id}/approve/`);
+  return response.data;
+};

@@ -1,16 +1,9 @@
-// src/pages/seller/StockManagement.js
+// src/pages/admin/StockManagement.js
 import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Paper,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Dialog,
   DialogActions,
@@ -18,24 +11,20 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
-  Chip,
   CircularProgress,
   Alert,
-  InputAdornment,
   Tooltip
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Search as SearchIcon,
-  HourglassFull as PendingIcon,
-  CheckCircle as ApprovedIcon,
+  CheckCircle as ApproveIcon,
   Info as InfoIcon
 } from '@mui/icons-material';
-import { getStockItems, createStockItem, updateStockItem, deleteStockItem } from '../../api/stock';
+import { getStockItems, createStockItem, updateStockItem, deleteStockItem, approveStockItem } from '../../api/stock';
 
-const StockManagement = () => {
+const AdminStockManagement = () => {
   const [stockItems, setStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,7 +35,8 @@ const StockManagement = () => {
   const [currentItem, setCurrentItem] = useState(null);
   const [formData, setFormData] = useState({
     item_name: '',
-    quantity: 0
+    quantity: 0,
+    seller_id: ''
   });
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -77,7 +67,8 @@ const StockManagement = () => {
   const handleOpenAddDialog = () => {
     setFormData({
       item_name: '',
-      quantity: 0
+      quantity: 0,
+      seller_id: ''
     });
     setDialogMode('add');
     setOpenDialog(true);
@@ -86,7 +77,8 @@ const StockManagement = () => {
   const handleOpenEditDialog = (item) => {
     setFormData({
       item_name: item.item_name,
-      quantity: item.quantity
+      quantity: item.quantity,
+      seller_id: item.seller?.id || ''
     });
     setCurrentItem(item);
     setDialogMode('edit');
@@ -102,7 +94,7 @@ const StockManagement = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'quantity' ? parseInt(value, 10) || 0 : value
+      [name]: name === 'quantity' || name === 'seller_id' ? (parseInt(value, 10) || 0) : value
     });
   };
 
@@ -111,14 +103,8 @@ const StockManagement = () => {
       if (dialogMode === 'add') {
         const newItem = await createStockItem(formData);
         setStockItems([...stockItems, newItem]);
-        setSuccess('Item added successfully! It is now pending admin approval.');
+        setSuccess('Item added successfully!');
       } else {
-        // Only allow quantity update if item is already approved
-        if (currentItem.approved && formData.item_name !== currentItem.item_name) {
-          setError('Cannot change the name of an approved item. Please create a new item instead.');
-          return;
-        }
-        
         const updatedItem = await updateStockItem(currentItem.id, formData);
         setStockItems(stockItems.map(item => 
           item.id === currentItem.id ? updatedItem : item
@@ -154,25 +140,24 @@ const StockManagement = () => {
     }
   };
 
+  const handleApproveItem = async (itemId) => {
+    try {
+      await approveStockItem(itemId);
+      // Update the local state to reflect the change
+      setStockItems(stockItems.map(item => 
+        item.id === itemId ? {...item, approved: true} : item
+      ));
+      setSuccess('Item approved successfully!');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      console.error('Error approving item:', err);
+      setError('Failed to approve item. Please try again.');
+    }
+  };
+
   const filteredItems = stockItems.filter(item => 
     item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getApprovalChip = (approved) => {
-    return approved ? 
-      <Chip icon={<ApprovedIcon />} label="Approved" color="success" size="small" /> : 
-      <Chip icon={<PendingIcon />} label="Pending Approval" color="warning" size="small" />;
-  };
-
-  const getStockStatusChip = (quantity) => {
-    if (quantity === 0) {
-      return <Chip label="Out of Stock" color="error" size="small" />;
-    } else if (quantity < 5) {
-      return <Chip label="Low Stock" color="warning" size="small" />;
-    } else {
-      return <Chip label="In Stock" color="success" size="small" />;
-    }
-  };
 
   return (
     <Box>
@@ -186,7 +171,7 @@ const StockManagement = () => {
             onClick={() => setInfoDialogOpen(true)}
             sx={{ mr: 2 }}
           >
-            About Approval
+            ABOUT APPROVAL
           </Button>
           <Button
             variant="contained"
@@ -194,7 +179,7 @@ const StockManagement = () => {
             startIcon={<AddIcon />}
             onClick={handleOpenAddDialog}
           >
-            Add New Item
+            ADD NEW ITEM
           </Button>
         </Box>
       </Box>
@@ -211,99 +196,98 @@ const StockManagement = () => {
         </Alert>
       )}
 
-      <Paper sx={{ p: 2, mb: 4 }}>
-        <TextField
-          fullWidth
-          placeholder="Search inventory items..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mb: 2 }}
-        />
+      <Box sx={{ border: '1px solid #e0e0e0', borderRadius: '4px' }}>
+        <Box sx={{ padding: 2 }}>
+          <TextField
+            fullWidth
+            placeholder="Search inventory items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Box>
 
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Item Name</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Stock Status</TableCell>
-                <TableCell>Approval Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    <CircularProgress />
-                  </TableCell>
-                </TableRow>
-              ) : filteredItems.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    No inventory items found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredItems.map((item) => (
-                  <TableRow 
-                    key={item.id}
-                    sx={{ 
-                      opacity: item.approved ? 1 : 0.7,
-                      bgcolor: item.approved ? 'inherit' : 'action.hover'
-                    }}
+        <Box sx={{ display: 'flex', padding: 2, borderTop: '1px solid #e0e0e0', bgcolor: '#f5f5f5', fontWeight: 'bold' }}>
+          <Box width="20%">Item Name</Box>
+          <Box width="15%">Quantity</Box>
+          <Box width="15%">Seller</Box>
+          <Box width="15%">Stock Status</Box>
+          <Box width="15%">Approval Status</Box>
+          <Box width="20%" textAlign="center">Actions</Box>
+        </Box>
+
+        {loading ? (
+          <Box display="flex" justifyContent="center" p={4}>
+            <CircularProgress />
+          </Box>
+        ) : filteredItems.length === 0 ? (
+          <Box p={4} textAlign="center">
+            <Typography variant="body1" color="textSecondary">No inventory items found</Typography>
+          </Box>
+        ) : (
+          filteredItems.map((item) => (
+            <Box 
+              key={item.id} 
+              sx={{ 
+                display: 'flex', 
+                padding: 2, 
+                borderTop: '1px solid #e0e0e0',
+                '&:hover': { bgcolor: '#f9f9f9' }
+              }}
+            >
+              <Box width="20%">{item.item_name}</Box>
+              <Box width="15%">{item.quantity}</Box>
+              <Box width="15%">{item.seller?.username || 'Unknown'}</Box>
+              <Box width="15%">
+                <Box 
+                  sx={{ 
+                    display: 'inline-block',
+                    bgcolor: '#4caf50',
+                    color: 'white',
+                    borderRadius: '16px',
+                    padding: '4px 12px',
+                    fontSize: '0.75rem'
+                  }}
+                >
+                  In Stock
+                </Box>
+              </Box>
+              <Box width="15%">
+                <Box 
+                  sx={{ 
+                    display: 'inline-block',
+                    bgcolor: item.approved ? '#4caf50' : '#ff9800',
+                    color: 'white',
+                    borderRadius: '16px',
+                    padding: '4px 12px',
+                    fontSize: '0.75rem'
+                  }}
+                >
+                  {item.approved ? 'Approved' : 'Pending Approval'}
+                </Box>
+              </Box>
+              <Box width="20%" display="flex" justifyContent="center" gap={1}>
+                {!item.approved && (
+                  <Button
+                    color="success"
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleApproveItem(item.id)}
+                    startIcon={<ApproveIcon />}
                   >
-                    <TableCell>
-                      {item.item_name}
-                      {!item.approved && (
-                        <Tooltip title="This item is pending admin approval and cannot be used for orders yet">
-                          <InfoIcon 
-                            fontSize="small" 
-                            color="warning" 
-                            sx={{ ml: 1, verticalAlign: 'middle' }} 
-                          />
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>
-                      {getStockStatusChip(item.quantity)}
-                    </TableCell>
-                    <TableCell>
-                      {getApprovalChip(item.approved)}
-                    </TableCell>
-                    <TableCell align="right">
-                      <IconButton
-                        color="primary"
-                        onClick={() => handleOpenEditDialog(item)}
-                        size="small"
-                        title="Edit Item"
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleDeleteClick(item)}
-                        size="small"
-                        title="Delete Item"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+                    Approve
+                  </Button>
+                )}
+                <IconButton color="primary" size="small" onClick={() => handleOpenEditDialog(item)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton color="error" size="small" onClick={() => handleDeleteClick(item)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            </Box>
+          ))
+        )}
+      </Box>
 
       {/* Add/Edit Item Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -311,11 +295,6 @@ const StockManagement = () => {
           {dialogMode === 'add' ? 'Add New Inventory Item' : 'Edit Inventory Item'}
         </DialogTitle>
         <DialogContent>
-          {dialogMode === 'add' && (
-            <DialogContentText sx={{ mb: 2 }}>
-              New items require admin approval before they can be used for creating orders.
-            </DialogContentText>
-          )}
           <TextField
             autoFocus
             margin="dense"
@@ -326,13 +305,7 @@ const StockManagement = () => {
             value={formData.item_name}
             onChange={handleInputChange}
             required
-            disabled={dialogMode === 'edit' && currentItem?.approved}
           />
-          {dialogMode === 'edit' && currentItem?.approved && (
-            <DialogContentText sx={{ mt: 1, mb: 1, color: 'warning.main' }}>
-              You cannot change the name of an approved item. You can only update its quantity.
-            </DialogContentText>
-          )}
           <TextField
             margin="dense"
             name="quantity"
@@ -347,6 +320,19 @@ const StockManagement = () => {
               inputProps: { min: 0 }
             }}
           />
+          {dialogMode === 'add' && (
+            <TextField
+              margin="dense"
+              name="seller_id"
+              label="Seller ID"
+              type="number"
+              fullWidth
+              variant="outlined"
+              value={formData.seller_id}
+              onChange={handleInputChange}
+              helperText="Required if creating item as admin"
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
@@ -364,7 +350,7 @@ const StockManagement = () => {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete "{itemToDelete?.item_name}" from your inventory? This action cannot be undone.
+            Are you sure you want to delete "{itemToDelete?.item_name}" from inventory? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -387,16 +373,19 @@ const StockManagement = () => {
               <strong>Stock Approval System:</strong>
             </Typography>
             <Typography paragraph>
-              When you add new items to your inventory, they will be marked as "Pending Approval" until an administrator reviews and approves them.
+              When sellers add new items to their inventory, they need approval from an administrator before they can use them for orders.
             </Typography>
             <Typography paragraph>
-              <strong>Important notes:</strong>
+              <strong>As an administrator, you can:</strong>
             </Typography>
             <Typography component="ul" sx={{ pl: 2 }}>
-              <li>Pending items cannot be used for creating orders</li>
-              <li>You can still edit and delete pending items</li>
-              <li>Once an item is approved, you cannot change its name, only its quantity</li>
-              <li>If you need a new item, please add it and wait for approval</li>
+              <li>Approve pending items by clicking the "Approve" button</li>
+              <li>Edit any item details</li>
+              <li>Delete items that don't meet your standards</li>
+              <li>Add new items directly (which will be automatically approved)</li>
+            </Typography>
+            <Typography paragraph mt={2}>
+              <strong>Note:</strong> Sellers cannot use pending items for orders until they are approved.
             </Typography>
           </DialogContentText>
         </DialogContent>
@@ -410,4 +399,4 @@ const StockManagement = () => {
   );
 };
 
-export default StockManagement;
+export default AdminStockManagement;

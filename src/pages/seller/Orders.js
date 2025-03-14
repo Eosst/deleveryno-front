@@ -72,20 +72,22 @@ const SellerOrders = () => {
     try {
       const response = await getSellerOrders();
       
+      // Process the response data - store in a local variable first
+      let orderData = [];
+      
       // Handle both paginated and non-paginated responses
-      if (response.results) {
-        setOrders(response.results);
+      if (response && response.results) {
+        orderData = response.results;
         setTotalCount(response.count || 0);
       } else if (Array.isArray(response)) {
-        setOrders(response);
+        orderData = response;
         setTotalCount(response.length);
-      } else {
-        setOrders([]);
-        setTotalCount(0);
       }
       
-      // Apply filters client-side since the API might not support all filters
-      let filteredData = orders;
+      console.log("Fetched orders:", orderData); // Debug log
+      
+      // Apply filters to the fetched data (not to the current state)
+      let filteredData = [...orderData]; // Create a copy to work with
       
       if (filters.status) {
         filteredData = filteredData.filter(order => order.status === filters.status);
@@ -93,21 +95,28 @@ const SellerOrders = () => {
       
       if (filters.delivery_city) {
         filteredData = filteredData.filter(order => 
-          order.delivery_city.toLowerCase().includes(filters.delivery_city.toLowerCase())
+          order.delivery_city && order.delivery_city.toLowerCase().includes(filters.delivery_city.toLowerCase())
         );
       }
       
       if (filters.customer_name) {
         filteredData = filteredData.filter(order => 
-          order.customer_name.toLowerCase().includes(filters.customer_name.toLowerCase())
+          order.customer_name && order.customer_name.toLowerCase().includes(filters.customer_name.toLowerCase())
         );
       }
       
+      // Set state only once with the processed data
       setOrders(filteredData);
-      setTotalCount(filteredData.length);
+      
+      // Update total count if needed
+      if (!response.count) {
+        setTotalCount(filteredData.length);
+      }
     } catch (err) {
       console.error('Error fetching orders:', err);
       setError('Failed to load orders. Please try again.');
+      setOrders([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
@@ -166,9 +175,12 @@ const SellerOrders = () => {
       case 'postponed':
         return <Chip label="Postponed" color="secondary" size="small" />;
       default:
-        return <Chip label={status} size="small" />;
+        return <Chip label={status || "Unknown"} size="small" />;
     }
   };
+
+  // This slices the orders array based on pagination settings
+  const paginatedOrders = orders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
     <Box>
@@ -307,46 +319,44 @@ const SellerOrders = () => {
                   <CircularProgress />
                 </TableCell>
               </TableRow>
-            ) : orders.length === 0 ? (
+            ) : paginatedOrders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} align="center">
                   No orders found
                 </TableCell>
               </TableRow>
             ) : (
-              orders
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell>{order.id}</TableCell>
-                    <TableCell>{order.customer_name}</TableCell>
-                    <TableCell>{order.item}</TableCell>
-                    <TableCell>{order.quantity}</TableCell>
-                    <TableCell>{order.delivery_city}</TableCell>
-                    <TableCell>
-                      {order.driver?.username || (
-                        <Typography variant="body2" color="textSecondary">
-                          Not assigned
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>{getStatusChip(order.status)}</TableCell>
-                    <TableCell>
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        color="primary"
-                        size="small"
-                        component={Link}
-                        to={`/seller/orders/${order.id}`}
-                        title="View Details"
-                      >
-                        <ViewIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
+              paginatedOrders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>{order.id}</TableCell>
+                  <TableCell>{order.customer_name}</TableCell>
+                  <TableCell>{order.item}</TableCell>
+                  <TableCell>{order.quantity}</TableCell>
+                  <TableCell>{order.delivery_city}</TableCell>
+                  <TableCell>
+                    {order.driver?.username || (
+                      <Typography variant="body2" color="textSecondary">
+                        Not assigned
+                      </Typography>
+                    )}
+                  </TableCell>
+                  <TableCell>{getStatusChip(order.status)}</TableCell>
+                  <TableCell>
+                    {new Date(order.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      component={Link}
+                      to={`/seller/orders/${order.id}`}
+                      title="View Details"
+                    >
+                      <ViewIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
