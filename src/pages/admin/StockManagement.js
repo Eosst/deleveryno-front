@@ -11,18 +11,37 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Chip,
   CircularProgress,
   Alert,
-  Tooltip
+  Tooltip,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Link,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   CheckCircle as ApproveIcon,
-  Info as InfoIcon
+  Info as InfoIcon,
+  Search as SearchIcon,
+  Person as PersonIcon
 } from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 import { getStockItems, createStockItem, updateStockItem, deleteStockItem, approveStockItem } from '../../api/stock';
+import { getUsers } from '../../api/users';
 
 const AdminStockManagement = () => {
   const [stockItems, setStockItems] = useState([]);
@@ -36,7 +55,8 @@ const AdminStockManagement = () => {
   const [formData, setFormData] = useState({
     item_name: '',
     quantity: 0,
-    seller_id: ''
+    seller_id: '',
+    approved: false
   });
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -44,6 +64,7 @@ const AdminStockManagement = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [availableSellers, setAvailableSellers] = useState([]);
 
   const fetchStockItems = async () => {
     setLoading(true);
@@ -51,6 +72,7 @@ const AdminStockManagement = () => {
     
     try {
       const response = await getStockItems();
+      console.log("Stock items response:", response);
       setStockItems(response.results || []);
     } catch (err) {
       console.error('Error fetching stock items:', err);
@@ -60,15 +82,26 @@ const AdminStockManagement = () => {
     }
   };
 
+  const fetchSellers = async () => {
+    try {
+      const response = await getUsers({ role: 'seller', approved: true });
+      setAvailableSellers(response.results || []);
+    } catch (err) {
+      console.error('Error fetching sellers:', err);
+    }
+  };
+
   useEffect(() => {
     fetchStockItems();
+    fetchSellers();
   }, []);
 
   const handleOpenAddDialog = () => {
     setFormData({
       item_name: '',
       quantity: 0,
-      seller_id: ''
+      seller_id: '',
+      approved: true // Default to approved for admin-created items
     });
     setDialogMode('add');
     setOpenDialog(true);
@@ -78,7 +111,8 @@ const AdminStockManagement = () => {
     setFormData({
       item_name: item.item_name,
       quantity: item.quantity,
-      seller_id: item.seller?.id || ''
+      seller_id: item.seller?.id || '',
+      approved: item.approved
     });
     setCurrentItem(item);
     setDialogMode('edit');
@@ -95,6 +129,14 @@ const AdminStockManagement = () => {
     setFormData({
       ...formData,
       [name]: name === 'quantity' || name === 'seller_id' ? (parseInt(value, 10) || 0) : value
+    });
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: checked
     });
   };
 
@@ -159,6 +201,22 @@ const AdminStockManagement = () => {
     item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getStatusChip = (status) => {
+    return status ? 
+      <Chip label="Approved" color="success" /> : 
+      <Chip label="Pending Approval" color="warning" />;
+  };
+
+  const getStockStatusChip = (quantity) => {
+    if (quantity === 0) {
+      return <Chip label="Out of Stock" color="error" />;
+    } else if (quantity < 5) {
+      return <Chip label="Low Stock" color="warning" />;
+    } else {
+      return <Chip label="In Stock" color="success" />;
+    }
+  };
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
@@ -196,97 +254,124 @@ const AdminStockManagement = () => {
         </Alert>
       )}
 
-      <Box sx={{ border: '1px solid #e0e0e0', borderRadius: '4px' }}>
-        <Box sx={{ padding: 2 }}>
-          <TextField
-            fullWidth
-            placeholder="Search inventory items..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Box>
+      <Box sx={{ p: 2, mb: 4 }}>
+        <TextField
+          fullWidth
+          placeholder="Search inventory items..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <SearchIcon sx={{ mr: 1, color: 'action.active' }} />
+            ),
+          }}
+          sx={{ mb: 2 }}
+        />
 
-        <Box sx={{ display: 'flex', padding: 2, borderTop: '1px solid #e0e0e0', bgcolor: '#f5f5f5', fontWeight: 'bold' }}>
-          <Box width="20%">Item Name</Box>
-          <Box width="15%">Quantity</Box>
-          <Box width="15%">Seller</Box>
-          <Box width="15%">Stock Status</Box>
-          <Box width="15%">Approval Status</Box>
-          <Box width="20%" textAlign="center">Actions</Box>
-        </Box>
-
-        {loading ? (
-          <Box display="flex" justifyContent="center" p={4}>
-            <CircularProgress />
-          </Box>
-        ) : filteredItems.length === 0 ? (
-          <Box p={4} textAlign="center">
-            <Typography variant="body1" color="textSecondary">No inventory items found</Typography>
-          </Box>
-        ) : (
-          filteredItems.map((item) => (
-            <Box 
-              key={item.id} 
-              sx={{ 
-                display: 'flex', 
-                padding: 2, 
-                borderTop: '1px solid #e0e0e0',
-                '&:hover': { bgcolor: '#f9f9f9' }
-              }}
-            >
-              <Box width="20%">{item.item_name}</Box>
-              <Box width="15%">{item.quantity}</Box>
-              <Box width="15%">{item.seller?.username || 'Unknown'}</Box>
-              <Box width="15%">
-                <Box 
-                  sx={{ 
-                    display: 'inline-block',
-                    bgcolor: '#4caf50',
-                    color: 'white',
-                    borderRadius: '16px',
-                    padding: '4px 12px',
-                    fontSize: '0.75rem'
-                  }}
-                >
-                  In Stock
-                </Box>
-              </Box>
-              <Box width="15%">
-                <Box 
-                  sx={{ 
-                    display: 'inline-block',
-                    bgcolor: item.approved ? '#4caf50' : '#ff9800',
-                    color: 'white',
-                    borderRadius: '16px',
-                    padding: '4px 12px',
-                    fontSize: '0.75rem'
-                  }}
-                >
-                  {item.approved ? 'Approved' : 'Pending Approval'}
-                </Box>
-              </Box>
-              <Box width="20%" display="flex" justifyContent="center" gap={1}>
-                {!item.approved && (
-                  <Button
-                    color="success"
-                    variant="contained"
-                    size="small"
-                    onClick={() => handleApproveItem(item.id)}
-                    startIcon={<ApproveIcon />}
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Item Name</TableCell>
+                <TableCell>Quantity</TableCell>
+                <TableCell>Seller</TableCell>
+                <TableCell>Stock Status</TableCell>
+                <TableCell>Approval Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    <CircularProgress />
+                  </TableCell>
+                </TableRow>
+              ) : filteredItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    No inventory items found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredItems.map((item) => (
+                  <TableRow 
+                    key={item.id}
+                    sx={{ 
+                      opacity: item.approved ? 1 : 0.7,
+                      bgcolor: item.approved ? 'inherit' : 'action.hover'
+                    }}
                   >
-                    Approve
-                  </Button>
-                )}
-                <IconButton color="primary" size="small" onClick={() => handleOpenEditDialog(item)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton color="error" size="small" onClick={() => handleDeleteClick(item)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            </Box>
-          ))
-        )}
+                    <TableCell>{item.item_name}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>
+                      {item.seller ? (
+                        <Link 
+                          component={RouterLink} 
+                          to={`/admin/users/${item.seller.id}`}
+                          sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            color: 'primary.main',
+                            textDecoration: 'none',
+                            '&:hover': {
+                              textDecoration: 'underline'
+                            }
+                          }}
+                        >
+                          <PersonIcon sx={{ mr: 0.5, fontSize: 16 }} />
+                          {item.seller.first_name && item.seller.last_name ? (
+                            `${item.seller.first_name} ${item.seller.last_name}`
+                          ) : (
+                            item.seller.username
+                          )}
+                        </Link>
+                      ) : (
+                        'Unknown'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {getStockStatusChip(item.quantity)}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusChip(item.approved)}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Box display="flex" justifyContent="flex-end">
+                        {!item.approved && (
+                          <Button
+                            color="success"
+                            variant="contained"
+                            size="small"
+                            onClick={() => handleApproveItem(item.id)}
+                            sx={{ mr: 1 }}
+                          >
+                            Approve
+                          </Button>
+                        )}
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleOpenEditDialog(item)}
+                          size="small"
+                          sx={{ mr: 0.5 }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDeleteClick(item)}
+                          size="small"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
 
       {/* Add/Edit Item Dialog */}
@@ -320,19 +405,44 @@ const AdminStockManagement = () => {
               inputProps: { min: 0 }
             }}
           />
-          {dialogMode === 'add' && (
-            <TextField
-              margin="dense"
+          
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="seller-select-label">Seller</InputLabel>
+            <Select
+              labelId="seller-select-label"
+              id="seller-select"
               name="seller_id"
-              label="Seller ID"
-              type="number"
-              fullWidth
-              variant="outlined"
               value={formData.seller_id}
               onChange={handleInputChange}
-              helperText="Required if creating item as admin"
-            />
-          )}
+              label="Seller"
+            >
+              <MenuItem value="">
+                <em>No specific seller</em>
+              </MenuItem>
+              {availableSellers.map((seller) => (
+                <MenuItem key={seller.id} value={seller.id}>
+                  {seller.first_name && seller.last_name ? (
+                    `${seller.first_name} ${seller.last_name} (${seller.username})`
+                  ) : (
+                    seller.username
+                  )}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.approved}
+                onChange={handleCheckboxChange}
+                name="approved"
+                color="primary"
+              />
+            }
+            label="Item is approved and ready for use"
+            sx={{ mt: 1 }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
@@ -379,10 +489,10 @@ const AdminStockManagement = () => {
               <strong>As an administrator, you can:</strong>
             </Typography>
             <Typography component="ul" sx={{ pl: 2 }}>
+              <li>Items created by admins are automatically approved</li>
               <li>Approve pending items by clicking the "Approve" button</li>
-              <li>Edit any item details</li>
+              <li>Edit any item details including approval status</li>
               <li>Delete items that don't meet your standards</li>
-              <li>Add new items directly (which will be automatically approved)</li>
             </Typography>
             <Typography paragraph mt={2}>
               <strong>Note:</strong> Sellers cannot use pending items for orders until they are approved.

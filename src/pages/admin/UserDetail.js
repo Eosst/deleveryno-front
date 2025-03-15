@@ -192,7 +192,7 @@ const UserDetail = () => {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)}>
-          Back to Users
+          Back
         </Button>
         <Box>
           {!user.approved && (

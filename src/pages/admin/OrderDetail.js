@@ -37,8 +37,14 @@ import {
 } from '@mui/icons-material';
 import { getOrder, updateOrderStatus, deleteOrder, assignDriver } from '../../api/orders';
 import { getUsers } from '../../api/users';
+import { useAuth } from '../../contexts/AuthContext'; // Import Auth context
 
 const OrderDetail = () => {
+  const { user } = useAuth(); // Get current user from auth context
+  const isSeller = user?.role === 'seller';
+  const isAdmin = user?.role === 'admin';
+  const isDriver = user?.role === 'driver';
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
@@ -252,28 +258,33 @@ const OrderDetail = () => {
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)}>
           Back to Orders
         </Button>
-        <Box>
-          <IconButton 
-            color="primary"
-            onClick={handleStatusDialogOpen}
-            disabled={['delivered', 'canceled'].includes(order.status)}
-            sx={{ mr: 1 }}
-          >
-            <EditIcon />
-          </IconButton>
-          {order.status === 'pending' && (
+        {/* Only show action buttons for admins and drivers */}
+        {!isSeller && (
+          <Box>
             <IconButton 
-              color="success" 
-              onClick={handleAssignDialogOpen}
+              color="primary"
+              onClick={handleStatusDialogOpen}
+              disabled={['delivered', 'canceled'].includes(order.status)}
               sx={{ mr: 1 }}
             >
-              <AssignIcon />
+              <EditIcon />
             </IconButton>
-          )}
-          <IconButton color="error" onClick={handleDeleteDialogOpen}>
-            <DeleteIcon />
-          </IconButton>
-        </Box>
+            {order.status === 'pending' && isAdmin && (
+              <IconButton 
+                color="success" 
+                onClick={handleAssignDialogOpen}
+                sx={{ mr: 1 }}
+              >
+                <AssignIcon />
+              </IconButton>
+            )}
+            {isAdmin && (
+              <IconButton color="error" onClick={handleDeleteDialogOpen}>
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </Box>
+        )}
       </Box>
 
       {success && (
@@ -421,170 +432,207 @@ const OrderDetail = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center" mb={2}>
-                <DriverIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Driver</Typography>
-              </Box>
-              
-              <Divider sx={{ mb: 2 }} />
-              
-              {order.driver ? (
-                <>
-                  <Typography variant="subtitle2" color="textSecondary">Name</Typography>
-                  <Typography variant="body1" gutterBottom>
-                    {order.driver.first_name} {order.driver.last_name}
-                  </Typography>
-                  
-                  <Typography variant="subtitle2" color="textSecondary">Username</Typography>
-                  <Typography variant="body1" gutterBottom>
-                    {order.driver.username}
-                  </Typography>
-                  
-                  <Typography variant="subtitle2" color="textSecondary">Email</Typography>
-                  <Typography variant="body1" gutterBottom>
-                    {order.driver.email}
-                  </Typography>
-                  
-                  <Typography variant="subtitle2" color="textSecondary">Phone</Typography>
-                  <Typography variant="body1">
-                    <a href={`tel:${order.driver.phone}`}>{order.driver.phone}</a>
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <Typography variant="body1" color="textSecondary" gutterBottom>
-                    No driver assigned
-                  </Typography>
-                  {order.status === 'pending' && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      startIcon={<AssignIcon />}
-                      onClick={handleAssignDialogOpen}
-                      fullWidth
-                      sx={{ mt: 1 }}
-                    >
-                      Assign Driver
-                    </Button>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
+          {/* Only show driver card for admin and driver roles */}
+          {!isSeller && (
+            <Card>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <DriverIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6">Driver</Typography>
+                </Box>
+                
+                <Divider sx={{ mb: 2 }} />
+                
+                {order.driver ? (
+                  <>
+                    <Typography variant="subtitle2" color="textSecondary">Name</Typography>
+                    <Typography variant="body1" gutterBottom>
+                      {order.driver.first_name} {order.driver.last_name}
+                    </Typography>
+                    
+                    <Typography variant="subtitle2" color="textSecondary">Username</Typography>
+                    <Typography variant="body1" gutterBottom>
+                      {order.driver.username}
+                    </Typography>
+                    
+                    <Typography variant="subtitle2" color="textSecondary">Email</Typography>
+                    <Typography variant="body1" gutterBottom>
+                      {order.driver.email}
+                    </Typography>
+                    
+                    <Typography variant="subtitle2" color="textSecondary">Phone</Typography>
+                    <Typography variant="body1">
+                      <a href={`tel:${order.driver.phone}`}>{order.driver.phone}</a>
+                    </Typography>
+                  </>
+                ) : (
+                  <>
+                    <Typography variant="body1" color="textSecondary" gutterBottom>
+                      No driver assigned
+                    </Typography>
+                    {isAdmin && order.status === 'pending' && (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AssignIcon />}
+                        onClick={handleAssignDialogOpen}
+                        fullWidth
+                        sx={{ mt: 1 }}
+                      >
+                        Assign Driver
+                      </Button>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* For sellers, just show delivery status info instead of the driver card */}
+          {isSeller && (
+            <Card>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <DriverIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6">Delivery Status</Typography>
+                </Box>
+                
+                <Divider sx={{ mb: 2 }} />
+                
+                <Typography variant="subtitle2" color="textSecondary">Current Status</Typography>
+                <Box sx={{ mt: 1, mb: 2 }}>
+                  {getStatusChip(order.status)}
+                </Box>
+                
+                <Typography variant="body2" color="textSecondary">
+                  {order.status === 'pending' && 'Your order is being processed. A driver will be assigned soon.'}
+                  {order.status === 'assigned' && 'A driver has been assigned to your order and will pick it up soon.'}
+                  {order.status === 'in_transit' && 'Your order is on the way to the customer.'}
+                  {order.status === 'delivered' && 'Your order has been successfully delivered.'}
+                  {order.status === 'canceled' && 'This order has been canceled.'}
+                  {order.status === 'no_answer' && 'The driver was unable to reach the customer.'}
+                  {order.status === 'postponed' && 'The delivery has been postponed.'}
+                </Typography>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
       </Grid>
 
-      {/* Status Update Dialog */}
-      <Dialog
-        open={statusDialogOpen}
-        onClose={() => setStatusDialogOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Update Order Status</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ mb: 2 }}>
-            Change the status for Order #{order.id}
-          </DialogContentText>
-          
-          <FormControl fullWidth sx={{ mt: 1 }}>
-            <InputLabel>New Status</InputLabel>
-            <Select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              label="New Status"
-            >
-              {getValidStatuses(order.status).map(status => (
-                <MenuItem key={status} value={status}>
-                  {getStatusLabel(status)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setStatusDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleUpdateStatus} 
-            color="primary"
-            disabled={!newStatus || newStatus === order.status}
+      {/* Only show dialogs for admin/driver roles */}
+      {!isSeller && (
+        <>
+          {/* Status Update Dialog */}
+          <Dialog
+            open={statusDialogOpen}
+            onClose={() => setStatusDialogOpen(false)}
+            fullWidth
+            maxWidth="sm"
           >
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete order #{order.id}? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteOrder} color="error">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Assign Driver Dialog */}
-      <Dialog
-        open={assignDialogOpen}
-        onClose={() => setAssignDialogOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Assign Driver to Order #{order.id}</DialogTitle>
-        <DialogContent>
-          {driverLoading ? (
-            <Box display="flex" justifyContent="center" p={3}>
-              <CircularProgress />
-            </Box>
-          ) : availableDrivers.length === 0 ? (
-            <DialogContentText>
-              No approved drivers are available. Please approve drivers first.
-            </DialogContentText>
-          ) : (
-            <>
+            <DialogTitle>Update Order Status</DialogTitle>
+            <DialogContent>
               <DialogContentText sx={{ mb: 2 }}>
-                Select a driver to assign to this order:
+                Change the status for Order #{order.id}
               </DialogContentText>
+              
               <FormControl fullWidth sx={{ mt: 1 }}>
-                <InputLabel>Driver</InputLabel>
+                <InputLabel>New Status</InputLabel>
                 <Select
-                  value={selectedDriverId}
-                  onChange={(e) => setSelectedDriverId(e.target.value)}
-                  label="Driver"
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  label="New Status"
                 >
-                  {availableDrivers.map(driver => (
-                    <MenuItem key={driver.id} value={driver.id}>
-                      {driver.first_name} {driver.last_name} ({driver.username})
+                  {getValidStatuses(order.status).map(status => (
+                    <MenuItem key={status} value={status}>
+                      {getStatusLabel(status)}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleAssignDriver} 
-            color="primary"
-            disabled={driverLoading || !selectedDriverId}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setStatusDialogOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={handleUpdateStatus} 
+                color="primary"
+                disabled={!newStatus || newStatus === order.status}
+              >
+                Update
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Delete Confirmation Dialog */}
+          <Dialog
+            open={deleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
           >
-            Assign
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete order #{order.id}? This action cannot be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleDeleteOrder} color="error">
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Assign Driver Dialog */}
+          <Dialog
+            open={assignDialogOpen}
+            onClose={() => setAssignDialogOpen(false)}
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle>Assign Driver to Order #{order.id}</DialogTitle>
+            <DialogContent>
+              {driverLoading ? (
+                <Box display="flex" justifyContent="center" p={3}>
+                  <CircularProgress />
+                </Box>
+              ) : availableDrivers.length === 0 ? (
+                <DialogContentText>
+                  No approved drivers are available. Please approve drivers first.
+                </DialogContentText>
+              ) : (
+                <>
+                  <DialogContentText sx={{ mb: 2 }}>
+                    Select a driver to assign to this order:
+                  </DialogContentText>
+                  <FormControl fullWidth sx={{ mt: 1 }}>
+                    <InputLabel>Driver</InputLabel>
+                    <Select
+                      value={selectedDriverId}
+                      onChange={(e) => setSelectedDriverId(e.target.value)}
+                      label="Driver"
+                    >
+                      {availableDrivers.map(driver => (
+                        <MenuItem key={driver.id} value={driver.id}>
+                          {driver.first_name} {driver.last_name} ({driver.username})
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={handleAssignDriver} 
+                color="primary"
+                disabled={driverLoading || !selectedDriverId}
+              >
+                Assign
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
+      )}
     </Box>
   );
 };
