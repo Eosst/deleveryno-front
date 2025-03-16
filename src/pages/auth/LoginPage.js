@@ -1,6 +1,6 @@
-// src/pages/auth/LoginPage.js - Updated version
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+// src/pages/auth/LoginPage.js - Improved version
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   Container,
@@ -18,14 +18,19 @@ import { LockOutlined } from '@mui/icons-material';
 const LoginPage = () => {
   const { login, error: authError } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [credentials, setCredentials] = useState({
-    // Changed from username to email
     email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Clear errors when the component mounts
+  useEffect(() => {
+    setError('');
+  }, [location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,7 +41,16 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent form submission
+    
+    if (loading) return; // Prevent multiple submissions
+    
+    // Validate form
+    if (!credentials.email || !credentials.password) {
+      setError('Email and password are required');
+      return;
+    }
+    
     setLoading(true);
     setError('');
 
@@ -52,10 +66,8 @@ const LoginPage = () => {
         navigate('/driver/dashboard');
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 
-                          err.response?.data?.non_field_errors?.[0] || 
-                          'Login failed. Please check your credentials.';
-      setError(errorMessage);
+      // Error is already set in the AuthContext, no need to set it here
+      console.error('Login error handled in AuthContext');
     } finally {
       setLoading(false);
     }
@@ -107,6 +119,7 @@ const LoginPage = () => {
               autoFocus
               value={credentials.email}
               onChange={handleChange}
+              disabled={loading}
             />
             <TextField
               margin="normal"
@@ -119,7 +132,9 @@ const LoginPage = () => {
               autoComplete="current-password"
               value={credentials.password}
               onChange={handleChange}
+              disabled={loading}
             />
+            
             <Button
               type="submit"
               fullWidth
@@ -129,6 +144,12 @@ const LoginPage = () => {
             >
               {loading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
+
+            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+              <Link to="/password-reset" style={{ textDecoration: 'none', color: 'primary.main' }}>
+                Forgot password?
+              </Link>
+            </Typography>
 
             <Grid container spacing={2} sx={{ mt: 2 }}>
               <Grid item xs={12}>

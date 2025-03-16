@@ -33,3 +33,13 @@ export const updateUserProfile = async (profileData) => {
   const response = await api.patch('/profile/', profileData);
   return response.data;
 };
+
+export const requestPasswordReset = async (email) => {
+  const response = await api.post('/password-reset/', { email });
+  return response.data;
+};
+
+export const confirmPasswordReset = async (uidb64, token, password) => {
+  const response = await api.post(`/password-reset/confirm/${uidb64}/${token}/`, { password });
+  return response.data;
+};

@@ -43,7 +43,11 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return data;
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      console.error('Login error:', err);
+      const errorMessage = err.response?.data?.error || 
+                        err.response?.data?.non_field_errors?.[0] || 
+                        'Login failed. Please check your credentials.';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
