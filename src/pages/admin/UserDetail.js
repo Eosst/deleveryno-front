@@ -31,7 +31,8 @@ import {
   Phone as PhoneIcon,
   Email as EmailIcon,
   LocationOn as LocationIcon,
-  CheckCircle as ApproveIcon
+  CheckCircle as ApproveIcon,
+  AccountBalance as RibIcon
 } from '@mui/icons-material';
 import { getUser, updateUser, deleteUser, approveUser } from '../../api/users';
 import { Link } from 'react-router-dom';
@@ -52,7 +53,8 @@ const UserDetail = () => {
     email: '',
     phone: '',
     city: '',
-    role: ''
+    role: '',
+    rib: ''
   });
 
   // Delete dialog
@@ -75,7 +77,8 @@ const UserDetail = () => {
         email: userData.email || '',
         phone: userData.phone || '',
         city: userData.city || '',
-        role: userData.role || ''
+        role: userData.role || '',
+        rib: userData.rib || ''
       });
     } catch (err) {
       console.error('Error fetching user details:', err);
@@ -303,6 +306,21 @@ const UserDetail = () => {
                   </Typography>
                 </Box>
                 
+                {/* Show RIB field only for sellers */}
+                {user.role === 'seller' && (
+                  <Box sx={{ mb: 2 }}>
+                    <Box display="flex" alignItems="center" mb={1}>
+                      <RibIcon sx={{ mr: 1, color: 'primary.main' }} />
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Bank Account Information (RIB)
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                      {user.rib || "Not provided"}
+                    </Typography>
+                  </Box>
+                )}
+                
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" color="textSecondary" mb={1}>
                     Account Created
@@ -397,6 +415,20 @@ const UserDetail = () => {
                 </Select>
               </FormControl>
             </Grid>
+            
+            {/* Show RIB field only if user is or will be a seller */}
+            {(user.role === 'seller' || formData.role === 'seller') && (
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Bank Account Information (RIB)"
+                  name="rib"
+                  value={formData.rib || ''}
+                  onChange={handleChange}
+                  helperText="Bank account information for payment processing"
+                />
+              </Grid>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -428,5 +460,4 @@ const UserDetail = () => {
     </Box>
   );
 };
-
 export default UserDetail;

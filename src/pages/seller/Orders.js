@@ -306,7 +306,7 @@ const SellerOrders = () => {
               <TableCell>Item</TableCell>
               <TableCell>Qty</TableCell>
               <TableCell>Delivery City</TableCell>
-              <TableCell>Driver</TableCell>
+              {/* <TableCell>Driver</TableCell> */}
               <TableCell>Status</TableCell>
               <TableCell>Created</TableCell>
               <TableCell align="center">Actions</TableCell>
@@ -333,13 +333,13 @@ const SellerOrders = () => {
                   <TableCell>{order.item}</TableCell>
                   <TableCell>{order.quantity}</TableCell>
                   <TableCell>{order.delivery_city}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     {order.driver?.username || (
                       <Typography variant="body2" color="textSecondary">
                         Not assigned
                       </Typography>
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>{getStatusChip(order.status)}</TableCell>
                   <TableCell>
                     {new Date(order.created_at).toLocaleDateString()}

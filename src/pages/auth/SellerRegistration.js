@@ -23,7 +23,8 @@ const SellerRegistration = () => {
     first_name: '',
     last_name: '',
     phone: '',
-    city: ''
+    city: '',
+    rib: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -179,6 +180,17 @@ const SellerRegistration = () => {
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Bank Account Information (RIB)"
+                  name="rib"
+                  value={formData.rib}
+                  onChange={handleChange}
+                  placeholder="Enter your bank account details"
+                  helperText="This information will be used for payment processing"
                 />
               </Grid>
             </Grid>

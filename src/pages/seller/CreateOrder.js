@@ -54,6 +54,22 @@ const CreateOrder = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'delivery_location' && value) {
+      const isValidMapsUrl = 
+        value.startsWith('https://www.google.com/maps') || 
+        value.startsWith('https://goo.gl/maps') || 
+        value.startsWith('https://maps.app.goo.gl') ||
+        value.startsWith('https://maps.google.com');
+      
+      if (!isValidMapsUrl && value.length > 0) {
+        setError('Please provide a valid Google Maps link');
+      } else {
+        // Clear error if it was related to maps link
+        if (error === 'Please provide a valid Google Maps link') {
+          setError(null);
+        }
+      }
+    }
     setFormData({
       ...formData,
       [name]: name === 'quantity' ? parseInt(value, 10) || 1 : value
@@ -211,7 +227,7 @@ const CreateOrder = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Google Maps Location (optional)"
+                label="Google Maps Link (optional)"
                 name="delivery_location"
                 value={formData.delivery_location}
                 onChange={handleChange}

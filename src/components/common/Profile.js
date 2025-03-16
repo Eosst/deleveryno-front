@@ -24,7 +24,8 @@ const Profile = () => {
     last_name: '',
     email: '',
     phone: '',
-    city: ''
+    city: '',
+    rib: ''
   });
 
   useEffect(() => {
@@ -40,7 +41,8 @@ const Profile = () => {
         last_name: user.last_name || '',
         email: user.email || '',
         phone: user.phone || '',
-        city: user.city || ''
+        city: user.city || '',
+        rib: user.rib || ''
       });
     }
   }, [user, authLoading, navigate]);
@@ -155,6 +157,19 @@ const Profile = () => {
               onChange={handleChange}
             />
           </Grid>
+          {/* Only show RIB field for sellers */}
+          {user.role === 'seller' && (
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Bank Account Information (RIB)"
+                name="rib"
+                value={formData.rib || ''}
+                onChange={handleChange}
+                helperText="Your bank account information for payment processing"
+              />
+            </Grid>
+          )}
         </Grid>
         <Button 
           type="submit" 

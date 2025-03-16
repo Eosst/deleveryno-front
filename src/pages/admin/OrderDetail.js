@@ -378,7 +378,7 @@ const OrderDetail = () => {
                       variant="outlined" 
                       size="small"
                       component="a"
-                      href={`https://maps.google.com?q=${order.delivery_location}`}
+                      href={order.delivery_location}
                       target="_blank"
                       rel="noopener noreferrer"
                       startIcon={<LocationIcon />}

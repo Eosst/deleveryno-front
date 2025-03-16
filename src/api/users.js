@@ -16,6 +16,7 @@ export const approveUser = async (id) => {
 };
 
 export const updateUser = async (id, userData) => {
+  console.log("Sending update with data:", userData);
   const response = await api.patch(`/users/${id}/`, userData);
   return response.data;
 };

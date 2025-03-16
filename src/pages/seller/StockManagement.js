@@ -330,7 +330,7 @@ const StockManagement = () => {
           />
           {dialogMode === 'edit' && currentItem?.approved && (
             <DialogContentText sx={{ mt: 1, mb: 1, color: 'warning.main' }}>
-              You cannot change the name of an approved item. You can only update its quantity.
+              when you change the quantity of an item you will need to wait for it to be approved again
             </DialogContentText>
           )}
           <TextField
@@ -394,8 +394,9 @@ const StockManagement = () => {
             </Typography>
             <Typography component="ul" sx={{ pl: 2 }}>
               <li>Pending items cannot be used for creating orders</li>
-              <li>You can still edit and delete pending items</li>
-              <li>Once an item is approved, you cannot change its name, only its quantity</li>
+              
+              <li>Once an item is approved, you cannot change its name</li>
+              <li>if you change the quantity of an item you will need to wait for it to be approved again</li>
               <li>If you need a new item, please add it and wait for approval</li>
             </Typography>
           </DialogContentText>
