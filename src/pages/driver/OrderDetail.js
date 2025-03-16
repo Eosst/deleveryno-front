@@ -1,4 +1,4 @@
-// src/pages/driver/OrderDetail.js
+// src/pages/driver/OrderDetail.js - Fixed maps link and layout
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -21,7 +21,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton
+  IconButton,
+  useMediaQuery,
+  useTheme,
+  ButtonGroup
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
@@ -35,6 +38,9 @@ import { getOrder, updateOrderStatus } from '../../api/orders';
 const OrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,6 +71,13 @@ const OrderDetail = () => {
 
   const handleStatusChange = (event) => {
     const status = event.target.value;
+    if (status !== order.status) {
+      setNewStatus(status);
+      setConfirmDialogOpen(true);
+    }
+  };
+
+  const handleDirectStatusUpdate = (status) => {
     if (status !== order.status) {
       setNewStatus(status);
       setConfirmDialogOpen(true);
@@ -182,105 +195,119 @@ const OrderDetail = () => {
         Order #{order.id}
       </Typography>
       
-      {/* Status Update Card */}
+      {/* Status Update Section - FIXED FOR BOTH MOBILE & DESKTOP */}
       <Paper elevation={3} sx={{ p: 3, mb: 3, bgcolor: 'background.default' }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Box display="flex" alignItems="center" gap={2}>
-            <Typography variant="h6">Current Status:</Typography>
-            {getStatusChip(order.status)}
-          </Box>
+        <Grid container spacing={2}>
+          {/* Left side - Current Status */}
+          <Grid item xs={12} md={4}>
+            <Box display="flex" alignItems="center">
+              <Typography variant="h6" sx={{ mr: 2 }}>Current Status:</Typography>
+              {getStatusChip(order.status)}
+            </Box>
+          </Grid>
           
-          <Box sx={{ minWidth: 200 }}>
-            <FormControl fullWidth>
-              <Select
-                value={order.status}
-                onChange={handleStatusChange}
-                displayEmpty
-                renderValue={() => "Update Status"}
-                disabled={['delivered', 'canceled'].includes(order.status) || updateLoading}
-                sx={{ 
-                  '& .MuiSelect-select': { 
-                    color: ['delivered', 'canceled'].includes(order.status) ? 'text.disabled' : 'primary.main',
-                    fontWeight: 'bold'
-                  } 
-                }}
-              >
-                {getAllowedStatuses(order.status).map(status => (
-                  <MenuItem key={status} value={status}>
-                    {getStatusLabel(status)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        </Box>
+          {/* Right side - Update Options */}
+          <Grid item xs={12} md={8}>
+            {!['delivered', 'canceled'].includes(order.status) && (
+              <Box>
+                {/* Desktop Version: Dropdown on right side */}
+                {!isMobile && (
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <FormControl sx={{ minWidth: 200 }}>
+                      <Select
+                        value="default"
+                        onChange={(e) => e.target.value !== 'default' && handleDirectStatusUpdate(e.target.value)}
+                        displayEmpty
+                        renderValue={() => "Update Status"}
+                        disabled={updateLoading}
+                      >
+                        <MenuItem value="default" disabled>Update Status</MenuItem>
+                        {getAllowedStatuses(order.status).map(status => (
+                          <MenuItem key={status} value={status}>
+                            {getStatusLabel(status)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Grid>
+        </Grid>
         
-        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-          {order.status === 'assigned' && (
-            <Button 
-              variant="contained" 
-              color="success"
-              onClick={() => {
-                setNewStatus('in_transit');
-                setConfirmDialogOpen(true);
-              }}
-              disabled={updateLoading}
-            >
-              Accept Order
-            </Button>
-          )}
-          
-          {order.status === 'in_transit' && (
-            <>
-              <Button 
-                variant="contained" 
-                color="success"
-                onClick={() => {
-                  setNewStatus('delivered');
-                  setConfirmDialogOpen(true);
-                }}
-                disabled={updateLoading}
-              >
-                Mark Delivered
-              </Button>
-              <Button 
-                variant="outlined" 
-                color="warning"
-                onClick={() => {
-                  setNewStatus('no_answer');
-                  setConfirmDialogOpen(true);
-                }}
-                disabled={updateLoading}
-              >
-                No Answer
-              </Button>
-              <Button 
-                variant="outlined" 
-                color="secondary"
-                onClick={() => {
-                  setNewStatus('postponed');
-                  setConfirmDialogOpen(true);
-                }}
-                disabled={updateLoading}
-              >
-                Postpone
-              </Button>
-              <Button 
-                variant="outlined" 
-                color="error"
-                onClick={() => {
-                  setNewStatus('canceled');
-                  setConfirmDialogOpen(true);
-                }}
-                disabled={updateLoading}
-              >
-                Cancel
-              </Button>
-            </>
-          )}
+        {/* Action Buttons - Consistent layout for mobile and desktop */}
+        <Box sx={{ mt: 3 }}>
+          {order.status === 'assigned' ? (
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Button 
+                  variant="contained" 
+                  color="success" 
+                  fullWidth
+                  onClick={() => handleDirectStatusUpdate('in_transit')}
+                  disabled={updateLoading}
+                >
+                  Accept Order
+                </Button>
+              </Grid>
+            </Grid>
+          ) : order.status === 'in_transit' ? (
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Button 
+                  variant="contained" 
+                  color="success"
+                  fullWidth
+                  onClick={() => handleDirectStatusUpdate('delivered')}
+                  disabled={updateLoading}
+                >
+                  Mark Delivered
+                </Button>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Grid container spacing={1}>
+                  <Grid item xs={4}>
+                    <Button 
+                      variant="outlined" 
+                      color="warning"
+                      fullWidth
+                      onClick={() => handleDirectStatusUpdate('no_answer')}
+                      disabled={updateLoading}
+                    >
+                      No Answer
+                    </Button>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Button 
+                      variant="outlined" 
+                      color="secondary"
+                      fullWidth
+                      onClick={() => handleDirectStatusUpdate('postponed')}
+                      disabled={updateLoading}
+                    >
+                      Postpone
+                    </Button>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Button 
+                      variant="outlined" 
+                      color="error"
+                      fullWidth
+                      onClick={() => handleDirectStatusUpdate('canceled')}
+                      disabled={updateLoading}
+                    >
+                      Cancel
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          ) : null}
         </Box>
       </Paper>
 
+      {/* Order Details Section */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 3, mb: 3 }}>
@@ -304,6 +331,7 @@ const OrderDetail = () => {
                     href={`tel:${order.customer_phone}`}
                     color="primary"
                     sx={{ p: 0, minWidth: 'auto', textTransform: 'none' }}
+                    size="small"
                   >
                     {order.customer_phone}
                   </Button>
@@ -337,10 +365,11 @@ const OrderDetail = () => {
                       variant="contained" 
                       color="primary"
                       component="a"
-                      href={`https://maps.google.com?q=${order.delivery_location}`}
+                      href={order.delivery_location}
                       target="_blank"
                       rel="noopener noreferrer"
                       startIcon={<LocationIcon />}
+                      size={isMobile ? "small" : "medium"}
                     >
                       Open in Google Maps
                     </Button>
@@ -380,6 +409,7 @@ const OrderDetail = () => {
                       href={`tel:${order.seller.phone}`}
                       color="primary"
                       sx={{ p: 0, minWidth: 'auto', textTransform: 'none' }}
+                      size="small"
                     >
                       {order.seller.phone}
                     </Button>
@@ -426,6 +456,8 @@ const OrderDetail = () => {
       <Dialog
         open={confirmDialogOpen}
         onClose={() => setConfirmDialogOpen(false)}
+        fullWidth={isMobile}
+        maxWidth="sm"
       >
         <DialogTitle>Confirm Status Change</DialogTitle>
         <DialogContent>

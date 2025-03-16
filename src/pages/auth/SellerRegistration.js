@@ -1,3 +1,4 @@
+// src/pages/auth/SellerRegistration.js - Fixed for mobile view
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerSeller } from '../../api/auth';
@@ -333,19 +334,23 @@ const SellerRegistration = () => {
           )}
 
           {isMobile ? (
-            // Mobile stepper
-            <Box>
+            // Mobile stepper - FIXED with proper styles and structure
+            <Box sx={{ width: '100%' }}>
               <Stepper activeStep={activeStep} orientation="vertical">
                 {steps.map((step, index) => (
                   <Step key={step.label}>
                     <StepLabel>{step.label}</StepLabel>
                     <StepContent>
-                      {step.content}
+                      <Box sx={{ py: 1, width: '100%' }}>
+                        {step.content}
+                      </Box>
                       <Box sx={{ mt: 2, mb: 1, display: 'flex', justifyContent: 'space-between' }}>
                         <Button
                           disabled={index === 0}
                           onClick={handleBack}
                           startIcon={<ArrowBack />}
+                          variant="outlined"
+                          size="small"
                         >
                           Back
                         </Button>
@@ -354,6 +359,7 @@ const SellerRegistration = () => {
                             variant="contained"
                             onClick={handleSubmit}
                             disabled={loading || !validateStep(index)}
+                            size="small"
                           >
                             {loading ? <CircularProgress size={24} /> : 'Register'}
                           </Button>
@@ -363,6 +369,7 @@ const SellerRegistration = () => {
                             onClick={handleNext}
                             disabled={!validateStep(index)}
                             endIcon={<ArrowForward />}
+                            size="small"
                           >
                             Next
                           </Button>

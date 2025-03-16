@@ -1,4 +1,4 @@
-// src/components/messaging/ComposeMessage.js
+// Focused fix for the message textarea in ComposeMessage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -21,7 +21,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  TextareaAutosize
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
@@ -66,7 +67,7 @@ const ComposeMessage = () => {
       fetchReplyMessage(replyId);
     }
     
-    // Only fetch users for admin users (sellers and drivers don't need to choose a recipient)
+    // Only fetch users for admin users
     if (isAdmin) {
       fetchAvailableUsers();
     }
@@ -95,7 +96,6 @@ const ComposeMessage = () => {
       const response = await getUsers();
       // Filter out current user and get only non-admin users if current user is admin
       const filteredUsers = (response.results || []).filter(u => {
-        // For admin, show all non-admin users
         if (isAdmin) {
           return u.id !== user?.id && u.role !== 'admin';
         }
@@ -131,7 +131,6 @@ const ComposeMessage = () => {
     
     try {
       // For non-admin users, we don't need to send recipient_id
-      // The backend will handle it automatically
       const dataToSend = isAdmin ? formData : {
         subject: formData.subject,
         content: formData.content
@@ -142,7 +141,6 @@ const ComposeMessage = () => {
     } catch (err) {
       console.error('Error sending message:', err);
       
-      // Show detailed error in dialog
       if (err.response && err.response.data) {
         const errorDetails = JSON.stringify(err.response.data, null, 2);
         setErrorDetails(errorDetails);
@@ -190,11 +188,6 @@ const ComposeMessage = () => {
                 label="Recipient"
                 required
                 disabled={usersLoading || replyToMessage}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <PersonIcon />
-                  </InputAdornment>
-                }
               >
                 {usersLoading ? (
                   <MenuItem disabled>Loading users...</MenuItem>
@@ -223,7 +216,9 @@ const ComposeMessage = () => {
           {/* Show who we're replying to */}
           {replyToMessage && (
             <Alert severity="info" sx={{ mb: 3 }}>
-              You are replying to: {replyToMessage.sender?.first_name || ''} {replyToMessage.sender?.last_name || ''} ({replyToMessage.sender?.role || 'Unknown'})
+              You are replying to: {replyToMessage.sender?.role === 'admin' 
+                ? "Administration" 
+                : `${replyToMessage.sender?.first_name || ''} ${replyToMessage.sender?.last_name || ''} (${replyToMessage.sender?.role || 'Unknown'})`}
             </Alert>
           )}
 
@@ -235,34 +230,31 @@ const ComposeMessage = () => {
             onChange={handleChange}
             required
             sx={{ mb: 3 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SubjectIcon />
-                </InputAdornment>
-              ),
-            }}
           />
 
-          <TextField
-            fullWidth
-            label="Message"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            required
-            multiline
-            rows={isMobile ? 10 : 6}
-            sx={{ mb: 3 }}
-            placeholder="Type your message here..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start" sx={{ mt: 1.5 }}>
-                  <EmailIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
+          {/* COMPLETELY REDESIGNED MESSAGE INPUT AREA */}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" gutterBottom sx={{ mb: 1 }}>
+              Message *
+            </Typography>
+            <textarea 
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              required
+              placeholder="Type your message here..."
+              style={{ 
+                width: '100%',
+                minHeight: isMobile ? '250px' : '200px',
+                padding: '12px',
+                fontFamily: 'inherit',
+                fontSize: '1rem',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                resize: 'vertical'
+              }}
+            />
+          </Box>
 
           <Box 
             display="flex" 
