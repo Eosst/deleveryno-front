@@ -7,13 +7,31 @@ import {
   Button, 
   Grid, 
   Alert,
-  CircularProgress 
+  CircularProgress,
+  Divider,
+  Card,
+  CardContent,
+  useMediaQuery,
+  useTheme,
+  InputAdornment
 } from '@mui/material';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import {
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  LocationCity as CityIcon,
+  AccountBalance as RibIcon,
+  Badge as UsernameIcon,
+  Business as RoleIcon
+} from '@mui/icons-material';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const { user, updateProfile, error: authError, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -64,6 +82,7 @@ const Profile = () => {
     try {
       await updateProfile(formData);
       setSuccess(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       const errMsg = err.response?.data || {};
       // Format error messages
@@ -83,104 +102,181 @@ const Profile = () => {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Profile
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 3 }}>
-        Username: {user.username} | Role: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-      </Typography>
+    <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+      {/* User info card */}
+      <Card elevation={3} sx={{ mb: 3, borderRadius: 2, overflow: 'visible' }}>
+        <CardContent sx={{ p: isMobile ? 2 : 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'center' : 'flex-start',
+            justifyContent: 'space-between',
+            mb: 2
+          }}>
+            <Box sx={{ textAlign: isMobile ? 'center' : 'left' }}>
+              <Typography variant="h4" gutterBottom>
+                {user.first_name} {user.last_name}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                <UsernameIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Username: {user.username}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                <RoleIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Role: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+          
+          {/* Status alerts */}
+          {profileError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {profileError}
+            </Alert>
+          )}
+          
+          {authError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {authError}
+            </Alert>
+          )}
+          
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Profile updated successfully!
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
       
-      {profileError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {profileError}
-        </Alert>
-      )}
-      
-      {authError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {authError}
-        </Alert>
-      )}
-      
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          Profile updated successfully!
-        </Alert>
-      )}
-      
-      <Box component="form" onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="First Name"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Last Name"
-              name="last_name"
-              value={formData.last_name}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="City"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-            />
-          </Grid>
-          {/* Only show RIB field for sellers */}
-          {user.role === 'seller' && (
+      {/* Edit Profile form */}
+      <Paper elevation={3} sx={{ p: isMobile ? 2 : 4, borderRadius: 2 }}>
+        <Typography variant="h5" gutterBottom>
+          Edit Profile
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+        
+        <Box component="form" onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="First Name"
+                name="first_name"
+                value={formData.first_name}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Bank Account Information (RIB)"
-                name="rib"
-                value={formData.rib || ''}
+                label="Email"
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleChange}
-                helperText="Your bank account information for payment processing"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon />
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
-          )}
-        </Grid>
-        <Button 
-          type="submit" 
-          variant="contained" 
-          sx={{ mt: 3 }}
-          disabled={loading}
-        >
-          {loading ? 'Updating...' : 'Update Profile'}
-        </Button>
-      </Box>
-    </Paper>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="City"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CityIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            {/* Only show RIB field for sellers */}
+            {user.role === 'seller' && (
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Bank Account Information (RIB)"
+                  name="rib"
+                  value={formData.rib || ''}
+                  onChange={handleChange}
+                  helperText="Your bank account information for payment processing"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <RibIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+            )}
+          </Grid>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              disabled={loading}
+              sx={{ minWidth: isMobile ? '100%' : '200px' }}
+            >
+              {loading ? <CircularProgress size={24} /> : 'Update Profile'}
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 

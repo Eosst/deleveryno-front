@@ -1,5 +1,5 @@
 // src/pages/seller/Dashboard.js
-import React, { useState, useEffect , useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -16,9 +16,17 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip
+  Chip,
+  useMediaQuery,
+  useTheme,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getSellerOrders } from '../../api/orders';
 import { getStockItems } from '../../api/stock';
 import { 
@@ -27,23 +35,57 @@ import {
   LocalShipping as InTransitIcon,
   CheckCircle as DeliveredIcon,
   PendingActions as PendingIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  Warning as WarningIcon,
+  Visibility as ViewIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
 const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card 
+      sx={{ 
+        height: '100%',
+        borderRadius: 2,
+        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-5px)',
+          boxShadow: 6
+        }
+      }}
+    >
       <CardContent>
         <Box display="flex" alignItems="center" mb={2}>
-          <Box mr={2} sx={{ color }}>
+          <Box 
+            mr={2} 
+            sx={{ 
+              color,
+              bgcolor: `${color}15`, // Add low opacity version of color as background
+              p: 1.5,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
             {icon}
           </Box>
           <Typography variant="h6" component="div">
             {title}
           </Typography>
         </Box>
-        <Typography variant="h3" component="div" sx={{ textAlign: 'center', mb: 2 }}>
+        <Typography 
+          variant="h3" 
+          component="div" 
+          sx={{ 
+            textAlign: 'center', 
+            mb: 2,
+            fontSize: isMobile ? '2.5rem' : '3rem'
+          }}
+        >
           {loading ? <CircularProgress size={40} /> : value}
         </Typography>
       </CardContent>
@@ -67,6 +109,10 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
 
 const SellerDashboard = () => {
   const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
+  
   const [orders, setOrders] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
@@ -145,8 +191,14 @@ const SellerDashboard = () => {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-        <Box>
+      <Box 
+        display="flex" 
+        flexDirection={isMobile ? 'column' : 'row'}
+        justifyContent="space-between" 
+        alignItems={isMobile ? "stretch" : "center"} 
+        mb={4}
+      >
+        <Box mb={isMobile ? 2 : 0}>
           <Typography variant="h4" gutterBottom>
             Seller Dashboard
           </Typography>
@@ -154,56 +206,55 @@ const SellerDashboard = () => {
             Welcome back, {user?.first_name || user?.username}!
           </Typography>
         </Box>
-        <Box>
-          <Button
-            component={Link}
-            to="/seller/orders/create"
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-          >
-            Create New Order
-          </Button>
-        </Box>
+        <Button
+          component={Link}
+          to="/seller/orders/create"
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          fullWidth={isMobile}
+        >
+          Create New Order
+        </Button>
       </Box>
 
       <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="Total Orders" 
             value={orderStats.total} 
             icon={<OrderIcon fontSize="large" />} 
-            color="primary.main" 
+            color={theme.palette.primary.main} 
             loading={loading}
             linkTo="/seller/orders"
           />
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="Pending" 
             value={orderStats.pending} 
             icon={<PendingIcon fontSize="large" />} 
-            color="warning.main" 
+            color={theme.palette.warning.main} 
             loading={loading}
             linkTo="/seller/orders?status=pending"
           />
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="In Transit" 
             value={orderStats.inTransit} 
             icon={<InTransitIcon fontSize="large" />} 
-            color="info.main" 
+            color={theme.palette.info.main} 
             loading={loading}
             linkTo="/seller/orders?status=in_transit"
           />
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="Delivered" 
             value={orderStats.delivered} 
             icon={<DeliveredIcon fontSize="large" />} 
-            color="success.main" 
+            color={theme.palette.success.main} 
             loading={loading}
             linkTo="/seller/orders?status=delivered"
           />
@@ -212,10 +263,11 @@ const SellerDashboard = () => {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={7}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ p: 1 }}>
               Recent Orders
             </Typography>
+            <Divider sx={{ mb: 2 }} />
             
             {loading ? (
               <Box display="flex" justifyContent="center" p={3}>
@@ -225,7 +277,58 @@ const SellerDashboard = () => {
               <Typography variant="body1" color="textSecondary" align="center" py={3}>
                 No orders found
               </Typography>
+            ) : isMobile ? (
+              // Mobile list view
+              <List sx={{ width: '100%' }}>
+                {recentOrders.map((order) => (
+                  <React.Fragment key={order.id}>
+                    <ListItem 
+                      component={Link} 
+                      to={`/seller/orders/${order.id}`}
+                      sx={{ 
+                        textDecoration: 'none', 
+                        color: 'inherit',
+                        py: 2
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Box display="flex" alignItems="center" justifyContent="space-between">
+                            <Typography variant="subtitle1">
+                              {order.customer_name}
+                            </Typography>
+                            {getOrderStatusChip(order.status)}
+                          </Box>
+                        }
+                        secondary={
+                          <Box mt={1}>
+                            <Typography variant="body2" color="textSecondary">
+                              Item: {order.item} (Qty: {order.quantity})
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              City: {order.delivery_city}
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                      <ListItemSecondaryAction>
+                        <IconButton 
+                          edge="end" 
+                          component={Link}
+                          to={`/seller/orders/${order.id}`}
+                          color="primary"
+                          size="small"
+                        >
+                          <ViewIcon />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                    <Divider />
+                  </React.Fragment>
+                ))}
+              </List>
             ) : (
+              // Desktop table view
               <TableContainer>
                 <Table size="small">
                   <TableHead>
@@ -239,7 +342,12 @@ const SellerDashboard = () => {
                   </TableHead>
                   <TableBody>
                     {recentOrders.map((order) => (
-                      <TableRow key={order.id}>
+                      <TableRow 
+                        key={order.id}
+                        hover
+                        onClick={() => navigate(`/seller/orders/${order.id}`)}
+                        sx={{ cursor: 'pointer' }}
+                      >
                         <TableCell>{order.customer_name}</TableCell>
                         <TableCell>{order.item}</TableCell>
                         <TableCell>{order.quantity}</TableCell>
@@ -257,6 +365,7 @@ const SellerDashboard = () => {
                 component={Link} 
                 to="/seller/orders" 
                 color="primary"
+                endIcon={<ViewIcon />}
               >
                 View All Orders
               </Button>
@@ -265,10 +374,14 @@ const SellerDashboard = () => {
         </Grid>
         
         <Grid item xs={12} md={5}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Low Stock Alert
-            </Typography>
+          <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1 }}>
+              <WarningIcon color="warning" sx={{ mr: 1 }} />
+              <Typography variant="h6">
+                Low Stock Alert
+              </Typography>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
             
             {loading ? (
               <Box display="flex" justifyContent="center" p={3}>
@@ -279,31 +392,32 @@ const SellerDashboard = () => {
                 No low stock items
               </Typography>
             ) : (
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Item</TableCell>
-                      <TableCell>Quantity</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {lowStockItems.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.item_name}</TableCell>
-                        <TableCell>
+              <List sx={{ width: '100%' }}>
+                {lowStockItems.map((item) => (
+                  <React.Fragment key={item.id}>
+                    <ListItem>
+                      <ListItemText
+                        primary={item.item_name}
+                        secondary={
                           <Typography
-                            color={item.quantity < 5 ? 'error' : 'warning.main'}
-                            fontWeight="bold"
+                            component="span"
+                            variant="body2"
+                            color={item.quantity < 5 ? "error" : "warning.main"}
                           >
-                            {item.quantity}
+                            {item.quantity === 0 ? "Out of Stock!" : `Only ${item.quantity} left in stock`}
                           </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                        }
+                      />
+                      <Chip 
+                        label={item.quantity === 0 ? "Out of Stock" : "Low Stock"} 
+                        color={item.quantity === 0 ? "error" : "warning"} 
+                        size="small"
+                      />
+                    </ListItem>
+                    <Divider />
+                  </React.Fragment>
+                ))}
+              </List>
             )}
             
             <Box mt={2} display="flex" justifyContent="flex-end">
@@ -311,6 +425,7 @@ const SellerDashboard = () => {
                 component={Link} 
                 to="/seller/stock" 
                 color="primary"
+                endIcon={<StockIcon />}
               >
                 Manage Inventory
               </Button>

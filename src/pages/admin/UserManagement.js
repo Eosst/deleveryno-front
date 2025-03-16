@@ -4,46 +4,42 @@ import {
   Box,
   Typography,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Button,
   Chip,
-  IconButton,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TextField,
   CircularProgress,
   Alert,
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  useMediaQuery,
+  useTheme,
+  IconButton
 } from '@mui/material';
 import {
   CheckCircle as ApproveIcon,
   Delete as DeleteIcon,
-  Edit as EditIcon,
   Visibility as ViewIcon,
   FilterList as FilterIcon
 } from '@mui/icons-material';
 import { getUsers, approveUser, deleteUser } from '../../api/users';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import ResponsiveTable from '../../components/common/ResponsiveTable';
+import { usePagination } from '../../hooks/usePerformanceOptimization';
 
 const UserManagement = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
+  
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
   const [filters, setFilters] = useState({
     role: '',
     approved: ''
@@ -53,13 +49,20 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [actionSuccess, setActionSuccess] = useState(null);
 
+  const { 
+    page, 
+    setPage, 
+    itemsPerPage, 
+    setItemsPerPage, 
+    paginatedItems 
+  } = usePagination(users, 0, isMobile ? 5 : 10);
+
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
     
     try {
       const params = {
-        page: page + 1,
         role: filters.role || undefined,
         approved: filters.approved === 'true' ? true : 
                  filters.approved === 'false' ? false : undefined
@@ -67,7 +70,6 @@ const UserManagement = () => {
       
       const response = await getUsers(params);
       setUsers(response.results || []);
-      setTotalCount(response.count || 0);
     } catch (err) {
       console.error('Error fetching users:', err);
       setError('Failed to load users. Please try again.');
@@ -78,16 +80,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, rowsPerPage, filters]);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  }, [filters]);
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
@@ -132,9 +125,81 @@ const UserManagement = () => {
     }
   };
 
+  // Define columns for the responsive table
+  const columns = [
+    { key: 'username', label: 'Username' },
+    { 
+      key: 'name', 
+      label: 'Name',
+      render: (value, row) => `${row.first_name || ''} ${row.last_name || ''}`.trim() || '-'
+    },
+    { key: 'email', label: 'Email', hidden: isMobile },
+    { 
+      key: 'role', 
+      label: 'Role',
+      render: (value, row) => (
+        <Chip 
+          label={row.role.charAt(0).toUpperCase() + row.role.slice(1)} 
+          color={
+            row.role === 'admin' ? 'secondary' : 
+            row.role === 'seller' ? 'primary' : 
+            'default'
+          }
+          size="small"
+        />
+      )
+    },
+    { key: 'phone', label: 'Phone', hidden: isMobile },
+    { key: 'city', label: 'City', hidden: isMobile },
+    { 
+      key: 'approved', 
+      label: 'Status',
+      render: (value, row) => (
+        row.approved ? (
+          <Chip label="Approved" color="success" size="small" />
+        ) : (
+          <Chip label="Pending" color="warning" size="small" />
+        )
+      )
+    }
+  ];
+
+  // Define action buttons for the responsive table
+  const renderActions = (row) => (
+    <Box display="flex" justifyContent="center" flexWrap="wrap" gap={1}>
+      <IconButton 
+        color="primary" 
+        component={Link}
+        to={`/admin/users/${row.id}`}
+        title="View User Details"
+        size="small"
+      >
+        <ViewIcon />
+      </IconButton>
+      {!row.approved && (
+        <IconButton 
+          color="success" 
+          onClick={() => handleApproveUser(row.id)}
+          title="Approve User"
+          size="small"
+        >
+          <ApproveIcon />
+        </IconButton>
+      )}
+      <IconButton 
+        color="error" 
+        onClick={() => handleDeleteClick(row)}
+        title="Delete User"
+        size="small"
+      >
+        <DeleteIcon />
+      </IconButton>
+    </Box>
+  );
+
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
         User Management
       </Typography>
       
@@ -155,15 +220,16 @@ const UserManagement = () => {
           startIcon={<FilterIcon />} 
           onClick={() => setShowFilters(!showFilters)}
           variant="outlined"
+          fullWidth={isMobile}
         >
-          Filters
+          {showFilters ? 'Hide' : 'Show'} Filters
         </Button>
       </Box>
       
       {showFilters && (
         <Paper sx={{ p: 2, mb: 2 }}>
-          <Box display="flex" flexWrap="wrap" gap={2}>
-            <FormControl sx={{ minWidth: 200 }}>
+          <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap={2}>
+            <FormControl sx={{ minWidth: 200, flexGrow: 1 }}>
               <InputLabel>Role</InputLabel>
               <Select
                 name="role"
@@ -178,7 +244,7 @@ const UserManagement = () => {
               </Select>
             </FormControl>
             
-            <FormControl sx={{ minWidth: 200 }}>
+            <FormControl sx={{ minWidth: 200, flexGrow: 1 }}>
               <InputLabel>Approval Status</InputLabel>
               <Select
                 name="approved"
@@ -195,105 +261,21 @@ const UserManagement = () => {
         </Paper>
       )}
       
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Username</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>City</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
-            ) : users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center">
-                  No users found
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{`${user.first_name} ${user.last_name}`}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
-                      color={
-                        user.role === 'admin' ? 'secondary' : 
-                        user.role === 'seller' ? 'primary' : 
-                        'default'
-                      }
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell>{user.city}</TableCell>
-                  <TableCell>
-                    {user.approved ? (
-                      <Chip label="Approved" color="success" size="small" />
-                    ) : (
-                      <Chip label="Pending" color="warning" size="small" />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <IconButton 
-                      color="primary" 
-                      component={Link}
-                      to={`/admin/users/${user.id}`}
-                      title="View User Details"
-                    >
-                      <ViewIcon />
-                    </IconButton>
-                    {!user.approved && (
-                      <IconButton 
-                        color="success" 
-                        onClick={() => handleApproveUser(user.id)}
-                        title="Approve User"
-                      >
-                        <ApproveIcon />
-                      </IconButton>
-                    )}
-                    <IconButton 
-                      color="error" 
-                      onClick={() => handleDeleteClick(user)}
-                      title="Delete User"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
-          component="div"
-          count={totalCount}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </TableContainer>
+      <ResponsiveTable
+        columns={columns}
+        data={paginatedItems}
+        loading={loading}
+        emptyMessage="No users found"
+        onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
+        actions={renderActions}
+        primaryKey="id"
+      />
       
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
+        fullWidth={isMobile}
       >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>

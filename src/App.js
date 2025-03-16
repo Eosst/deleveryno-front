@@ -1,15 +1,45 @@
 // src/App.js
-import React from 'react';
+import React, { useMemo } from 'react';
 import AppRoutes from './routes';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { Snackbar, Alert } from '@mui/material';
+import { WifiOff as OfflineIcon } from '@mui/icons-material';
+import theme from './theme';
+import useNetworkStatus from './hooks/useNetworkStatus';
 import './App.css';
+import './mobile.css'; // Import mobile-specific CSS
 
 function App() {
-  return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
-  );
+  const { isOnline } = useNetworkStatus();
+  
+  // Use useMemo to prevent unnecessary re-renders
+  const appContent = useMemo(() => (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <AppRoutes />
+        
+        {/* Offline notification - only show when offline */}
+        <Snackbar
+          open={!isOnline}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert 
+            severity="warning" 
+            icon={<OfflineIcon />}
+            sx={{ width: '100%' }}
+            className="offline-notification"
+          >
+            You are currently offline. Some features may be limited.
+          </Alert>
+        </Snackbar>
+      </AuthProvider>
+    </ThemeProvider>
+  ), [isOnline]); // Only re-render when online status changes
+  
+  return appContent;
 }
 
 export default App;

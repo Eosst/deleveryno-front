@@ -13,7 +13,11 @@ import {
   ListItemText, 
   Container, 
   Divider,
-  Badge
+  Badge,
+  IconButton,
+  useMediaQuery,
+  useTheme,
+  SwipeableDrawer
 } from '@mui/material';
 import { 
   Dashboard as DashboardIcon,
@@ -22,21 +26,30 @@ import {
   Inventory as StockIcon,
   Person as ProfileIcon,
   Logout as LogoutIcon,
-  Email as EmailIcon
+  Email as EmailIcon,
+  Menu as MenuIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { getMessages } from '../../api/messages';
-
-const drawerWidth = 240;
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  const drawerWidth = isMobile ? '85%' : 240;
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  // Toggle drawer
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
   // Navigate to dashboard based on user role
@@ -47,6 +60,9 @@ const MainLayout = () => {
       navigate('/seller/dashboard');
     } else if (user?.role === 'driver') {
       navigate('/driver/dashboard');
+    }
+    if (isMobile) {
+      setMobileOpen(false);
     }
   };
 
@@ -137,99 +153,173 @@ const MainLayout = () => {
 
   const navItems = getNavItems();
 
+  const drawer = (
+    <Box>
+      <Toolbar />
+      <List>
+        {navItems.map((item) => (
+          <ListItem 
+            button 
+            key={item.text} 
+            onClick={() => {
+              navigate(item.path);
+              if (isMobile) setMobileOpen(false);
+            }}
+            sx={{ cursor: 'pointer' }}
+          >
+            <ListItemIcon>
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText primary={item.text} />
+          </ListItem>
+        ))}
+        <Divider />
+        
+        {/* Profile button - visible for all users */}
+        <ListItem 
+          button 
+          onClick={() => {
+            navigate('/profile');
+            if (isMobile) setMobileOpen(false);
+          }}
+          sx={{ cursor: 'pointer' }}
+        >
+          <ListItemIcon>
+            <ProfileIcon />
+          </ListItemIcon>
+          <ListItemText primary="Profile" />
+        </ListItem>
+        
+        <ListItem 
+          button 
+          onClick={() => {
+            handleLogout();
+            if (isMobile) setMobileOpen(false);
+          }}
+          sx={{ cursor: 'pointer' }}
+        >
+          <ListItemIcon>
+            <LogoutIcon />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItem>
+      </List>
+    </Box>
+  );
+
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Deleveryno - {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)} Panel
-          </Typography>
-          {/* Message notification icon in toolbar */}
-          <Button 
-            color="inherit" 
-            onClick={() => navigate('/messages')}
-            sx={{ mr: 2 }}
-          >
-            <Badge badgeContent={unreadCount} color="error">
-              <EmailIcon />
-            </Badge>
-          </Button>
-          {/* Username button - now redirects to dashboard */}
-          <Button 
-            color="inherit" 
-            onClick={navigateToDashboard}
-            sx={{ cursor: 'pointer' }}
-          >
-            {user?.username || 'Dashboard'}
-          </Button>
-          <Button 
-            color="inherit" 
-            onClick={handleLogout}
-            sx={{ cursor: 'pointer', ml: 2 }}
-          >
-            Logout
-          </Button>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {isMobile && (
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 1 }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+            <Typography 
+              variant="h6" 
+              component="div" 
+              noWrap
+              sx={{ display: { xs: 'none', sm: 'block' } }}
+            >
+              Deleveryno - {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)} Panel
+            </Typography>
+            <Typography 
+              variant="h6" 
+              component="div"
+              sx={{ display: { xs: 'block', sm: 'none' } }}
+            >
+              {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
+            </Typography>
+          </Box>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Message notification icon in toolbar */}
+            <IconButton 
+              color="inherit" 
+              onClick={() => {
+                navigate('/messages');
+                if (isMobile) setMobileOpen(false);
+              }}
+              size={isMobile ? "small" : "medium"}
+            >
+              <Badge badgeContent={unreadCount} color="error">
+                <EmailIcon />
+              </Badge>
+            </IconButton>
+            
+            {/* Username button - redirects to dashboard */}
+            {!isMobile && (
+              <Button 
+                color="inherit" 
+                onClick={navigateToDashboard}
+                sx={{ cursor: 'pointer', ml: 1 }}
+              >
+                {user?.username || 'Dashboard'}
+              </Button>
+            )}
+            
+            {!isMobile && (
+              <Button 
+                color="inherit" 
+                onClick={handleLogout}
+                sx={{ cursor: 'pointer', ml: 1 }}
+              >
+                Logout
+              </Button>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
+      
+      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+      {isMobile ? (
+        <SwipeableDrawer
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          onOpen={() => setMobileOpen(true)}
+          sx={{
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth 
+            },
+          }}
+        >
+          {drawer}
+        </SwipeableDrawer>
+      ) : (
+        <Drawer
+          variant="permanent"
+          sx={{
             width: drawerWidth,
-            boxSizing: 'border-box',
-          },
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              boxSizing: 'border-box',
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      )}
+      
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1, 
+          p: { xs: 2, sm: 3 },
+          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` } 
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto' }}>
-          <List>
-            {navItems.map((item) => (
-              <ListItem 
-                button 
-                key={item.text} 
-                onClick={() => navigate(item.path)}
-                sx={{ cursor: 'pointer' }}
-              >
-                <ListItemIcon>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItem>
-            ))}
-            <Divider />
-            
-            {/* Profile button - only visible for admins */}
-            {isAdmin && (
-              <ListItem 
-                button 
-                onClick={() => navigate('/profile')}
-                sx={{ cursor: 'pointer' }}
-              >
-                <ListItemIcon>
-                  <ProfileIcon />
-                </ListItemIcon>
-                <ListItemText primary="Profile" />
-              </ListItem>
-            )}
-            
-            <ListItem 
-              button 
-              onClick={handleLogout}
-              sx={{ cursor: 'pointer' }}
-            >
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
-        </Box>
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar />
-        <Container>
+        <Container maxWidth="lg" disableGutters={isMobile}>
           <Outlet />
         </Container>
       </Box>

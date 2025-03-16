@@ -15,20 +15,15 @@ import {
   CircularProgress,
   Alert,
   Tooltip,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Link,
+  InputAdornment,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -39,11 +34,15 @@ import {
   Search as SearchIcon,
   Person as PersonIcon
 } from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getStockItems, createStockItem, updateStockItem, deleteStockItem, approveStockItem } from '../../api/stock';
 import { getUsers } from '../../api/users';
+import ResponsiveTable from '../../components/common/ResponsiveTable';
 
 const AdminStockManagement = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [stockItems, setStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -203,31 +202,129 @@ const AdminStockManagement = () => {
 
   const getStatusChip = (status) => {
     return status ? 
-      <Chip label="Approved" color="success" /> : 
-      <Chip label="Pending Approval" color="warning" />;
+      <Chip label="Approved" color="success" size="small" /> : 
+      <Chip label="Pending Approval" color="warning" size="small" />;
   };
 
   const getStockStatusChip = (quantity) => {
     if (quantity === 0) {
-      return <Chip label="Out of Stock" color="error" />;
+      return <Chip label="Out of Stock" color="error" size="small" />;
     } else if (quantity < 5) {
-      return <Chip label="Low Stock" color="warning" />;
+      return <Chip label="Low Stock" color="warning" size="small" />;
     } else {
-      return <Chip label="In Stock" color="success" />;
+      return <Chip label="In Stock" color="success" size="small" />;
     }
   };
 
+  // Define columns for the responsive table
+  const columns = [
+    { 
+      key: 'item_name', 
+      label: 'Item Name',
+      render: (value, row) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {value}
+          {!row.approved && (
+            <Tooltip title="This item is pending approval">
+              <InfoIcon 
+                fontSize="small" 
+                color="warning" 
+                sx={{ ml: 1 }} 
+              />
+            </Tooltip>
+          )}
+        </Box>
+      )
+    },
+    { key: 'quantity', label: 'Quantity' },
+    { 
+      key: 'seller', 
+      label: 'Seller',
+      hidden: isMobile,
+      render: (value) => value ? (
+        <Link 
+          component={Link} 
+          to={`/admin/users/${value.id}`}
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            color: 'primary.main',
+            textDecoration: 'none',
+            '&:hover': {
+              textDecoration: 'underline'
+            }
+          }}
+        >
+          <PersonIcon sx={{ mr: 0.5, fontSize: 16 }} />
+          {value.first_name && value.last_name ? (
+            `${value.first_name} ${value.last_name}`
+          ) : (
+            value.username
+          )}
+        </Link>
+      ) : 'Unknown'
+    },
+    { 
+      key: 'stock_status', 
+      label: 'Stock Status',
+      render: (value, row) => getStockStatusChip(row.quantity)
+    },
+    { 
+      key: 'approved', 
+      label: 'Approval Status',
+      render: (value) => getStatusChip(value)
+    }
+  ];
+
+  // Define action buttons for the responsive table
+  const renderActions = (row) => (
+    <Box display="flex" justifyContent="center" flexWrap="wrap" gap={1}>
+      {!row.approved && (
+        <Button
+          color="success"
+          variant="contained"
+          size="small"
+          onClick={() => handleApproveItem(row.id)}
+          sx={{ mr: 1 }}
+        >
+          Approve
+        </Button>
+      )}
+      <IconButton
+        color="primary"
+        onClick={() => handleOpenEditDialog(row)}
+        size="small"
+        sx={{ mr: 0.5 }}
+      >
+        <EditIcon />
+      </IconButton>
+      <IconButton
+        color="error"
+        onClick={() => handleDeleteClick(row)}
+        size="small"
+      >
+        <DeleteIcon />
+      </IconButton>
+    </Box>
+  );
+
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-        <Typography variant="h4">Inventory Management</Typography>
-        <Box>
+      <Box 
+        display="flex" 
+        flexDirection={isMobile ? 'column' : 'row'} 
+        justifyContent="space-between" 
+        alignItems={isMobile ? "stretch" : "center"}
+        mb={4}
+      >
+        <Typography variant="h4" sx={{ mb: isMobile ? 2 : 0 }}>Inventory Management</Typography>
+        <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap={2}>
           <Button
             variant="outlined"
             color="info"
             startIcon={<InfoIcon />}
             onClick={() => setInfoDialogOpen(true)}
-            sx={{ mr: 2 }}
+            fullWidth={isMobile}
           >
             ABOUT APPROVAL
           </Button>
@@ -236,6 +333,7 @@ const AdminStockManagement = () => {
             color="primary"
             startIcon={<AddIcon />}
             onClick={handleOpenAddDialog}
+            fullWidth={isMobile}
           >
             ADD NEW ITEM
           </Button>
@@ -254,132 +352,47 @@ const AdminStockManagement = () => {
         </Alert>
       )}
 
-      <Box sx={{ p: 2, mb: 4 }}>
-        <TextField
-          fullWidth
-          placeholder="Search inventory items..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <SearchIcon sx={{ mr: 1, color: 'action.active' }} />
-            ),
-          }}
-          sx={{ mb: 2 }}
-        />
+      <TextField
+        fullWidth
+        placeholder="Search inventory items..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
+        sx={{ mb: 2 }}
+      />
 
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Item Name</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Seller</TableCell>
-                <TableCell>Stock Status</TableCell>
-                <TableCell>Approval Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    <CircularProgress />
-                  </TableCell>
-                </TableRow>
-              ) : filteredItems.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    No inventory items found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredItems.map((item) => (
-                  <TableRow 
-                    key={item.id}
-                    sx={{ 
-                      opacity: item.approved ? 1 : 0.7,
-                      bgcolor: item.approved ? 'inherit' : 'action.hover'
-                    }}
-                  >
-                    <TableCell>{item.item_name}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>
-                      {item.seller ? (
-                        <Link 
-                          component={RouterLink} 
-                          to={`/admin/users/${item.seller.id}`}
-                          sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center',
-                            color: 'primary.main',
-                            textDecoration: 'none',
-                            '&:hover': {
-                              textDecoration: 'underline'
-                            }
-                          }}
-                        >
-                          <PersonIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                          {item.seller.first_name && item.seller.last_name ? (
-                            `${item.seller.first_name} ${item.seller.last_name}`
-                          ) : (
-                            item.seller.username
-                          )}
-                        </Link>
-                      ) : (
-                        'Unknown'
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {getStockStatusChip(item.quantity)}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusChip(item.approved)}
-                    </TableCell>
-                    <TableCell align="right">
-                      <Box display="flex" justifyContent="flex-end">
-                        {!item.approved && (
-                          <Button
-                            color="success"
-                            variant="contained"
-                            size="small"
-                            onClick={() => handleApproveItem(item.id)}
-                            sx={{ mr: 1 }}
-                          >
-                            Approve
-                          </Button>
-                        )}
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleOpenEditDialog(item)}
-                          size="small"
-                          sx={{ mr: 0.5 }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDeleteClick(item)}
-                          size="small"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+      {/* Responsive Stock Items Table */}
+      <ResponsiveTable
+        columns={columns}
+        data={filteredItems}
+        loading={loading}
+        emptyMessage="No inventory items found"
+        actions={renderActions}
+        primaryKey="id"
+      />
 
       {/* Add/Edit Item Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
+      <Dialog 
+        open={openDialog} 
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>
           {dialogMode === 'add' ? 'Add New Inventory Item' : 'Edit Inventory Item'}
         </DialogTitle>
         <DialogContent>
+          {dialogMode === 'add' && (
+            <DialogContentText sx={{ mb: 2 }}>
+              New items require admin approval before they can be used for creating orders.
+            </DialogContentText>
+          )}
           <TextField
             autoFocus
             margin="dense"
@@ -390,7 +403,13 @@ const AdminStockManagement = () => {
             value={formData.item_name}
             onChange={handleInputChange}
             required
+            disabled={dialogMode === 'edit' && currentItem?.approved}
           />
+          {dialogMode === 'edit' && currentItem?.approved && (
+            <DialogContentText sx={{ mt: 1, mb: 1, color: 'warning.main' }}>
+              when you change the quantity of an item you will need to wait for it to be approved again
+            </DialogContentText>
+          )}
           <TextField
             margin="dense"
             name="quantity"
@@ -456,6 +475,7 @@ const AdminStockManagement = () => {
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
+        fullWidth={isMobile}
       >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
@@ -475,6 +495,8 @@ const AdminStockManagement = () => {
       <Dialog
         open={infoDialogOpen}
         onClose={() => setInfoDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle>About Stock Approval</DialogTitle>
         <DialogContent>

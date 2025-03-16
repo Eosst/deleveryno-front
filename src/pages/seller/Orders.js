@@ -1,17 +1,10 @@
 // src/pages/seller/Orders.js
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
   Chip,
   Button,
   TextField,
@@ -21,9 +14,10 @@ import {
   Select,
   MenuItem,
   Grid,
-  CircularProgress,
   Alert,
-  IconButton
+  IconButton,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -32,9 +26,14 @@ import {
   Add as AddIcon
 } from '@mui/icons-material';
 import { getSellerOrders } from '../../api/orders';
+import ResponsiveTable from '../../components/common/ResponsiveTable';
 
 const SellerOrders = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -83,8 +82,6 @@ const SellerOrders = () => {
         orderData = response;
         setTotalCount(response.length);
       }
-      
-      console.log("Fetched orders:", orderData); // Debug log
       
       // Apply filters to the fetched data (not to the current state)
       let filteredData = [...orderData]; // Create a copy to work with
@@ -182,16 +179,59 @@ const SellerOrders = () => {
   // This slices the orders array based on pagination settings
   const paginatedOrders = orders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+  // Define table columns
+  const columns = [
+    { key: 'id', label: 'Order ID' },
+    { key: 'customer_name', label: 'Customer' },
+    { key: 'item', label: 'Item' },
+    { key: 'quantity', label: 'Qty', hidden: isMobile },
+    { key: 'delivery_city', label: 'Delivery City', hidden: isMobile },
+    { 
+      key: 'status', 
+      label: 'Status',
+      render: (value, row) => getStatusChip(value)
+    },
+    { 
+      key: 'created_at', 
+      label: 'Created', 
+      hidden: isMobile,
+      render: (value) => new Date(value).toLocaleDateString()
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      align: 'center',
+      render: (value, row) => (
+        <IconButton
+          color="primary"
+          size="small"
+          component={Link}
+          to={`/seller/orders/${row.id}`}
+          title="View Details"
+        >
+          <ViewIcon />
+        </IconButton>
+      )
+    }
+  ];
+
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">My Orders</Typography>
+      <Box 
+        display="flex" 
+        flexDirection={isMobile ? 'column' : 'row'} 
+        justifyContent="space-between" 
+        alignItems={isMobile ? "stretch" : "center"} 
+        mb={3}
+      >
+        <Typography variant="h4" sx={{ mb: isMobile ? 2 : 0 }}>My Orders</Typography>
         <Button
           component={Link}
           to="/seller/orders/create"
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
+          fullWidth={isMobile}
         >
           Create New Order
         </Button>
@@ -240,6 +280,7 @@ const SellerOrders = () => {
               startIcon={<FilterIcon />}
               onClick={() => setShowFilters(!showFilters)}
               variant="outlined"
+              fullWidth={isMobile}
             >
               {showFilters ? 'Hide Filters' : 'Show Filters'}
             </Button>
@@ -287,6 +328,7 @@ const SellerOrders = () => {
                     });
                     setSearchTerm('');
                   }}
+                  fullWidth={isMobile}
                 >
                   Reset Filters
                 </Button>
@@ -296,80 +338,15 @@ const SellerOrders = () => {
         </Grid>
       </Paper>
 
-      {/* Orders Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Item</TableCell>
-              <TableCell>Qty</TableCell>
-              <TableCell>Delivery City</TableCell>
-              {/* <TableCell>Driver</TableCell> */}
-              <TableCell>Status</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
-            ) : paginatedOrders.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center">
-                  No orders found
-                </TableCell>
-              </TableRow>
-            ) : (
-              paginatedOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.customer_name}</TableCell>
-                  <TableCell>{order.item}</TableCell>
-                  <TableCell>{order.quantity}</TableCell>
-                  <TableCell>{order.delivery_city}</TableCell>
-                  {/* <TableCell>
-                    {order.driver?.username || (
-                      <Typography variant="body2" color="textSecondary">
-                        Not assigned
-                      </Typography>
-                    )}
-                  </TableCell> */}
-                  <TableCell>{getStatusChip(order.status)}</TableCell>
-                  <TableCell>
-                    {new Date(order.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      component={Link}
-                      to={`/seller/orders/${order.id}`}
-                      title="View Details"
-                    >
-                      <ViewIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
-          component="div"
-          count={totalCount}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </TableContainer>
+      {/* Responsive Orders Table */}
+      <ResponsiveTable
+        columns={columns}
+        data={paginatedOrders}
+        loading={loading}
+        emptyMessage="No orders found"
+        onRowClick={(row) => navigate(`/seller/orders/${row.id}`)}
+        primaryKey="id"
+      />
     </Box>
   );
 };

@@ -3,25 +3,20 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
   Chip,
-  FormControl,
-  Select,
-  MenuItem,
-  CircularProgress,
-  Alert,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  Select,
+  MenuItem,
+  CircularProgress,
+  Alert,
+  useTheme,
+  useMediaQuery,
   IconButton,
   Tooltip
 } from '@mui/material';
@@ -31,9 +26,15 @@ import {
   LocationOn as LocationIcon
 } from '@mui/icons-material';
 import { getDriverOrders, updateOrderStatus } from '../../api/orders';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import ResponsiveTable from '../../components/common/ResponsiveTable';
+import { usePagination } from '../../hooks/usePerformanceOptimization';
 
 const DriverOrders = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
+  
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,15 @@ const DriverOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [newStatus, setNewStatus] = useState('');
   const [updateLoading, setUpdateLoading] = useState(false);
+
+  // Use pagination
+  const { 
+    page, 
+    setPage, 
+    itemsPerPage, 
+    setItemsPerPage, 
+    paginatedItems 
+  } = usePagination(filteredOrders, 0, isMobile ? 5 : 10);
 
   useEffect(() => {
     fetchOrders();
@@ -162,9 +172,145 @@ const DriverOrders = () => {
     }
   };
 
+  // Define columns for the responsive table
+  const columns = [
+    { key: 'id', label: 'Order ID', render: (value) => `#${value}` },
+    { 
+      key: 'customer_name', 
+      label: 'Customer',
+      render: (value, row) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {value}
+          {!isMobile && (
+            <Tooltip title="Call Customer">
+              <IconButton 
+                size="small" 
+                color="primary" 
+                component="a" 
+                href={`tel:${row.customer_phone}`}
+                sx={{ ml: 1 }}
+              >
+                <PhoneIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+      )
+    },
+    { 
+      key: 'item_info', 
+      label: 'Item',
+      hidden: isMobile,
+      render: (value, row) => `${row.item} (x${row.quantity})`
+    },
+    { 
+      key: 'location', 
+      label: 'Location',
+      render: (value, row) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {row.delivery_city}
+          {row.delivery_location && (
+            <Tooltip title="Open in Maps">
+              <IconButton 
+                size="small" 
+                color="primary" 
+                component="a" 
+                href={`https://maps.google.com?q=${row.delivery_location}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ ml: 1 }}
+              >
+                <LocationIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+      )
+    },
+    { 
+      key: 'status', 
+      label: 'Status',
+      render: (value) => getStatusChip(value)
+    }
+  ];
+
+  // Update Status column for mobile
+  if (isMobile) {
+    columns.push({
+      key: 'update_status',
+      label: 'Update',
+      render: (value, row) => (
+        <FormControl fullWidth size="small">
+          <Select
+            value={row.status}
+            onChange={(e) => handleStatusChange(row, e)}
+            disabled={['delivered', 'canceled'].includes(row.status) || updateLoading}
+            displayEmpty
+            renderValue={() => "Update"}
+            sx={{ 
+              '& .MuiSelect-select': { 
+                color: ['delivered', 'canceled'].includes(row.status) ? 'text.disabled' : 'primary.main',
+                fontWeight: 500,
+                padding: '5px 10px',
+                minHeight: '30px'
+              } 
+            }}
+          >
+            {getAllowedStatuses(row.status).map(status => (
+              <MenuItem key={status} value={status}>
+                {getStatusLabel(status)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )
+    });
+  }
+
+  // Define action buttons for the responsive table
+  const renderActions = (row) => (
+    <Box display="flex" justifyContent="center">
+      <Button
+        component={Link}
+        to={`/driver/orders/${row.id}`}
+        variant="outlined"
+        size="small"
+        startIcon={<ViewIcon />}
+      >
+        {isMobile ? '' : 'Details'}
+      </Button>
+      
+      {/* Show update status dropdown on desktop */}
+      {!isMobile && (
+        <FormControl sx={{ ml: 1, minWidth: 150 }}>
+          <Select
+            value={row.status}
+            onChange={(e) => handleStatusChange(row, e)}
+            disabled={['delivered', 'canceled'].includes(row.status) || updateLoading}
+            displayEmpty
+            renderValue={() => "Update Status"}
+            size="small"
+            sx={{ 
+              '& .MuiSelect-select': { 
+                color: ['delivered', 'canceled'].includes(row.status) ? 'text.disabled' : 'primary.main',
+                fontWeight: 500
+              } 
+            }}
+          >
+            {getAllowedStatuses(row.status).map(status => (
+              <MenuItem key={status} value={status}>
+                {getStatusLabel(status)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+    </Box>
+  );
+
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
         My Delivery Orders
       </Typography>
       
@@ -180,140 +326,45 @@ const DriverOrders = () => {
         </Alert>
       )}
       
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <FormControl variant="outlined" sx={{ minWidth: 200 }}>
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            displayEmpty
-          >
-            <MenuItem value="all">All Orders</MenuItem>
-            <MenuItem value="assigned">Assigned</MenuItem>
-            <MenuItem value="in_transit">In Transit</MenuItem>
-            <MenuItem value="delivered">Delivered</MenuItem>
-            <MenuItem value="no_answer">No Answer</MenuItem>
-            <MenuItem value="postponed">Postponed</MenuItem>
-            <MenuItem value="canceled">Canceled</MenuItem>
-          </Select>
-        </FormControl>
-      </Paper>
+      <FormControl variant="outlined" sx={{ minWidth: 200, mb: 3, width: isMobile ? '100%' : 'auto' }}>
+        <Select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(0); // Reset page when filter changes
+          }}
+          displayEmpty
+        >
+          <MenuItem value="all">All Orders</MenuItem>
+          <MenuItem value="assigned">Assigned</MenuItem>
+          <MenuItem value="in_transit">In Transit</MenuItem>
+          <MenuItem value="delivered">Delivered</MenuItem>
+          <MenuItem value="no_answer">No Answer</MenuItem>
+          <MenuItem value="postponed">Postponed</MenuItem>
+          <MenuItem value="canceled">Canceled</MenuItem>
+        </Select>
+      </FormControl>
       
-      {loading ? (
-        <Box display="flex" justifyContent="center" p={4}>
-          <CircularProgress />
-        </Box>
-      ) : filteredOrders.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            No orders found
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            {statusFilter !== 'all'
-              ? `You don't have any orders with status: ${getStatusLabel(statusFilter)}`
-              : "You don't have any assigned orders yet."}
-          </Typography>
-        </Paper>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Item</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Update Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>#{order.id}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {order.customer_name}
-                      <Tooltip title="Call Customer">
-                        <IconButton 
-                          size="small" 
-                          color="primary" 
-                          component="a" 
-                          href={`tel:${order.customer_phone}`}
-                          sx={{ ml: 1 }}
-                        >
-                          <PhoneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                  <TableCell>{order.item} (x{order.quantity})</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {order.delivery_city}
-                      {order.delivery_location && (
-                        <Tooltip title="Open in Maps">
-                          <IconButton 
-                            size="small" 
-                            color="primary" 
-                            component="a" 
-                            href={`https://maps.google.com?q=${order.delivery_location}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{ ml: 1 }}
-                          >
-                            <LocationIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>{getStatusChip(order.status)}</TableCell>
-                  <TableCell>
-                    <FormControl fullWidth size="small">
-                      <Select
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order, e)}
-                        disabled={['delivered', 'canceled'].includes(order.status) || updateLoading}
-                        displayEmpty
-                        renderValue={() => "Update Status"}
-                        sx={{ 
-                          '& .MuiSelect-select': { 
-                            color: ['delivered', 'canceled'].includes(order.status) ? 'text.disabled' : 'primary.main',
-                            fontWeight: 500
-                          } 
-                        }}
-                      >
-                        {getAllowedStatuses(order.status).map(status => (
-                          <MenuItem key={status} value={status}>
-                            {getStatusLabel(status)}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      component={Link}
-                      to={`/driver/orders/${order.id}`}
-                      variant="outlined"
-                      size="small"
-                      startIcon={<ViewIcon />}
-                    >
-                      Details
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      <ResponsiveTable
+        columns={columns}
+        data={paginatedItems}
+        loading={loading}
+        emptyMessage={
+          statusFilter !== 'all'
+            ? `You don't have any orders with status: ${getStatusLabel(statusFilter)}`
+            : "You don't have any assigned orders yet."
+        }
+        onRowClick={(row) => navigate(`/driver/orders/${row.id}`)}
+        actions={renderActions}
+        primaryKey="id"
+      />
 
       {/* Confirmation Dialog */}
       <Dialog
         open={confirmDialogOpen}
         onClose={() => setConfirmDialogOpen(false)}
+        fullWidth={isMobile}
+        maxWidth="sm"
       >
         <DialogTitle>Confirm Status Change</DialogTitle>
         <DialogContent>

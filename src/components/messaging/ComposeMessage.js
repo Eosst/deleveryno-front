@@ -12,9 +12,24 @@ import {
   Select,
   MenuItem,
   CircularProgress,
-  Alert
+  Alert,
+  Divider,
+  useMediaQuery,
+  useTheme,
+  InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material';
-import { ArrowBack as BackIcon } from '@mui/icons-material';
+import {
+  ArrowBack as BackIcon,
+  Send as SendIcon,
+  Person as PersonIcon,
+  Subject as SubjectIcon,
+  Email as EmailIcon
+} from '@mui/icons-material';
 import { createMessage, getMessage } from '../../api/messages';
 import { getUsers } from '../../api/users';
 import { useAuth } from '../../contexts/AuthContext';
@@ -22,12 +37,17 @@ import { useAuth } from '../../contexts/AuthContext';
 const ComposeMessage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [replyToMessage, setReplyToMessage] = useState(null);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorDetails, setErrorDetails] = useState('');
   
   const [formData, setFormData] = useState({
     subject: '',
@@ -61,10 +81,11 @@ const ComposeMessage = () => {
       setFormData({
         subject: `Re: ${messageData.subject}`,
         content: '',
-        recipient_id: messageData.sender.id
+        recipient_id: messageData.sender?.id || ''
       });
     } catch (err) {
       console.error('Error fetching reply message:', err);
+      setError('Failed to load reply message details.');
     }
   };
 
@@ -76,13 +97,14 @@ const ComposeMessage = () => {
       const filteredUsers = (response.results || []).filter(u => {
         // For admin, show all non-admin users
         if (isAdmin) {
-          return u.id !== user.id && u.role !== 'admin';
+          return u.id !== user?.id && u.role !== 'admin';
         }
         return false;
       });
       setUsers(filteredUsers);
     } catch (err) {
       console.error('Error fetching users:', err);
+      setError('Failed to load user list.');
     } finally {
       setUsersLoading(false);
     }
@@ -119,6 +141,14 @@ const ComposeMessage = () => {
       navigate('/messages');
     } catch (err) {
       console.error('Error sending message:', err);
+      
+      // Show detailed error in dialog
+      if (err.response && err.response.data) {
+        const errorDetails = JSON.stringify(err.response.data, null, 2);
+        setErrorDetails(errorDetails);
+        setShowErrorDialog(true);
+      }
+      
       setError('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
@@ -126,12 +156,18 @@ const ComposeMessage = () => {
   };
 
   return (
-    <Box>
-      <Button startIcon={<BackIcon />} onClick={() => navigate(-1)} sx={{ mb: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+      <Button 
+        startIcon={<BackIcon />} 
+        onClick={() => navigate(-1)} 
+        sx={{ mb: 3 }}
+        variant={isMobile ? "outlined" : "text"}
+        fullWidth={isMobile}
+      >
         Back to Messages
       </Button>
 
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom align={isMobile ? "center" : "left"}>
         {replyToMessage ? 'Reply to Message' : 'New Message'}
       </Typography>
 
@@ -141,7 +177,7 @@ const ComposeMessage = () => {
         </Alert>
       )}
 
-      <Paper sx={{ p: 3 }}>
+      <Paper elevation={3} sx={{ p: isMobile ? 2 : 3, borderRadius: 2 }}>
         <form onSubmit={handleSubmit}>
           {/* Only show recipient selection for admin users */}
           {isAdmin && (
@@ -154,6 +190,11 @@ const ComposeMessage = () => {
                 label="Recipient"
                 required
                 disabled={usersLoading || replyToMessage}
+                startAdornment={
+                  <InputAdornment position="start">
+                    <PersonIcon />
+                  </InputAdornment>
+                }
               >
                 {usersLoading ? (
                   <MenuItem disabled>Loading users...</MenuItem>
@@ -179,6 +220,13 @@ const ComposeMessage = () => {
             </Alert>
           )}
 
+          {/* Show who we're replying to */}
+          {replyToMessage && (
+            <Alert severity="info" sx={{ mb: 3 }}>
+              You are replying to: {replyToMessage.sender?.first_name || ''} {replyToMessage.sender?.last_name || ''} ({replyToMessage.sender?.role || 'Unknown'})
+            </Alert>
+          )}
+
           <TextField
             fullWidth
             label="Subject"
@@ -187,6 +235,13 @@ const ComposeMessage = () => {
             onChange={handleChange}
             required
             sx={{ mb: 3 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SubjectIcon />
+                </InputAdornment>
+              ),
+            }}
           />
 
           <TextField
@@ -197,22 +252,54 @@ const ComposeMessage = () => {
             onChange={handleChange}
             required
             multiline
-            rows={6}
+            rows={isMobile ? 10 : 6}
             sx={{ mb: 3 }}
+            placeholder="Type your message here..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start" sx={{ mt: 1.5 }}>
+                  <EmailIcon />
+                </InputAdornment>
+              ),
+            }}
           />
 
-          <Box display="flex" justifyContent="flex-end">
+          <Box 
+            display="flex" 
+            justifyContent={isMobile ? "center" : "flex-end"}
+          >
             <Button
               variant="contained"
               color="primary"
               type="submit"
               disabled={loading}
+              startIcon={loading ? <CircularProgress size={24} /> : <SendIcon />}
+              size={isMobile ? "large" : "medium"}
+              sx={{ minWidth: isMobile ? '100%' : '120px' }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Send Message'}
+              Send Message
             </Button>
           </Box>
         </form>
       </Paper>
+
+      {/* Error Details Dialog */}
+      <Dialog 
+        open={showErrorDialog} 
+        onClose={() => setShowErrorDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Error Details</DialogTitle>
+        <DialogContent>
+          <DialogContentText component="pre" sx={{ whiteSpace: 'pre-wrap' }}>
+            {errorDetails}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowErrorDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

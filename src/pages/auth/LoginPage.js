@@ -1,4 +1,4 @@
-// src/pages/auth/LoginPage.js - Improved version
+// src/pages/auth/LoginPage.js - Mobile-optimized version
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -11,14 +11,26 @@ import {
   Paper,
   Alert,
   Grid,
-  CircularProgress
+  CircularProgress,
+  useMediaQuery,
+  useTheme,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
-import { LockOutlined } from '@mui/icons-material';
+import { 
+  LockOutlined,
+  Visibility,
+  VisibilityOff,
+  Email as EmailIcon,
+  Lock as LockIcon
+} from '@mui/icons-material';
 
 const LoginPage = () => {
   const { login, error: authError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [credentials, setCredentials] = useState({
     email: '',
@@ -26,6 +38,7 @@ const LoginPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Clear errors when the component mounts
   useEffect(() => {
@@ -38,6 +51,14 @@ const LoginPage = () => {
       ...credentials,
       [name]: value
     });
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
   };
 
   const handleSubmit = async (e) => {
@@ -77,13 +98,21 @@ const LoginPage = () => {
     <Container component="main" maxWidth="xs">
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: isMobile ? 4 : 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          mb: 4
         }}
       >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            padding: isMobile ? 3 : 4, 
+            width: '100%',
+            borderRadius: 2
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -93,8 +122,12 @@ const LoginPage = () => {
             }}
           >
             <LockOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
-            <Typography component="h1" variant="h5">
-              DeliveryNo - Login
+            <Typography 
+              component="h1" 
+              variant={isMobile ? "h5" : "h4"}
+              sx={{ fontWeight: 'bold' }}
+            >
+              DeliveryNo
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Enter your credentials to access the platform
@@ -120,6 +153,14 @@ const LoginPage = () => {
               value={credentials.email}
               onChange={handleChange}
               disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon color="action" />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 1 }
+              }}
             />
             <TextField
               margin="normal"
@@ -127,42 +168,75 @@ const LoginPage = () => {
               fullWidth
               name="password"
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="current-password"
               value={credentials.password}
               onChange={handleChange}
               disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 1 }
+              }}
             />
             
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ 
+                mt: 3, 
+                mb: 2,
+                py: 1.5,
+                borderRadius: 1,
+                fontWeight: 'bold',
+                fontSize: '1rem'
+              }}
               disabled={loading}
             >
               {loading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
 
-            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              <Link to="/password-reset" style={{ textDecoration: 'none', color: 'primary.main' }}>
+            <Typography 
+              variant="body2" 
+              align="center" 
+              sx={{ mt: 2, color: 'primary.main' }}
+            >
+              <Link to="/password-reset" style={{ textDecoration: 'none', color: 'inherit' }}>
                 Forgot password?
               </Link>
             </Typography>
 
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid item xs={12}>
-                <Typography variant="body2" align="center" color="text.secondary">
-                  Don't have an account? Register as:
-                </Typography>
-              </Grid>
+            <Box sx={{ mt: 4, mb: 1 }}>
+              <Typography variant="body2" align="center" color="text.secondary">
+                Don't have an account? Register as:
+              </Typography>
+            </Box>
+            
+            <Grid container spacing={2}>
               <Grid item xs={6}>
                 <Button
                   component={Link}
                   to="/register/seller"
                   variant="outlined"
                   fullWidth
+                  sx={{ borderRadius: 1 }}
                 >
                   Seller
                 </Button>
@@ -173,6 +247,7 @@ const LoginPage = () => {
                   to="/register/driver"
                   variant="outlined"
                   fullWidth
+                  sx={{ borderRadius: 1 }}
                 >
                   Driver
                 </Button>

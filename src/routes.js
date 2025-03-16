@@ -1,52 +1,53 @@
 // src/routes.js
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import lazyLoad from './utils/lazyLoader';
 
-// Import layouts
+// Import layouts - Keeping MainLayout eager loaded for better user experience
 import MainLayout from './components/layouts/MainLayout';
 
-// Import auth pages
-import LoginPage from './pages/auth/LoginPage';
-import SellerRegistration from './pages/auth/SellerRegistration';
-import DriverRegistration from './pages/auth/DriverRegistration';
+// Import common components directly - these are small and frequently used
+import { ProtectedRoute } from './components/ProtectedRoute';
 
-// Import common pages
-import NotFound from './components/common/NotFound';
-import Profile from './components/common/Profile';
+// Import auth pages - these load immediately as they're entry points
+import LoginPage from './pages/auth/LoginPage';
+
+// Lazily load all other components to improve initial load time
+// Auth pages
+const SellerRegistration = lazyLoad(() => import('./pages/auth/SellerRegistration'));
+const DriverRegistration = lazyLoad(() => import('./pages/auth/DriverRegistration'));
+const PasswordResetRequest = lazyLoad(() => import('./pages/auth/PasswordResetRequest'));
+const PasswordResetConfirm = lazyLoad(() => import('./pages/auth/PasswordResetConfirm'));
+
+// Common pages
+const NotFound = lazyLoad(() => import('./components/common/NotFound'));
+const Profile = lazyLoad(() => import('./components/common/Profile'));
 
 // Admin pages
-import AdminDashboard from './pages/admin/Dashboard';
-import UserManagement from './pages/admin/UserManagement';
-import AdminOrders from './pages/admin/Orders';
-import AdminCreateOrder from './pages/admin/CreateOrder';
-import AdminOrderDetail from './pages/admin/OrderDetail';
-import UserDetail from './pages/admin/UserDetail';
-import AdminStockManagement from './pages/admin/StockManagement';
+const AdminDashboard = lazyLoad(() => import('./pages/admin/Dashboard'));
+const UserManagement = lazyLoad(() => import('./pages/admin/UserManagement'));
+const AdminOrders = lazyLoad(() => import('./pages/admin/Orders'));
+const AdminCreateOrder = lazyLoad(() => import('./pages/admin/CreateOrder'));
+const AdminOrderDetail = lazyLoad(() => import('./pages/admin/OrderDetail'));
+const UserDetail = lazyLoad(() => import('./pages/admin/UserDetail'));
+const AdminStockManagement = lazyLoad(() => import('./pages/admin/StockManagement'));
 
 // Seller pages
-import SellerDashboard from './pages/seller/Dashboard';
-import StockManagement from './pages/seller/StockManagement';
-import CreateOrder from './pages/seller/CreateOrder';
-import SellerOrders from './pages/seller/Orders';
-import SellerOrderDetail from './pages/seller/OrderDetail';
+const SellerDashboard = lazyLoad(() => import('./pages/seller/Dashboard'));
+const StockManagement = lazyLoad(() => import('./pages/seller/StockManagement'));
+const CreateOrder = lazyLoad(() => import('./pages/seller/CreateOrder'));
+const SellerOrders = lazyLoad(() => import('./pages/seller/Orders'));
+const SellerOrderDetail = lazyLoad(() => import('./pages/seller/OrderDetail'));
 
 // Driver pages
-import DriverDashboard from './pages/driver/Dashboard';
-import DriverOrders from './pages/driver/Orders';
-import DriverOrderDetail from './pages/driver/OrderDetail';
+const DriverDashboard = lazyLoad(() => import('./pages/driver/Dashboard'));
+const DriverOrders = lazyLoad(() => import('./pages/driver/Orders'));
+const DriverOrderDetail = lazyLoad(() => import('./pages/driver/OrderDetail'));
 
-//message pages
-import MessageList from './components/messaging/MessageList';
-import MessageDetail from './components/messaging/MessageDetail';
-import ComposeMessage from './components/messaging/ComposeMessage';
-
-//password resetting
-import PasswordResetRequest from './pages/auth/PasswordResetRequest';
-import PasswordResetConfirm from './pages/auth/PasswordResetConfirm';
-
-
-// Import the ProtectedRoute component
-import { ProtectedRoute } from './components/ProtectedRoute';
+// Message pages
+const MessageList = lazyLoad(() => import('./components/messaging/MessageList'));
+const MessageDetail = lazyLoad(() => import('./components/messaging/MessageDetail'));
+const ComposeMessage = lazyLoad(() => import('./components/messaging/ComposeMessage'));
 
 const AppRoutes = () => {
   return (
@@ -81,12 +82,7 @@ const AppRoutes = () => {
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/orders/create" element={<AdminCreateOrder />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
-            {/* <Route path="/admin/stock" element={<StockManagement />} /> */}
-            {/* <Route path="/profile" element={<Profile />} /> */}
             <Route path="/admin/stock" element={<AdminStockManagement />} />
-            {/* <Route path="/messages" element={<MessageList />} />
-            <Route path="/messages/new" element={<ComposeMessage />} />
-            <Route path="/messages/:id" element={<MessageDetail />} /> */}
           </Route>
         </Route>
         
@@ -99,10 +95,6 @@ const AppRoutes = () => {
             <Route path="/seller/orders/create" element={<CreateOrder />} />
             <Route path="/seller/orders/:id" element={<SellerOrderDetail />} />
             <Route path="/seller/stock" element={<StockManagement />} />
-            {/* <Route path="/profile" element={<Profile />} />
-            <Route path="/messages" element={<MessageList />} />
-            <Route path="/messages/new" element={<ComposeMessage />} />
-            <Route path="/messages/:id" element={<MessageDetail />} /> */}
           </Route>
         </Route>
         
@@ -113,13 +105,8 @@ const AppRoutes = () => {
             <Route path="/driver/dashboard" element={<DriverDashboard />} />
             <Route path="/driver/orders" element={<DriverOrders />} />
             <Route path="/driver/orders/:id" element={<DriverOrderDetail />} />
-            {/* <Route path="/profile" element={<Profile />} />
-            <Route path="/messages" element={<MessageList />} />
-            <Route path="/messages/new" element={<ComposeMessage />} />
-            <Route path="/messages/:id" element={<MessageDetail />} /> */}
           </Route>
         </Route>
-        
         
         {/* Catch all - 404 */}
         <Route path="*" element={<NotFound />} />

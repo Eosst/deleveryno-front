@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Deleveryno",
+  "name": "Deleveryno - Delivery Management",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,7 +10,8 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
@@ -20,6 +21,16 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#3f51b5",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "scope": "/",
+  "description": "Delivery management application for admins, sellers, and drivers",
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "type": "image/png",
+      "sizes": "1080x1920"
+    }
+  ]
 }

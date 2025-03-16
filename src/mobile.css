@@ -1,0 +1,154 @@
+/* Mobile-optimized styles */
+
+/* Apply hardware acceleration for smoother animations */
+* {
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
+    -ms-perspective: 1000;
+    perspective: 1000;
+    
+    /* Prevent text size adjustment after orientation changes */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    
+    /* Optimize touch actions */
+    touch-action: manipulation;
+  }
+  
+  /* Mobile-specific typography adjustments */
+  @media (max-width: 600px) {
+    body {
+      font-size: 16px;  /* Ensure readable font size on mobile */
+    }
+    
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.3rem; }
+    h4 { font-size: 1.2rem; }
+    h5 { font-size: 1.1rem; }
+    h6 { font-size: 1rem; }
+    
+    /* Increase button tap target size */
+    button, 
+    .MuiButtonBase-root, 
+    a.MuiButtonBase-root {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+  
+  /* Improve form elements on mobile */
+  @media (max-width: 600px) {
+    /* Make inputs and selects easier to tap */
+    .MuiInputBase-root {
+      height: 56px;
+    }
+    
+    /* Increase size of checkboxes and radio buttons */
+    .MuiCheckbox-root, 
+    .MuiRadio-root {
+      padding: 12px;
+    }
+    
+    /* Custom scrollbars for touch devices */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+  }
+  
+  /* Handle notches and safe areas on modern mobile devices */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+  
+  /* Improve table rendering on mobile */
+  @media (max-width: 600px) {
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  /* Better tap feedback */
+  @media (max-width: 600px) {
+    .MuiButtonBase-root {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .MuiButtonBase-root::after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 10%, transparent 10.01%);
+      background-repeat: no-repeat;
+      background-position: 50%;
+      transform: scale(10, 10);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.5s;
+    }
+    
+    .MuiButtonBase-root:active::after {
+      transform: scale(0, 0);
+      opacity: 0.3;
+      transition: 0s;
+    }
+  }
+  
+  /* Prevent pull-to-refresh on iOS but allow normal scrolling */
+  body {
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Apply momentum scrolling for a more native feel */
+  .MuiDrawer-paper,
+  .MuiDialog-paper {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optimize images for mobile */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Add custom styling for the offline notification */
+  .offline-notification {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    z-index: 9999;
+  }
