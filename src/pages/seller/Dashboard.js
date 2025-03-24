@@ -218,50 +218,8 @@ const SellerDashboard = () => {
         </Button>
       </Box>
 
+      {/* RESTRUCTURED: Recent Orders Section moved to the top */}
       <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard 
-            title="Total Orders" 
-            value={orderStats.total} 
-            icon={<OrderIcon fontSize="large" />} 
-            color={theme.palette.primary.main} 
-            loading={loading}
-            linkTo="/seller/orders"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard 
-            title="Pending" 
-            value={orderStats.pending} 
-            icon={<PendingIcon fontSize="large" />} 
-            color={theme.palette.warning.main} 
-            loading={loading}
-            linkTo="/seller/orders?status=pending"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard 
-            title="In Transit" 
-            value={orderStats.inTransit} 
-            icon={<InTransitIcon fontSize="large" />} 
-            color={theme.palette.info.main} 
-            loading={loading}
-            linkTo="/seller/orders?status=in_transit"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard 
-            title="Delivered" 
-            value={orderStats.delivered} 
-            icon={<DeliveredIcon fontSize="large" />} 
-            color={theme.palette.success.main} 
-            loading={loading}
-            linkTo="/seller/orders?status=delivered"
-          />
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3}>
         <Grid item xs={12} md={7}>
           <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom sx={{ p: 1 }}>
@@ -311,17 +269,6 @@ const SellerDashboard = () => {
                           </Box>
                         }
                       />
-                      <ListItemSecondaryAction>
-                        <IconButton 
-                          edge="end" 
-                          component={Link}
-                          to={`/seller/orders/${order.id}`}
-                          color="primary"
-                          size="small"
-                        >
-                          <ViewIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
                     </ListItem>
                     <Divider />
                   </React.Fragment>
@@ -373,6 +320,7 @@ const SellerDashboard = () => {
           </Paper>
         </Grid>
         
+        {/* RESTRUCTURED: Low Stock Alerts moved below Recent Orders */}
         <Grid item xs={12} md={5}>
           <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1 }}>
@@ -431,6 +379,53 @@ const SellerDashboard = () => {
               </Button>
             </Box>
           </Paper>
+        </Grid>
+      </Grid>
+
+      {/* RESTRUCTURED: Stats cards moved below the other sections */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 3 }}>
+        Order Statistics
+      </Typography>
+      <Grid container spacing={3} mb={4}>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="Total Orders" 
+            value={orderStats.total} 
+            icon={<OrderIcon fontSize="large" />} 
+            color={theme.palette.primary.main} 
+            loading={loading}
+            linkTo="/seller/orders"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="Pending" 
+            value={orderStats.pending} 
+            icon={<PendingIcon fontSize="large" />} 
+            color={theme.palette.warning.main} 
+            loading={loading}
+            linkTo="/seller/orders?status=pending"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="In Transit" 
+            value={orderStats.inTransit} 
+            icon={<InTransitIcon fontSize="large" />} 
+            color={theme.palette.info.main} 
+            loading={loading}
+            linkTo="/seller/orders?status=in_transit"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard 
+            title="Delivered" 
+            value={orderStats.delivered} 
+            icon={<DeliveredIcon fontSize="large" />} 
+            color={theme.palette.success.main} 
+            loading={loading}
+            linkTo="/seller/orders?status=delivered"
+          />
         </Grid>
       </Grid>
     </Box>

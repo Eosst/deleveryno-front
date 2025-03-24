@@ -18,7 +18,8 @@ import {
   InputAdornment,
   Tooltip,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Stack
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -27,7 +28,8 @@ import {
   Search as SearchIcon,
   HourglassFull as PendingIcon,
   CheckCircle as ApprovedIcon,
-  Info as InfoIcon
+  Info as InfoIcon,
+  Warning as WarningIcon
 } from '@mui/icons-material';
 import { getStockItems, createStockItem, updateStockItem, deleteStockItem } from '../../api/stock';
 import ResponsiveTable from '../../components/common/ResponsiveTable';
@@ -37,6 +39,7 @@ const StockManagement = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   const [stockItems, setStockItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -54,6 +57,17 @@ const StockManagement = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  
+  // For filter buttons
+  const [approvalFilter, setApprovalFilter] = useState('all'); // 'all', 'approved', 'pending'
+  const [stockFilter, setStockFilter] = useState('all'); // 'all', 'low'
+  
+  // Status counts for filter buttons
+  const [statusCounts, setStatusCounts] = useState({
+    approved: 0,
+    pending: 0,
+    lowStock: 0
+  });
 
   const fetchStockItems = async () => {
     setLoading(true);
@@ -61,10 +75,23 @@ const StockManagement = () => {
     
     try {
       const response = await getStockItems();
-      setStockItems(response.results || []);
+      const items = response.results || [];
+      setStockItems(items);
+      
+      // Calculate status counts
+      const counts = {
+        approved: items.filter(item => item.approved).length,
+        pending: items.filter(item => !item.approved).length,
+        lowStock: items.filter(item => item.quantity < 10).length
+      };
+      setStatusCounts(counts);
+      
+      // Apply initial filters
+      applyFilters(items, approvalFilter, stockFilter, searchTerm);
     } catch (err) {
       console.error('Error fetching stock items:', err);
       setError('Failed to load inventory items. Please try again.');
+      setFilteredItems([]);
     } finally {
       setLoading(false);
     }
@@ -73,6 +100,37 @@ const StockManagement = () => {
   useEffect(() => {
     fetchStockItems();
   }, []);
+  
+  // Apply all filters to the stock items
+  const applyFilters = (items, approvalFilter, stockFilter, searchTerm) => {
+    let filtered = [...items];
+    
+    // Apply approval filter
+    if (approvalFilter === 'approved') {
+      filtered = filtered.filter(item => item.approved);
+    } else if (approvalFilter === 'pending') {
+      filtered = filtered.filter(item => !item.approved);
+    }
+    
+    // Apply stock level filter
+    if (stockFilter === 'low') {
+      filtered = filtered.filter(item => item.quantity < 10);
+    }
+    
+    // Apply search term
+    if (searchTerm) {
+      filtered = filtered.filter(item => 
+        item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredItems(filtered);
+  };
+  
+  // Update filtered items when filters change
+  useEffect(() => {
+    applyFilters(stockItems, approvalFilter, stockFilter, searchTerm);
+  }, [approvalFilter, stockFilter, searchTerm, stockItems]);
 
   const handleOpenAddDialog = () => {
     setFormData({
@@ -110,7 +168,16 @@ const StockManagement = () => {
     try {
       if (dialogMode === 'add') {
         const newItem = await createStockItem(formData);
-        setStockItems([...stockItems, newItem]);
+        const updatedItems = [...stockItems, newItem];
+        setStockItems(updatedItems);
+        
+        // Update status counts
+        setStatusCounts(prev => ({
+          ...prev,
+          pending: prev.pending + 1,
+          lowStock: newItem.quantity < 10 ? prev.lowStock + 1 : prev.lowStock
+        }));
+        
         setSuccess('Item added successfully! It is now pending admin approval.');
       } else {
         // Only allow quantity update if item is already approved
@@ -120,9 +187,24 @@ const StockManagement = () => {
         }
         
         const updatedItem = await updateStockItem(currentItem.id, formData);
-        setStockItems(stockItems.map(item => 
+        
+        // Update stock items 
+        const updatedItems = stockItems.map(item => 
           item.id === currentItem.id ? updatedItem : item
-        ));
+        );
+        setStockItems(updatedItems);
+        
+        // Update low stock count if needed
+        const wasLowStock = currentItem.quantity < 10;
+        const isLowStock = updatedItem.quantity < 10;
+        
+        if (wasLowStock !== isLowStock) {
+          setStatusCounts(prev => ({
+            ...prev,
+            lowStock: isLowStock ? prev.lowStock + 1 : prev.lowStock - 1
+          }));
+        }
+        
         setSuccess('Item updated successfully!');
       }
       handleCloseDialog();
@@ -142,7 +224,18 @@ const StockManagement = () => {
   const handleDeleteConfirm = async () => {
     try {
       await deleteStockItem(itemToDelete.id);
-      setStockItems(stockItems.filter(item => item.id !== itemToDelete.id));
+      
+      // Update stock items
+      const updatedItems = stockItems.filter(item => item.id !== itemToDelete.id);
+      setStockItems(updatedItems);
+      
+      // Update status counts
+      setStatusCounts(prev => ({
+        approved: itemToDelete.approved ? prev.approved - 1 : prev.approved,
+        pending: !itemToDelete.approved ? prev.pending - 1 : prev.pending,
+        lowStock: itemToDelete.quantity < 10 ? prev.lowStock - 1 : prev.lowStock
+      }));
+      
       setSuccess('Item deleted successfully!');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -154,9 +247,18 @@ const StockManagement = () => {
     }
   };
 
-  const filteredItems = stockItems.filter(item => 
-    item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+  
+  // Handlers for filter buttons
+  const handleApprovalFilter = (filter) => {
+    setApprovalFilter(approvalFilter === filter ? 'all' : filter);
+  };
+  
+  const handleStockFilter = (filter) => {
+    setStockFilter(stockFilter === filter ? 'all' : filter);
+  };
 
   const getApprovalChip = (approved) => {
     return approved ? 
@@ -273,12 +375,60 @@ const StockManagement = () => {
         </Alert>
       )}
 
+      {/* NEW: Filter buttons */}
+      <Stack 
+        direction="row" 
+        spacing={1} 
+        sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}
+        justifyContent={isMobile ? "center" : "flex-start"}
+      >
+        <Button
+          variant={approvalFilter === 'approved' ? 'contained' : 'outlined'}
+          color="success"
+          onClick={() => handleApprovalFilter('approved')}
+          startIcon={<ApprovedIcon />}
+          size="small"
+        >
+          Approved ({statusCounts.approved})
+        </Button>
+        <Button
+          variant={approvalFilter === 'pending' ? 'contained' : 'outlined'}
+          color="warning"
+          onClick={() => handleApprovalFilter('pending')}
+          startIcon={<PendingIcon />}
+          size="small"
+        >
+          Pending ({statusCounts.pending})
+        </Button>
+        <Button
+          variant={stockFilter === 'low' ? 'contained' : 'outlined'}
+          color="error"
+          onClick={() => handleStockFilter('low')}
+          startIcon={<WarningIcon />}
+          size="small"
+        >
+          Low Stock ({statusCounts.lowStock})
+        </Button>
+        <Button
+          variant={approvalFilter === 'all' && stockFilter === 'all' ? 'contained' : 'outlined'}
+          color="secondary"
+          onClick={() => {
+            setApprovalFilter('all');
+            setStockFilter('all');
+          }}
+          size="small"
+        >
+          All Items
+        </Button>
+      </Stack>
+
+      {/* Search field */}
       <Paper sx={{ p: 2, mb: 4 }}>
         <TextField
           fullWidth
           placeholder="Search inventory items..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

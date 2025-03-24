@@ -17,7 +17,8 @@ import {
   Alert,
   IconButton,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Stack
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -50,6 +51,14 @@ const SellerOrders = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Status counts for quick filter buttons
+  const [statusCounts, setStatusCounts] = useState({
+    pending: 0,
+    assigned: 0,
+    in_transit: 0,
+    delivered: 0
+  });
 
   useEffect(() => {
     fetchOrders();
@@ -82,6 +91,15 @@ const SellerOrders = () => {
         orderData = response;
         setTotalCount(response.length);
       }
+      
+      // Calculate status counts before applying filters
+      const counts = {
+        pending: orderData.filter(order => order.status === 'pending').length,
+        assigned: orderData.filter(order => order.status === 'assigned').length,
+        in_transit: orderData.filter(order => order.status === 'in_transit').length,
+        delivered: orderData.filter(order => order.status === 'delivered').length
+      };
+      setStatusCounts(counts);
       
       // Apply filters to the fetched data (not to the current state)
       let filteredData = [...orderData]; // Create a copy to work with
@@ -153,6 +171,15 @@ const SellerOrders = () => {
     if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  // Handler for quick filter buttons
+  const handleQuickFilter = (status) => {
+    setFilters(prev => ({
+      ...prev,
+      status: prev.status === status ? '' : status // Toggle filter if already active
+    }));
+    setPage(0);
   };
 
   const getStatusChip = (status) => {
@@ -248,6 +275,55 @@ const SellerOrders = () => {
           {success}
         </Alert>
       )}
+
+      {/* NEW: Quick filter buttons */}
+      <Stack 
+        direction="row" 
+        spacing={1} 
+        sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}
+        justifyContent={isMobile ? "center" : "flex-start"}
+      >
+        <Button
+          variant={filters.status === 'pending' ? 'contained' : 'outlined'}
+          color="warning"
+          onClick={() => handleQuickFilter('pending')}
+          size="small"
+        >
+          Pending ({statusCounts.pending})
+        </Button>
+        <Button
+          variant={filters.status === 'assigned' ? 'contained' : 'outlined'}
+          color="primary"
+          onClick={() => handleQuickFilter('assigned')}
+          size="small"
+        >
+          Assigned ({statusCounts.assigned})
+        </Button>
+        <Button
+          variant={filters.status === 'in_transit' ? 'contained' : 'outlined'}
+          color="info"
+          onClick={() => handleQuickFilter('in_transit')}
+          size="small"
+        >
+          In Transit ({statusCounts.in_transit})
+        </Button>
+        <Button
+          variant={filters.status === 'delivered' ? 'contained' : 'outlined'}
+          color="success"
+          onClick={() => handleQuickFilter('delivered')}
+          size="small"
+        >
+          Delivered ({statusCounts.delivered})
+        </Button>
+        <Button
+          variant={filters.status === '' ? 'contained' : 'outlined'}
+          color="secondary"
+          onClick={() => handleQuickFilter('')}
+          size="small"
+        >
+          All Orders
+        </Button>
+      </Stack>
 
       {/* Search and Filters */}
       <Paper sx={{ p: 2, mb: 3 }}>
