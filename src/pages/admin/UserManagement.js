@@ -1,6 +1,8 @@
-// src/pages/admin/UserManagement.js
-import React, { useState, useEffect } from 'react';
+// In src/pages/admin/UserManagement.js
+
+import React, { useState, useEffect, useCallback } from 'react';
 import {
+  Alert,
   Box,
   Typography,
   Paper,
@@ -11,8 +13,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  CircularProgress,
-  Alert,
   FormControl,
   InputLabel,
   Select,
@@ -30,13 +30,13 @@ import {
 import { getUsers, approveUser, deleteUser } from '../../api/users';
 import { Link, useNavigate } from 'react-router-dom';
 import ResponsiveTable from '../../components/common/ResponsiveTable';
-import { usePagination } from '../../hooks/usePerformanceOptimization';
 
 const UserManagement = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   
+  // State management
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,21 +48,23 @@ const UserManagement = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [actionSuccess, setActionSuccess] = useState(null);
-
-  const { 
-    page, 
-    setPage, 
-    itemsPerPage, 
-    setItemsPerPage, 
-    paginatedItems 
-  } = usePagination(users, 0, isMobile ? 5 : 10);
-
-  const fetchUsers = async () => {
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  
+  // API call using useCallback to prevent recreation on every render
+  const fetchUsers = useCallback(async () => {
+    if (loading) return; // Prevent duplicate calls while already loading
+    
     setLoading(true);
     setError(null);
     
     try {
       const params = {
+        page: page + 1, // API uses 1-based pagination, React uses 0-based
+        page_size: rowsPerPage,
         role: filters.role || undefined,
         approved: filters.approved === 'true' ? true : 
                  filters.approved === 'false' ? false : undefined
@@ -70,25 +72,33 @@ const UserManagement = () => {
       
       const response = await getUsers(params);
       setUsers(response.results || []);
+      setTotalCount(response.count || 0);
     } catch (err) {
       console.error('Error fetching users:', err);
       setError('Failed to load users. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, rowsPerPage, filters]);
 
+  // Initial data load and when dependencies change
   useEffect(() => {
-    fetchUsers();
-  }, [filters]);
+    setLoading(true); // Set loading before fetchUsers to prevent immediate re-fetch
+    const timer = setTimeout(() => {
+      fetchUsers();
+    }, 100); // Small delay to prevent rapid refetching
+    
+    return () => clearTimeout(timer);
+  }, [fetchUsers]);
 
+  // Event handlers
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
     setFilters(prev => ({
       ...prev,
       [name]: value
     }));
-    setPage(0);
+    setPage(0); // Reset to first page when filter changes
   };
 
   const handleDeleteClick = (user) => {
@@ -124,6 +134,15 @@ const UserManagement = () => {
       setError(`Failed to approve user: ${err.message}`);
     }
   };
+  
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); // Reset to first page when rows per page changes
+  };
 
   // Define columns for the responsive table
   const columns = [
@@ -139,7 +158,7 @@ const UserManagement = () => {
       label: 'Role',
       render: (value, row) => (
         <Chip 
-          label={row.role.charAt(0).toUpperCase() + row.role.slice(1)} 
+          label={row.role?.charAt(0).toUpperCase() + row.role?.slice(1) || ''} 
           color={
             row.role === 'admin' ? 'secondary' : 
             row.role === 'seller' ? 'primary' : 
@@ -173,13 +192,17 @@ const UserManagement = () => {
         to={`/admin/users/${row.id}`}
         title="View User Details"
         size="small"
+        onClick={(e) => e.stopPropagation()}
       >
         <ViewIcon />
       </IconButton>
       {!row.approved && (
         <IconButton 
           color="success" 
-          onClick={() => handleApproveUser(row.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleApproveUser(row.id);
+          }}
           title="Approve User"
           size="small"
         >
@@ -188,7 +211,10 @@ const UserManagement = () => {
       )}
       <IconButton 
         color="error" 
-        onClick={() => handleDeleteClick(row)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDeleteClick(row);
+        }}
         title="Delete User"
         size="small"
       >
@@ -263,12 +289,18 @@ const UserManagement = () => {
       
       <ResponsiveTable
         columns={columns}
-        data={paginatedItems}
+        data={users}
         loading={loading}
         emptyMessage="No users found"
         onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
         actions={renderActions}
         primaryKey="id"
+        hasPagination={true}
+        page={page}
+        totalCount={totalCount}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
       
       {/* Delete Confirmation Dialog */}

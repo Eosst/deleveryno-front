@@ -82,29 +82,30 @@ const AdminOrders = () => {
 
   useEffect(() => {
     debouncedFetchOrders();
-  }, [page, rowsPerPage, filters]);
+  }, [page, rowsPerPage, filters, debouncedFetchOrders]);
 
   async function fetchOrders() {
     setLoading(true);
-    setError(null);
+  setError(null);
+  
+  try {
+    const params = {
+      page: page + 1, // API uses 1-based pagination, React uses 0-based
+      page_size: rowsPerPage,
+      status: filters.status || undefined,
+      delivery_city: filters.delivery_city || undefined,
+      customer_name: filters.customer_name || undefined
+    };
     
-    try {
-      const params = {
-        page: page + 1,
-        status: filters.status || undefined,
-        delivery_city: filters.delivery_city || undefined,
-        customer_name: filters.customer_name || undefined
-      };
-      
-      const response = await getOrders(params);
-      setOrders(response.results || []);
-      setTotalCount(response.count || 0);
-    } catch (err) {
-      console.error('Error fetching orders:', err);
-      setError('Failed to load orders. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    const response = await getOrders(params);
+    setOrders(response.results || []);
+    setTotalCount(response.count || 0);
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    setError('Failed to load orders. Please try again.');
+  } finally {
+    setLoading(false);
+  }
   }
 
   const handleChangePage = (event, newPage) => {
@@ -328,6 +329,26 @@ const AdminOrders = () => {
       key: 'status', 
       label: 'Status',
       render: (value) => getStatusChip(value)
+    },
+    { 
+      key: 'assign_action', 
+      label: 'Assign',
+      hidden: isMobile,
+      render: (value, row) => (
+        row.status === 'pending' && (
+          <Button
+            color="success"
+            size="small"
+            variant="contained"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAssignClick(row);
+            }}
+          >
+            Assign Driver
+          </Button>
+        )
+      )
     },
     { 
       key: 'created_at', 

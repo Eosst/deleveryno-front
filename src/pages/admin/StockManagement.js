@@ -42,6 +42,7 @@ import ResponsiveTable from '../../components/common/ResponsiveTable';
 const AdminStockManagement = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isAdmin = true; // Since this is the admin component, we assume user is admin
   
   const [stockItems, setStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -199,11 +200,14 @@ const AdminStockManagement = () => {
   const filteredItems = stockItems.filter(item => 
     item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const getStatusChip = (status) => {
     return status ? 
       <Chip label="Approved" color="success" size="small" /> : 
       <Chip label="Pending Approval" color="warning" size="small" />;
+  };
+  
+  const getApprovalChip = (approved) => {
+    return getStatusChip(approved);
   };
 
   const getStockStatusChip = (quantity) => {
@@ -225,11 +229,11 @@ const AdminStockManagement = () => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {value}
           {!row.approved && (
-            <Tooltip title="This item is pending approval">
+            <Tooltip title="This item is pending approval and cannot be used for orders yet">
               <InfoIcon 
                 fontSize="small" 
                 color="warning" 
-                sx={{ ml: 1 }} 
+                sx={{ ml: 1, verticalAlign: 'middle' }} 
               />
             </Tooltip>
           )}
@@ -238,33 +242,6 @@ const AdminStockManagement = () => {
     },
     { key: 'quantity', label: 'Quantity' },
     { 
-      key: 'seller', 
-      label: 'Seller',
-      hidden: isMobile,
-      render: (value) => value ? (
-        <Link 
-          component={Link} 
-          to={`/admin/users/${value.id}`}
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            color: 'primary.main',
-            textDecoration: 'none',
-            '&:hover': {
-              textDecoration: 'underline'
-            }
-          }}
-        >
-          <PersonIcon sx={{ mr: 0.5, fontSize: 16 }} />
-          {value.first_name && value.last_name ? (
-            `${value.first_name} ${value.last_name}`
-          ) : (
-            value.username
-          )}
-        </Link>
-      ) : 'Unknown'
-    },
-    { 
       key: 'stock_status', 
       label: 'Stock Status',
       render: (value, row) => getStockStatusChip(row.quantity)
@@ -272,19 +249,44 @@ const AdminStockManagement = () => {
     { 
       key: 'approved', 
       label: 'Approval Status',
-      render: (value) => getStatusChip(value)
+      render: (value) => getApprovalChip(value)
+    },
+    // New column for approve action (only visible when user is admin and in desktop view)
+    { 
+      key: 'approve_action', 
+      label: 'Approve',
+      hidden: !isAdmin || isMobile,
+      render: (value, row) => (
+        !row.approved && (
+          <Button
+            color="success"
+            variant="contained"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleApproveItem(row.id);
+            }}
+          >
+            Approve
+          </Button>
+        )
+      )
     }
   ];
 
   // Define action buttons for the responsive table
   const renderActions = (row) => (
     <Box display="flex" justifyContent="center" flexWrap="wrap" gap={1}>
-      {!row.approved && (
+      {/* Show approve button for admins in mobile view */}
+      {isAdmin && !row.approved && isMobile && (
         <Button
           color="success"
           variant="contained"
           size="small"
-          onClick={() => handleApproveItem(row.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleApproveItem(row.id);
+          }}
           sx={{ mr: 1 }}
         >
           Approve
@@ -294,7 +296,7 @@ const AdminStockManagement = () => {
         color="primary"
         onClick={() => handleOpenEditDialog(row)}
         size="small"
-        sx={{ mr: 0.5 }}
+        title="Edit Item"
       >
         <EditIcon />
       </IconButton>
@@ -302,6 +304,7 @@ const AdminStockManagement = () => {
         color="error"
         onClick={() => handleDeleteClick(row)}
         size="small"
+        title="Delete Item"
       >
         <DeleteIcon />
       </IconButton>

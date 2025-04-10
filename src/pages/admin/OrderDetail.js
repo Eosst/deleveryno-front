@@ -390,6 +390,57 @@ const OrderDetail = () => {
               )}
             </Grid>
           </Paper>
+          <Paper sx={{ p: 3, mb: 3 }}>
+  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+    <Typography variant="h6">Order Information</Typography>
+    {getStatusChip(order.status)}
+  </Box>
+  
+  <Divider sx={{ mb: 2 }} />
+  
+  <Grid container spacing={2}>
+    <Grid item xs={12} sm={6}>
+      <Typography variant="subtitle2" color="textSecondary">Created</Typography>
+      <Typography variant="body1">
+        {new Date(order.created_at).toLocaleString()}
+      </Typography>
+    </Grid>
+    <Grid item xs={12} sm={6}>
+      <Typography variant="subtitle2" color="textSecondary">Last Updated</Typography>
+      <Typography variant="body1">
+        {new Date(order.updated_at).toLocaleString()}
+      </Typography>
+    </Grid>
+    <Grid item xs={12} sm={6}>
+      <Typography variant="subtitle2" color="textSecondary">Item</Typography>
+      <Typography variant="body1">{order.item}</Typography>
+    </Grid>
+    <Grid item xs={12} sm={6}>
+      <Typography variant="subtitle2" color="textSecondary">Quantity</Typography>
+      <Typography variant="body1">{order.quantity}</Typography>
+    </Grid>
+    
+    {/* Comment/Notes Section */}
+    {order.comment && (
+      <Grid item xs={12}>
+        <Typography variant="subtitle2" color="textSecondary">Comments/Notes</Typography>
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 2,
+            mt: 1,
+            backgroundColor: '#f9f9f9',
+            borderRadius: 1
+          }}
+        >
+          <Typography variant="body1" style={{ whiteSpace: 'pre-wrap' }}>
+            {order.comment}
+          </Typography>
+        </Paper>
+      </Grid>
+    )}
+  </Grid>
+</Paper>
         </Grid>
 
         <Grid item xs={12} md={4}>

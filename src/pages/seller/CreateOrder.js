@@ -1,4 +1,5 @@
-// src/pages/seller/CreateOrder.js
+// In src/pages/seller/CreateOrder.js - Add comment field to form
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -19,7 +20,7 @@ import {
 import { createOrder } from '../../api/orders';
 import { getStockItems } from '../../api/stock';
 
-const CreateOrder = () => {
+const CreateOrder = ({ isAdmin }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [stockLoading, setStockLoading] = useState(true);
@@ -33,14 +34,17 @@ const CreateOrder = () => {
     delivery_city: '',
     delivery_location: '',
     item: '',
-    quantity: 1
+    quantity: 1,
+    comment: '' // Add comment field to initial state
   });
 
   useEffect(() => {
     const fetchStockItems = async () => {
       try {
         const response = await getStockItems();
-        setStockItems(response.results || []);
+        // Filter to only include approved items
+        const approvedItems = (response.results || []).filter(item => item.approved);
+        setStockItems(approvedItems);
       } catch (error) {
         console.error('Error fetching stock items:', error);
         setError('Failed to load inventory items. Please try again.');
@@ -54,6 +58,8 @@ const CreateOrder = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Special handling for location URL validation
     if (name === 'delivery_location' && value) {
       const isValidMapsUrl = 
         value.startsWith('https://www.google.com/maps') || 
@@ -70,9 +76,10 @@ const CreateOrder = () => {
         }
       }
     }
+    
     setFormData({
       ...formData,
-      [name]: name === 'quantity' ? parseInt(value, 10) || 1 : value
+      [name]: name === 'quantity' ? (parseInt(value, 10) || 1) : value
     });
   };
 
@@ -92,13 +99,6 @@ const CreateOrder = () => {
         return false;
       }
     }
-    
-    // Validate phone number format (simple validation)
-    // const phoneRegex = /^\+?[0-9]{10,15}$/;
-    // if (!phoneRegex.test(formData.customer_phone)) {
-    //   setError('Please enter a valid phone number');
-    //   return false;
-    // }
     
     // Validate quantity is positive
     if (formData.quantity <= 0) {
@@ -231,7 +231,7 @@ const CreateOrder = () => {
                 name="delivery_location"
                 value={formData.delivery_location}
                 onChange={handleChange}
-                placeholder="e.g. map:latitude,longitude"
+                placeholder="e.g. https://goo.gl/maps/..."
               />
             </Grid>
           </Grid>
@@ -280,6 +280,20 @@ const CreateOrder = () => {
                 onChange={handleChange}
                 required
                 InputProps={{ inputProps: { min: 1 } }}
+              />
+            </Grid>
+            {/* Add comment field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Comments/Notes"
+                name="comment"
+                value={formData.comment}
+                onChange={handleChange}
+                multiline
+                rows={4}
+                placeholder="Add any special instructions or notes about this order"
+                helperText="Optional: Include any additional information relevant to this order"
               />
             </Grid>
           </Grid>
