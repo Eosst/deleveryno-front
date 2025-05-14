@@ -1,5 +1,5 @@
 // src/pages/admin/Orders.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -77,14 +77,7 @@ const AdminOrders = () => {
   const [orderToUpdate, setOrderToUpdate] = useState(null);
   const [newStatus, setNewStatus] = useState('');
 
-  // Use debounced search
-  const debouncedFetchOrders = useDebounce(fetchOrders, 500);
-
-  useEffect(() => {
-    debouncedFetchOrders();
-  }, [page, rowsPerPage, filters, debouncedFetchOrders]);
-
-  async function fetchOrders() {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
   setError(null);
   
@@ -106,7 +99,16 @@ const AdminOrders = () => {
   } finally {
     setLoading(false);
   }
-  }
+}, [page, rowsPerPage, filters]);
+
+  // Use debounced search
+  const debouncedFetchOrders = useDebounce(fetchOrders, 500);
+
+  useEffect(() => {
+    debouncedFetchOrders();
+  }, [page, rowsPerPage, filters, debouncedFetchOrders]);
+
+ 
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

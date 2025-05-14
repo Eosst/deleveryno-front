@@ -56,7 +56,7 @@ const UserManagement = () => {
   
   // API call using useCallback to prevent recreation on every render
   const fetchUsers = useCallback(async () => {
-    if (loading) return; // Prevent duplicate calls while already loading
+    
     
     setLoading(true);
     setError(null);
@@ -83,7 +83,7 @@ const UserManagement = () => {
 
   // Initial data load and when dependencies change
   useEffect(() => {
-    setLoading(true); // Set loading before fetchUsers to prevent immediate re-fetch
+    // setLoading(true); // Set loading before fetchUsers to prevent immediate re-fetch
     const timer = setTimeout(() => {
       fetchUsers();
     }, 100); // Small delay to prevent rapid refetching
