@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { 
-  AppBar, 
-  Box, 
-  Toolbar, 
-  Typography, 
-  Button, 
-  Drawer, 
-  List, 
-  ListItem, 
-  ListItemIcon, 
-  ListItemText, 
-  Container, 
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  Typography,
+  Button,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Container,
   Divider,
   Badge,
   IconButton,
@@ -19,7 +19,7 @@ import {
   useTheme,
   SwipeableDrawer
 } from '@mui/material';
-import { 
+import {
   Dashboard as DashboardIcon,
   ShoppingCart as OrdersIcon,
   People as UsersIcon,
@@ -31,15 +31,18 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { getMessages } from '../../api/messages';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isRTL = i18n.dir() === 'rtl';
   const drawerWidth = isMobile ? '85%' : 240;
 
   const handleLogout = () => {
@@ -47,12 +50,10 @@ const MainLayout = () => {
     navigate('/login');
   };
 
-  // Toggle drawer
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  // Navigate to dashboard based on user role
   const navigateToDashboard = () => {
     if (user?.role === 'admin') {
       navigate('/admin/dashboard');
@@ -66,13 +67,12 @@ const MainLayout = () => {
     }
   };
 
-  // Check for unread messages
   useEffect(() => {
     const fetchUnreadMessages = async () => {
       try {
         const response = await getMessages();
         const messages = response.results || response;
-        const unread = messages.filter(msg => 
+        const unread = messages.filter(msg =>
           msg.status === 'unread' && msg.recipient?.id === user?.id
         ).length;
         setUnreadCount(unread);
@@ -81,71 +81,51 @@ const MainLayout = () => {
       }
     };
 
-    // Fetch initially
     fetchUnreadMessages();
-
-    // Set up polling every 1 minute
     const interval = setInterval(fetchUnreadMessages, 60000);
-    
     return () => clearInterval(interval);
   }, [user]);
 
-  // Check if user is admin
-  const isAdmin = user?.role === 'admin';
-
-  // Determine navigation items based on user role
   const getNavItems = () => {
     if (user?.role === 'admin') {
       return [
-        { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
-        { text: 'User Management', icon: <UsersIcon />, path: '/admin/users' },
-        { text: 'All Orders', icon: <OrdersIcon />, path: '/admin/orders' },
-        { text: 'Stock Management', icon: <StockIcon />, path: '/admin/stock' },
-        { 
-          text: 'Messages', 
+        { text: t('nav.dashboard'), icon: <DashboardIcon />, path: '/admin/dashboard' },
+        { text: t('nav.users'), icon: <UsersIcon />, path: '/admin/users' },
+        { text: t('nav.orders'), icon: <OrdersIcon />, path: '/admin/orders' },
+        { text: t('nav.stock'), icon: <StockIcon />, path: '/admin/stock' },
+        {
+          text: t('nav.messages'),
           icon: unreadCount > 0 ? (
-            <Badge badgeContent={unreadCount} color="error">
-              <EmailIcon />
-            </Badge>
-          ) : (
-            <EmailIcon />
-          ), 
-          path: '/messages' 
-        },
+            <Badge badgeContent={unreadCount} color="error"><EmailIcon /></Badge>
+          ) : <EmailIcon />,
+          path: '/messages'
+        }
       ];
     } else if (user?.role === 'seller') {
       return [
-        { text: 'Dashboard', icon: <DashboardIcon />, path: '/seller/dashboard' },
-        { text: 'Orders', icon: <OrdersIcon />, path: '/seller/orders' },
-        { text: 'Create Order', icon: <OrdersIcon />, path: '/seller/orders/create' },
-        { text: 'Stock', icon: <StockIcon />, path: '/seller/stock' },
-        { 
-          text: 'Messages', 
+        { text: t('nav.dashboard'), icon: <DashboardIcon />, path: '/seller/dashboard' },
+        { text: t('nav.orders'), icon: <OrdersIcon />, path: '/seller/orders' },
+        { text: t('nav.create_order'), icon: <OrdersIcon />, path: '/seller/orders/create' },
+        { text: t('nav.stock'), icon: <StockIcon />, path: '/seller/stock' },
+        {
+          text: t('nav.messages'),
           icon: unreadCount > 0 ? (
-            <Badge badgeContent={unreadCount} color="error">
-              <EmailIcon />
-            </Badge>
-          ) : (
-            <EmailIcon />
-          ), 
-          path: '/messages' 
-        },
+            <Badge badgeContent={unreadCount} color="error"><EmailIcon /></Badge>
+          ) : <EmailIcon />,
+          path: '/messages'
+        }
       ];
     } else if (user?.role === 'driver') {
       return [
-        { text: 'Dashboard', icon: <DashboardIcon />, path: '/driver/dashboard' },
-        { text: 'My Orders', icon: <OrdersIcon />, path: '/driver/orders' },
-        { 
-          text: 'Messages', 
+        { text: t('nav.dashboard'), icon: <DashboardIcon />, path: '/driver/dashboard' },
+        { text: t('nav.my_orders'), icon: <OrdersIcon />, path: '/driver/orders' },
+        {
+          text: t('nav.messages'),
           icon: unreadCount > 0 ? (
-            <Badge badgeContent={unreadCount} color="error">
-              <EmailIcon />
-            </Badge>
-          ) : (
-            <EmailIcon />
-          ), 
-          path: '/messages' 
-        },
+            <Badge badgeContent={unreadCount} color="error"><EmailIcon /></Badge>
+          ) : <EmailIcon />,
+          path: '/messages'
+        }
       ];
     }
     return [];
@@ -158,59 +138,36 @@ const MainLayout = () => {
       <Toolbar />
       <List>
         {navItems.map((item) => (
-          <ListItem 
-            button 
-            key={item.text} 
+          <ListItem
+            button
+            key={item.text}
             onClick={() => {
               navigate(item.path);
               if (isMobile) setMobileOpen(false);
             }}
             sx={{ cursor: 'pointer' }}
           >
-            <ListItemIcon>
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText primary={item.text} />
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.text} sx={{ textAlign: isRTL ? 'right' : 'left' }} />
           </ListItem>
         ))}
         <Divider />
-        
-        {/* Profile button - visible for all users */}
-        <ListItem 
-          button 
-          onClick={() => {
-            navigate('/profile');
-            if (isMobile) setMobileOpen(false);
-          }}
-          sx={{ cursor: 'pointer' }}
-        >
-          <ListItemIcon>
-            <ProfileIcon />
-          </ListItemIcon>
-          <ListItemText primary="Profile" />
+        <ListItem button onClick={() => { navigate('/profile'); if (isMobile) setMobileOpen(false); }}>
+          <ListItemIcon><ProfileIcon /></ListItemIcon>
+          <ListItemText primary={t('nav.profile')} sx={{ textAlign: isRTL ? 'right' : 'left' }} />
         </ListItem>
-        
-        <ListItem 
-          button 
-          onClick={() => {
-            handleLogout();
-            if (isMobile) setMobileOpen(false);
-          }}
-          sx={{ cursor: 'pointer' }}
-        >
-          <ListItemIcon>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
+        <ListItem button onClick={() => { handleLogout(); if (isMobile) setMobileOpen(false); }}>
+          <ListItemIcon><LogoutIcon /></ListItemIcon>
+          <ListItemText primary={t('nav.logout')} sx={{ textAlign: isRTL ? 'right' : 'left' }} />
         </ListItem>
       </List>
     </Box>
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex' }} dir={i18n.dir()}>
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Toolbar sx={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {isMobile && (
               <IconButton
@@ -223,101 +180,53 @@ const MainLayout = () => {
                 <MenuIcon />
               </IconButton>
             )}
-            <Typography 
-              variant="h6" 
-              component="div" 
-              noWrap
-              sx={{ display: { xs: 'none', sm: 'block' } }}
-            >
+            <Typography variant="h6" component="div" noWrap>
               Deleveryno - {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)} Panel
             </Typography>
-            <Typography 
-              variant="h6" 
-              component="div"
-              sx={{ display: { xs: 'block', sm: 'none' } }}
-            >
-              {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
-            </Typography>
           </Box>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Message notification icon in toolbar */}
-            <IconButton 
-              color="inherit" 
-              onClick={() => {
-                navigate('/messages');
-                if (isMobile) setMobileOpen(false);
-              }}
-              size={isMobile ? "small" : "medium"}
-            >
+            <LanguageSwitcher />
+            <IconButton color="inherit" onClick={() => navigate('/messages')}>
               <Badge badgeContent={unreadCount} color="error">
                 <EmailIcon />
               </Badge>
             </IconButton>
-            
-            {/* Username button - redirects to dashboard */}
             {!isMobile && (
-              <Button 
-                color="inherit" 
-                onClick={navigateToDashboard}
-                sx={{ cursor: 'pointer', ml: 1 }}
-              >
-                {user?.username || 'Dashboard'}
+              <Button color="inherit" onClick={navigateToDashboard} sx={{ cursor: 'pointer', ml: 1 }}>
+                {user?.username || t('nav.dashboard')}
               </Button>
             )}
-            
             {!isMobile && (
-              <Button 
-                color="inherit" 
-                onClick={handleLogout}
-                sx={{ cursor: 'pointer', ml: 1 }}
-              >
-                Logout
+              <Button color="inherit" onClick={handleLogout} sx={{ cursor: 'pointer', ml: 1 }}>
+                {t('nav.logout')}
               </Button>
             )}
           </Box>
         </Toolbar>
       </AppBar>
-      
-      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+
       {isMobile ? (
         <SwipeableDrawer
+          anchor={isRTL ? 'right' : 'left'}
           open={mobileOpen}
           onClose={handleDrawerToggle}
           onOpen={() => setMobileOpen(true)}
-          sx={{
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth 
-            },
-          }}
+          sx={{ '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth } }}
         >
           {drawer}
         </SwipeableDrawer>
       ) : (
         <Drawer
+          anchor={isRTL ? 'right' : 'left'}
           variant="permanent"
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-            },
-          }}
+          sx={{ width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' } }}
         >
           {drawer}
         </Drawer>
       )}
-      
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
-          p: { xs: 2, sm: 3 },
-          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` } 
-        }}
-      >
+
+      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` } }}>
         <Toolbar />
         <Container maxWidth="lg" disableGutters={isMobile}>
           <Outlet />

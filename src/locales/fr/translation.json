@@ -1,0 +1,126 @@
+{
+  "language": {
+    "english": "Anglais",
+    "french": "Français",
+    "arabic": "Arabe"
+  },
+  "orders": {
+    "back_to_orders": "Retour aux commandes",
+    "create_new_order": "Créer une nouvelle commande"
+  },
+  "dashboard": {
+  "title": "Tableau de bord administrateur",
+  "subtitle": "Bienvenue sur le panneau d'administration de DeliveryNo. Voici un aperçu de votre système.",
+  "user_stats": "Statistiques des utilisateurs",
+  "order_stats": "Statistiques des commandes",
+  "inventory": "Inventaire",
+  "total_users": "Nombre total d'utilisateurs",
+  "pending_approvals": "Approbations en attente",
+  "sellers": "Vendeurs",
+  "drivers": "Livreurs",
+  "total_orders": "Nombre total de commandes",
+  "pending_orders": "Commandes en attente",
+  "in_transit": "En cours de livraison",
+  "delivered": "Livrées",
+  "total_stock": "Articles en stock",
+  "create_order": "Créer une commande",
+  "manage_approvals": "Gérer les approbations"
+},
+"nav": {
+  "dashboard": "Tableau de bord",
+  "users": "Gestion des utilisateurs",
+  "orders": "Toutes les commandes",
+  "stock": "Gestion du stock",
+  "messages": "Messages",
+  "profile": "Profil",
+  "logout": "Déconnexion",
+  "create_order": "Créer une commande",
+  "my_orders": "Mes commandes"
+},
+  "order_detail": {
+    "title": "Commande n°{{id}}",
+    "back": "Retour aux commandes",
+    "load_error": "Échec du chargement des détails de la commande. Veuillez réessayer.",
+    "status_updated": "Statut de la commande mis à jour vers : {{status}}",
+    "status_update_error": "Échec de la mise à jour du statut de la commande. Veuillez réessayer.",
+    "delete_success": "Commande supprimée avec succès !",
+    "delete_error": "Échec de la suppression de la commande. Veuillez réessayer.",
+    "assign_success": "Livreur assigné avec succès !",
+    "assign_error": "Échec de l'assignation du livreur. Veuillez réessayer."
+  },
+  "statuses": {
+    "pending": "En attente",
+    "assigned": "Assignée",
+    "in_transit": "En cours de livraison",
+    "delivered": "Livrée",
+    "canceled": "Annulée",
+    "no_answer": "Pas de réponse",
+    "postponed": "Reportée"
+  },
+  
+  "orders": {
+    "assign_driver_title": "Assigner un livreur",
+    "select_driver": "Sélectionner un livreur",
+    "back_to_orders": "Retour aux commandes",
+    "order_number": "Commande n°{{id}}",
+    "order_information": "Informations sur la commande",
+    "status": {
+      "pending": "En attente",
+      "assigned": "Assignée",
+      "in_transit": "En cours de livraison",
+      "delivered": "Livrée",
+      "canceled": "Annulée",
+      "no_answer": "Pas de réponse",
+      "postponed": "Reportée"
+    },
+    "item": "Article",
+    "quantity": "Quantité"
+  },
+  "common": {
+    "created": "Créée",
+    "last_updated": "Dernière mise à jour",
+    "name": "Nom",
+    "username": "Nom d'utilisateur",
+    "email": "Email",
+    "phone": "Téléphone",
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
+  },
+  "customer": {
+    "information": "Informations du client",
+    "name": "Nom du client",
+    "phone": "Téléphone du client"
+  },
+  "seller": {
+    "title": "Vendeur",
+    "no_information": "Aucune information sur le vendeur"
+  },
+  "driver": {
+    "title": "Livreur",
+    "no_driver_assigned": "Aucun livreur assigné",
+    "assign_driver": "Assigner un livreur",
+    "assign": "Assigner"
+  },
+  "delivery": {
+    "address": "Adresse de livraison",
+    "street": "Rue",
+    "city": "Ville",
+    "location": "Emplacement",
+    "open_in_maps": "Ouvrir dans Google Maps",
+    "status": "Statut de livraison",
+    "current_status": "Statut actuel",
+    "status_message": {
+      "pending": "Votre commande est en cours de traitement. Un livreur sera assigné bientôt.",
+      "assigned": "Un livreur a été assigné à votre commande.",
+      "in_transit": "Votre commande est en cours de livraison.",
+      "delivered": "Votre commande a été livrée.",
+      "canceled": "Cette commande a été annulée.",
+      "no_answer": "Le livreur n’a pas pu contacter le client.",
+      "postponed": "La livraison a été reportée."
+    }
+  }
+  }
+
+
+
+

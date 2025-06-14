@@ -1,0 +1,125 @@
+{
+  "language": {
+    "english": "English",
+    "french": "Français",
+    "arabic": "العربية"
+  },
+
+  "orders": {
+    "back_to_orders": "Back to Orders",
+    "create_new_order": "Create New Order"
+  },
+  "dashboard": {
+  "title": "Admin Dashboard",
+  "subtitle": "Welcome to the DeliveryNo administration panel. Here's an overview of your system.",
+  "user_stats": "User Statistics",
+  "order_stats": "Order Statistics",
+  "inventory": "Inventory",
+  "total_users": "Total Users",
+  "pending_approvals": "Pending Approvals",
+  "sellers": "Sellers",
+  "drivers": "Drivers",
+  "total_orders": "Total Orders",
+  "pending_orders": "Pending Orders",
+  "in_transit": "In Transit",
+  "delivered": "Delivered",
+  "total_stock": "Total Stock Items",
+  "create_order": "Create New Order",
+  "manage_approvals": "Manage User Approvals"
+},
+"nav": {
+  "dashboard": "Dashboard",
+  "users": "User Management",
+  "orders": "All Orders",
+  "stock": "Stock Management",
+  "messages": "Messages",
+  "profile": "Profile",
+  "logout": "Logout",
+  "create_order": "Create Order",
+  "my_orders": "My Orders"
+},
+  "order_detail": {
+    "title": "Order #{{id}}",
+    "back": "Back to Orders",
+    "load_error": "Failed to load order details. Please try again.",
+    "status_updated": "Order status updated to: {{status}}",
+    "status_update_error": "Failed to update order status. Please try again.",
+    "delete_success": "Order deleted successfully!",
+    "delete_error": "Failed to delete order. Please try again.",
+    "assign_success": "Driver assigned successfully!",
+    "assign_error": "Failed to assign driver. Please try again."
+  },
+  "statuses": {
+    "pending": "Pending",
+    "assigned": "Assigned",
+    "in_transit": "In Transit",
+    "delivered": "Delivered",
+    "canceled": "Canceled",
+    "no_answer": "No Answer",
+    "postponed": "Postponed"
+  },
+  
+  "orders": {
+    "back_to_orders": "Back to Orders",
+    "create_new_order": "Create New Order",
+    "order_number": "Order #{{id}}",
+    "order_information": "Order Information",
+    "status": {
+      "pending": "Pending",
+      "assigned": "Assigned",
+      "in_transit": "In Transit",
+      "delivered": "Delivered",
+      "canceled": "Canceled",
+      "no_answer": "No Answer",
+      "postponed": "Postponed"
+    },
+    "item": "Item",
+    "quantity": "Quantity"
+  },
+  "common": {
+    "created": "Created",
+    "last_updated": "Last Updated",
+    "name": "Name",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "customer": {
+    "information": "Customer Information",
+    "name": "Customer Name",
+    "phone": "Customer Phone"
+  },
+  "seller": {
+    "title": "Seller",
+    "no_information": "No seller information available"
+  },
+  "driver": {
+    "title": "Driver",
+    "no_driver_assigned": "No driver assigned",
+    "assign_driver": "Assign Driver",
+    "assign": "Assign"
+  },
+  "delivery": {
+    "address": "Delivery Address",
+    "street": "Street",
+    "city": "City",
+    "location": "Location",
+    "open_in_maps": "Open in Google Maps",
+    "status": "Delivery Status",
+    "current_status": "Current Status",
+    "status_message": {
+      "pending": "Your order is being processed. A driver will be assigned soon.",
+      "assigned": "A driver has been assigned to your order.",
+      "in_transit": "Your order is on the way to the customer.",
+      "delivered": "Your order has been delivered.",
+      "canceled": "This order has been canceled.",
+      "no_answer": "The driver was unable to reach the customer.",
+      "postponed": "The delivery has been postponed."
+    }
+  }
+
+
+
+
+
+}

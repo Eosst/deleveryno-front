@@ -1,0 +1,137 @@
+{
+  "language": {
+    "english": "الإنجليزية",
+    "french": "الفرنسية",
+    "arabic": "العربية"
+  },
+  "orders": {
+    "back_to_orders": "العودة إلى الطلبات",
+    "create_new_order": "إنشاء طلب جديد"
+  },
+  "dashboard": {
+  "title": "لوحة تحكم المسؤول",
+  "subtitle": "مرحبًا بك في لوحة إدارة DeliveryNo. إليك نظرة عامة على نظامك.",
+  "user_stats": "إحصائيات المستخدمين",
+  "order_stats": "إحصائيات الطلبات",
+  "inventory": "المخزون",
+  "total_users": "إجمالي المستخدمين",
+  "pending_approvals": "الموافقات المعلقة",
+  "sellers": "البائعون",
+  "drivers": "السائقون",
+  "total_orders": "إجمالي الطلبات",
+  "pending_orders": "الطلبات المعلقة",
+  "in_transit": "قيد التوصيل",
+  "delivered": "تم التوصيل",
+  "total_stock": "إجمالي العناصر المخزنة",
+  "create_order": "إنشاء طلب جديد",
+  "manage_approvals": "إدارة الموافقات"
+},
+"nav": {
+  "dashboard": "لوحة التحكم",
+  "users": "إدارة المستخدمين",
+  "orders": "كل الطلبات",
+  "stock": "إدارة المخزون",
+  "messages": "الرسائل",
+  "profile": "الملف الشخصي",
+  "logout": "تسجيل الخروج",
+  "create_order": "إنشاء طلب",
+  "my_orders": "طلباتي"
+},
+  "order_detail": {
+    "title": "الطلب رقم {{id}}",
+    "back": "العودة إلى الطلبات",
+    "load_error": "فشل في تحميل تفاصيل الطلب. حاول مرة أخرى.",
+    "status_updated": "تم تحديث حالة الطلب إلى: {{status}}",
+    "status_update_error": "فشل في تحديث حالة الطلب. حاول مرة أخرى.",
+    "delete_success": "تم حذف الطلب بنجاح!",
+    "delete_error": "فشل في حذف الطلب. حاول مرة أخرى.",
+    "assign_success": "تم تعيين السائق بنجاح!",
+    "assign_error": "فشل في تعيين السائق. حاول مرة أخرى."
+  },
+  "statuses": {
+    "pending": "قيد الانتظار",
+    "assigned": "مُعين",
+    "in_transit": "في الطريق",
+    "delivered": "تم التوصيل",
+    "canceled": "أُلغي",
+    "no_answer": "لا يوجد رد",
+    "postponed": "مؤجل"
+  },
+  
+  "orders": {
+    "back_to_orders": "العودة إلى الطلبات",
+    "create_new_order": "إنشاء طلب جديد",
+    "order_number": "طلب رقم {{id}}",
+    "order_information": "معلومات الطلب",
+    "status": {
+      "pending": "قيد الانتظار",
+      "assigned": "تم التعيين",
+      "in_transit": "قيد التوصيل",
+      "delivered": "تم التسليم",
+      "canceled": "تم الإلغاء",
+      "no_answer": "لا يوجد رد",
+      "postponed": "تم التأجيل"
+    },
+    "item": "المنتج",
+    "quantity": "الكمية",
+    "columns": {
+        "orderId": "رقم الطلب",
+        "customer" : "الزبون",
+        "item": "المنتج",
+        "quantity": "الكمية",
+        "deliveryCity": "مدينة التسليم",
+      "seller": "البائع",
+      "driver": "السائق",
+      "status": "الحالة",
+      "assign": "تعيين",
+      "created": "تاريخ الإنشاء"
+
+    },
+    "assigndriver" : "تعيين سائق"
+  },
+  "common": {
+    "created": "تاريخ الإنشاء",
+    "last_updated": "آخر تحديث",
+    "name": "الاسم",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف"
+  },
+  "customer": {
+    "information": "معلومات العميل",
+    "name": "اسم العميل",
+    "phone": "هاتف العميل"
+  },
+  "seller": {
+    "title": "البائع",
+    "no_information": "لا توجد معلومات عن البائع"
+  },
+  "driver": {
+    "title": "السائق",
+    "no_driver_assigned": "لم يتم تعيين سائق",
+    "assign_driver": "تعيين سائق",
+    "assign": "تعيين"
+  },
+  "delivery": {
+    "address": "عنوان التوصيل",
+    "street": "الشارع",
+    "city": "المدينة",
+    "location": "الموقع",
+    "open_in_maps": "افتح في خرائط Google",
+    "status": "حالة التوصيل",
+    "current_status": "الحالة الحالية",
+    "status_message": {
+      "pending": "طلبك قيد المعالجة، وسيتم تعيين سائق قريباً.",
+      "assigned": "تم تعيين سائق لطلبك.",
+      "in_transit": "طلبك في الطريق إلى العميل.",
+      "delivered": "تم تسليم طلبك بنجاح.",
+      "canceled": "تم إلغاء هذا الطلب.",
+      "no_answer": "تعذر على السائق التواصل مع العميل.",
+      "postponed": "تم تأجيل التوصيل."
+    }
+  }
+}
+
+
+
+

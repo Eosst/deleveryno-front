@@ -7,6 +7,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { removeTapDelay } from './utils/touchUtils';
+import './i18n';
+
 
 // Remove 300ms tap delay on mobile devices
 removeTapDelay();

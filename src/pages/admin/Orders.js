@@ -38,8 +38,10 @@ import { getOrders, deleteOrder, assignDriver, updateOrderStatus } from '../../a
 import { getUsers } from '../../api/users';
 import ResponsiveTable from '../../components/common/ResponsiveTable';
 import { useDebounce } from '../../hooks/usePerformanceOptimization';
+import { useTranslation } from 'react-i18next';
 
 const AdminOrders = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -79,36 +81,33 @@ const AdminOrders = () => {
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-  setError(null);
+    setError(null);
   
-  try {
-    const params = {
-      page: page + 1, // API uses 1-based pagination, React uses 0-based
-      page_size: rowsPerPage,
-      status: filters.status || undefined,
-      delivery_city: filters.delivery_city || undefined,
-      customer_name: filters.customer_name || undefined
-    };
-    
-    const response = await getOrders(params);
-    setOrders(response.results || []);
-    setTotalCount(response.count || 0);
-  } catch (err) {
-    console.error('Error fetching orders:', err);
-    setError('Failed to load orders. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-}, [page, rowsPerPage, filters]);
+    try {
+      const params = {
+        page: page + 1,
+        page_size: rowsPerPage,
+        status: filters.status || undefined,
+        delivery_city: filters.delivery_city || undefined,
+        customer_name: filters.customer_name || undefined
+      };
+      
+      const response = await getOrders(params);
+      setOrders(response.results || []);
+      setTotalCount(response.count || 0);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setError(t('orders.errors.failedLoadOrders'));
+    } finally {
+      setLoading(false);
+    }
+  }, [page, rowsPerPage, filters, t]);
 
-  // Use debounced search
   const debouncedFetchOrders = useDebounce(fetchOrders, 500);
 
   useEffect(() => {
     debouncedFetchOrders();
   }, [page, rowsPerPage, filters, debouncedFetchOrders]);
-
- 
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -146,7 +145,6 @@ const AdminOrders = () => {
     }
   };
 
-  // Delete order handlers
   const handleDeleteClick = (order) => {
     setOrderToDelete(order);
     setDeleteDialogOpen(true);
@@ -158,31 +156,28 @@ const AdminOrders = () => {
     try {
       await deleteOrder(orderToDelete.id);
       setOrders(orders.filter(o => o.id !== orderToDelete.id));
-      setSuccess(`Order #${orderToDelete.id} has been deleted.`);
+      setSuccess(t('orders.messages.orderDeleted', { id: orderToDelete.id }));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(`Failed to delete order: ${err.message}`);
+      setError(t('orders.errors.failedDeleteOrder'));
     } finally {
       setDeleteDialogOpen(false);
       setOrderToDelete(null);
     }
   };
 
-  // Assign driver handlers
   const handleAssignClick = async (order) => {
     setOrderToAssign(order);
     setSelectedDriverId('');
     setDriverLoading(true);
     
     try {
-      // Fetch available drivers
       const response = await getUsers({ role: 'driver', approved: true });
-      // Filter out non-drivers (as a safeguard)
       const drivers = (response.results || []).filter(user => user.role === 'driver');
       setAvailableDrivers(drivers);
     } catch (err) {
       console.error('Error fetching drivers:', err);
-      setError('Failed to load available drivers. Please try again.');
+      setError(t('orders.errors.failedLoadDrivers'));
     } finally {
       setDriverLoading(false);
       setAssignDialogOpen(true);
@@ -194,17 +189,14 @@ const AdminOrders = () => {
     
     try {
       const updatedOrder = await assignDriver(orderToAssign.id, selectedDriverId);
-      
-      // Update the order in the local state
       setOrders(orders.map(order => 
         order.id === orderToAssign.id ? updatedOrder : order
       ));
-      
-      setSuccess(`Driver assigned to order #${orderToAssign.id} successfully.`);
+      setSuccess(t('orders.messages.driverAssigned', { id: orderToAssign.id }));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error assigning driver:', err);
-      setError('Failed to assign driver. Please try again.');
+      setError(t('orders.errors.failedAssignDriver'));
     } finally {
       setAssignDialogOpen(false);
       setOrderToAssign(null);
@@ -212,7 +204,6 @@ const AdminOrders = () => {
     }
   };
 
-  // Status update handlers
   const handleStatusClick = (order) => {
     setOrderToUpdate(order);
     setNewStatus(order.status);
@@ -224,17 +215,17 @@ const AdminOrders = () => {
     
     try {
       const updatedOrder = await updateOrderStatus(orderToUpdate.id, newStatus);
-      
-      // Update the order in the local state
       setOrders(orders.map(order => 
         order.id === orderToUpdate.id ? updatedOrder : order
       ));
-      
-      setSuccess(`Order #${orderToUpdate.id} status updated to: ${getStatusLabel(updatedOrder.status)}`);
+      setSuccess(t('orders.messages.statusUpdated', { 
+        id: orderToUpdate.id,
+        status: t(`statuses.${updatedOrder.status}`)
+      }));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error updating order status:', err);
-      setError('Failed to update order status. Please try again.');
+      setError(t('orders.errors.failedUpdateStatus'));
     } finally {
       setStatusDialogOpen(false);
       setOrderToUpdate(null);
@@ -243,98 +234,60 @@ const AdminOrders = () => {
   };
 
   const getStatusChip = (status) => {
-    switch (status) {
-      case 'pending':
-        return <Chip label="Pending" color="warning" size="small" />;
-      case 'assigned':
-        return <Chip label="Assigned" color="primary" size="small" />;
-      case 'in_transit':
-        return <Chip label="In Transit" color="info" size="small" />;
-      case 'delivered':
-        return <Chip label="Delivered" color="success" size="small" />;
-      case 'canceled':
-        return <Chip label="Canceled" color="error" size="small" />;
-      case 'no_answer':
-        return <Chip label="No Answer" color="default" size="small" />;
-      case 'postponed':
-        return <Chip label="Postponed" color="secondary" size="small" />;
-      default:
-        return <Chip label={status} size="small" />;
-    }
+    const statusLabels = {
+      pending: <Chip label={t('statuses.pending')} color="warning" size="small" />,
+      assigned: <Chip label={t('statuses.assigned')} color="primary" size="small" />,
+      in_transit: <Chip label={t('statuses.in_transit')} color="info" size="small" />,
+      delivered: <Chip label={t('statuses.delivered')} color="success" size="small" />,
+      canceled: <Chip label={t('statuses.canceled')} color="error" size="small" />,
+      no_answer: <Chip label={t('statuses.no_answer')} color="default" size="small" />,
+      postponed: <Chip label={t('statuses.postponed')} color="secondary" size="small" />
+    };
+    return statusLabels[status] || <Chip label={status} size="small" />;
   };
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'assigned':
-        return 'Assigned';
-      case 'in_transit':
-        return 'In Transit';
-      case 'delivered':
-        return 'Delivered';
-      case 'canceled':
-        return 'Canceled';
-      case 'no_answer':
-        return 'No Answer';
-      case 'postponed':
-        return 'Postponed';
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    }
-  };
-
-  // Get valid status transitions
   const getValidStatuses = (currentStatus) => {
     switch (currentStatus) {
-      case 'pending':
-        return ['assigned', 'canceled'];
-      case 'assigned':
-        return ['in_transit', 'canceled', 'pending'];
-      case 'in_transit':
-        return ['delivered', 'no_answer', 'postponed', 'canceled'];
-      case 'no_answer':
-        return ['in_transit', 'canceled', 'postponed'];
-      case 'postponed':
-        return ['in_transit', 'canceled'];
+      case 'pending': return ['assigned', 'canceled'];
+      case 'assigned': return ['in_transit', 'canceled', 'pending'];
+      case 'in_transit': return ['delivered', 'no_answer', 'postponed', 'canceled'];
+      case 'no_answer': return ['in_transit', 'canceled', 'postponed'];
+      case 'postponed': return ['in_transit', 'canceled'];
       case 'delivered':
-      case 'canceled':
-        return []; // Terminal states
-      default:
-        return ['pending', 'assigned', 'in_transit', 'delivered', 'no_answer', 'postponed', 'canceled'];
+      case 'canceled': return [];
+      default: return ['pending', 'assigned', 'in_transit', 'delivered', 'no_answer', 'postponed', 'canceled'];
     }
   };
 
-  // Define columns for the responsive table
   const columns = [
-    { key: 'id', label: 'Order ID' },
-    { key: 'customer_name', label: 'Customer' },
-    { key: 'item', label: 'Item', hidden: isMobile },
-    { key: 'quantity', label: 'Qty', hidden: isMobile },
-    { key: 'delivery_city', label: 'Delivery City', hidden: isMobile },
+    { key: 'id', label: t('orders.columns.orderId') },
+    { key: 'customer_name', label: t('orders.columns.customer') },
+    { key: 'item', label: t('orders.columns.item'), hidden: isMobile },
+    { key: 'quantity', label: t('orders.columns.quantity'), hidden: isMobile },
+    { key: 'delivery_city', label: t('orders.columns.deliveryCity'), hidden: isMobile },
     { 
       key: 'seller', 
-      label: 'Seller', 
+      label: t('orders.columns.seller'), 
       hidden: isMobile,
-      render: (value) => value?.username || 'N/A'
+      render: (value) => value?.username || t('common.notAvailable')
     },
     { 
       key: 'driver', 
-      label: 'Driver',
+      label: t('orders.columns.driver'),
       render: (value) => value?.username || (
         <Typography variant="body2" color="textSecondary">
-          Not assigned
+          {t('orders.notAssigned')}
         </Typography>
       )
     },
     { 
       key: 'status', 
-      label: 'Status',
+      label: t('orders.columns.status'),
       render: (value) => getStatusChip(value)
     },
     { 
       key: 'assign_action', 
-      label: 'Assign',
+      label: t('orders.columns.assign'),
       hidden: isMobile,
       render: (value, row) => (
         row.status === 'pending' && (
@@ -347,20 +300,19 @@ const AdminOrders = () => {
               handleAssignClick(row);
             }}
           >
-            Assign Driver
+            {t('orders.assignDriver')}
           </Button>
         )
       )
     },
     { 
       key: 'created_at', 
-      label: 'Created', 
+      label: t('orders.columns.created'), 
       hidden: isMobile,
       render: (value) => new Date(value).toLocaleDateString()
     }
   ];
 
-  // Define action buttons for the responsive table
   const renderActions = (row) => (
     <Box display="flex" justifyContent={isMobile ? "center" : "flex-end"} flexWrap="wrap" gap={1}>
       <IconButton
@@ -368,7 +320,7 @@ const AdminOrders = () => {
         size="small"
         component={Link}
         to={`/admin/orders/${row.id}`}
-        title="View Details"
+        title={t('orders.actions.viewDetails')}
       >
         <ViewIcon />
       </IconButton>
@@ -377,7 +329,7 @@ const AdminOrders = () => {
         color="info"
         size="small"
         onClick={() => handleStatusClick(row)}
-        title="Update Status"
+        title={t('orders.actions.updateStatus')}
       >
         <EditIcon />
       </IconButton>
@@ -387,7 +339,7 @@ const AdminOrders = () => {
           color="success"
           size="small"
           onClick={() => handleAssignClick(row)}
-          title="Assign Driver"
+          title={t('orders.actions.assignDriver')}
         >
           <AssignIcon />
         </IconButton>
@@ -397,7 +349,7 @@ const AdminOrders = () => {
         color="error"
         size="small"
         onClick={() => handleDeleteClick(row)}
-        title="Delete Order"
+        title={t('orders.actions.deleteOrder')}
       >
         <DeleteIcon />
       </IconButton>
@@ -413,7 +365,9 @@ const AdminOrders = () => {
         alignItems={isMobile ? "stretch" : "center"} 
         mb={3}
       >
-        <Typography variant="h4" sx={{ mb: isMobile ? 2 : 0 }}>Order Management</Typography>
+        <Typography variant="h4" sx={{ mb: isMobile ? 2 : 0 }}>
+          {t('orders.orderManagement')}
+        </Typography>
         <Button
           component={Link}
           to="/admin/orders/create"
@@ -422,7 +376,7 @@ const AdminOrders = () => {
           startIcon={<AddIcon />}
           fullWidth={isMobile}
         >
-          Create New Order
+          {t('orders.createNewOrder')}
         </Button>
       </Box>
 
@@ -438,13 +392,12 @@ const AdminOrders = () => {
         </Alert>
       )}
 
-      {/* Search and Filters */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              placeholder="Search by customer name..."
+              placeholder={t('orders.searchPlaceholder')}
               value={searchTerm}
               onChange={handleSearchChange}
               onKeyPress={handleKeyPress}
@@ -457,7 +410,7 @@ const AdminOrders = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <Button onClick={handleSearch} variant="text">
-                      Search
+                      {t('orders.searchButton')}
                     </Button>
                   </InputAdornment>
                 )
@@ -471,7 +424,7 @@ const AdminOrders = () => {
               variant="outlined"
               fullWidth={isMobile}
             >
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
+              {showFilters ? t('orders.hideFilters') : t('orders.showFilters')}
             </Button>
           </Grid>
           
@@ -479,28 +432,28 @@ const AdminOrders = () => {
             <>
               <Grid item xs={12} md={4}>
                 <FormControl fullWidth variant="outlined">
-                  <InputLabel>Filter by Status</InputLabel>
+                  <InputLabel>{t('orders.filterStatus')}</InputLabel>
                   <Select
                     name="status"
                     value={filters.status}
                     onChange={handleFilterChange}
-                    label="Filter by Status"
+                    label={t('orders.filterStatus')}
                   >
-                    <MenuItem value="">All Statuses</MenuItem>
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="assigned">Assigned</MenuItem>
-                    <MenuItem value="in_transit">In Transit</MenuItem>
-                    <MenuItem value="delivered">Delivered</MenuItem>
-                    <MenuItem value="canceled">Canceled</MenuItem>
-                    <MenuItem value="no_answer">No Answer</MenuItem>
-                    <MenuItem value="postponed">Postponed</MenuItem>
+                    <MenuItem value="">{t('orders.allStatuses')}</MenuItem>
+                    <MenuItem value="pending">{t('statuses.pending')}</MenuItem>
+                    <MenuItem value="assigned">{t('statuses.assigned')}</MenuItem>
+                    <MenuItem value="in_transit">{t('statuses.in_transit')}</MenuItem>
+                    <MenuItem value="delivered">{t('statuses.delivered')}</MenuItem>
+                    <MenuItem value="canceled">{t('statuses.canceled')}</MenuItem>
+                    <MenuItem value="no_answer">{t('statuses.no_answer')}</MenuItem>
+                    <MenuItem value="postponed">{t('statuses.postponed')}</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
-                  label="Filter by City"
+                  label={t('orders.filterCity')}
                   name="delivery_city"
                   value={filters.delivery_city}
                   onChange={handleFilterChange}
@@ -519,7 +472,7 @@ const AdminOrders = () => {
                   }}
                   fullWidth={isMobile}
                 >
-                  Reset Filters
+                  {t('orders.resetFilters')}
                 </Button>
               </Grid>
             </>
@@ -527,46 +480,47 @@ const AdminOrders = () => {
         </Grid>
       </Paper>
 
-      {/* Responsive Orders Table */}
       <ResponsiveTable
         columns={columns}
         data={orders}
         loading={loading}
-        emptyMessage="No orders found"
+        emptyMessage={t('orders.noOrdersFound')}
         onRowClick={(row) => navigate(`/admin/orders/${row.id}`)}
         actions={renderActions}
         primaryKey="id"
       />
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         fullWidth={isMobile}
         maxWidth="sm"
       >
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>{t('orders.deleteDialog.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete order #{orderToDelete?.id}? This action cannot be undone.
+            {t('orders.deleteDialog.content', { id: orderToDelete?.id })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>
+            {t('common.cancel')}
+          </Button>
           <Button onClick={handleDeleteConfirm} color="error">
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Assign Driver Dialog */}
       <Dialog
         open={assignDialogOpen}
         onClose={() => setAssignDialogOpen(false)}
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>Assign Driver to Order #{orderToAssign?.id}</DialogTitle>
+        <DialogTitle>
+          {t('orders.assignDialog.title', { id: orderToAssign?.id })}
+        </DialogTitle>
         <DialogContent>
           {driverLoading ? (
             <Box display="flex" justifyContent="center" p={3}>
@@ -574,19 +528,19 @@ const AdminOrders = () => {
             </Box>
           ) : availableDrivers.length === 0 ? (
             <DialogContentText>
-              No approved drivers are available. Please approve drivers first.
+              {t('orders.assignDialog.noDrivers')}
             </DialogContentText>
           ) : (
             <>
               <DialogContentText sx={{ mb: 2 }}>
-                Select a driver to assign to this order:
+                {t('orders.assignDialog.selectDriver')}
               </DialogContentText>
               <FormControl fullWidth sx={{ mt: 1 }}>
-                <InputLabel>Driver</InputLabel>
+                <InputLabel>{t('orders.assignDialog.driverLabel')}</InputLabel>
                 <Select
                   value={selectedDriverId}
                   onChange={(e) => setSelectedDriverId(e.target.value)}
-                  label="Driver"
+                  label={t('orders.assignDialog.driverLabel')}
                 >
                   {availableDrivers.map(driver => (
                     <MenuItem key={driver.id} value={driver.id}>
@@ -599,53 +553,56 @@ const AdminOrders = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setAssignDialogOpen(false)}>
+            {t('common.cancel')}
+          </Button>
           <Button 
             onClick={handleAssignDriver} 
             color="primary"
             disabled={driverLoading || !selectedDriverId}
           >
-            Assign
+            {t('orders.assignDialog.assignButton')}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Status Update Dialog */}
       <Dialog
         open={statusDialogOpen}
         onClose={() => setStatusDialogOpen(false)}
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>Update Order Status</DialogTitle>
+        <DialogTitle>{t('orders.statusDialog.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            Change the status for Order #{orderToUpdate?.id}
+            {t('orders.statusDialog.content', { id: orderToUpdate?.id })}
           </DialogContentText>
           
           <FormControl fullWidth sx={{ mt: 1 }}>
-            <InputLabel>New Status</InputLabel>
+            <InputLabel>{t('orders.statusDialog.newStatusLabel')}</InputLabel>
             <Select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
-              label="New Status"
+              label={t('orders.statusDialog.newStatusLabel')}
             >
               {orderToUpdate && getValidStatuses(orderToUpdate.status).map(status => (
                 <MenuItem key={status} value={status}>
-                  {getStatusLabel(status)}
+                  {t(`statuses.${status}`)}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setStatusDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setStatusDialogOpen(false)}>
+            {t('common.cancel')}
+          </Button>
           <Button 
             onClick={handleUpdateStatus} 
             color="primary"
             disabled={!newStatus || newStatus === orderToUpdate?.status}
           >
-            Update
+            {t('common.update')}
           </Button>
         </DialogActions>
       </Dialog>

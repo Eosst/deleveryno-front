@@ -10,6 +10,8 @@ import theme from './theme';
 import useNetworkStatus from './hooks/useNetworkStatus';
 import './App.css';
 import './mobile.css'; // Import mobile-specific CSS
+import LanguageSwitcher from './components/LanguageSwitcher';
+
 
 function App() {
   const { isOnline } = useNetworkStatus();

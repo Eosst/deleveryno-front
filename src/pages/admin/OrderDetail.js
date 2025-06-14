@@ -37,10 +37,12 @@ import {
 } from '@mui/icons-material';
 import { getOrder, updateOrderStatus, deleteOrder, assignDriver } from '../../api/orders';
 import { getUsers } from '../../api/users';
-import { useAuth } from '../../contexts/AuthContext'; // Import Auth context
+import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next'; // Import translation hook
 
 const OrderDetail = () => {
-  const { user } = useAuth(); // Get current user from auth context
+  const { t } = useTranslation(); // Initialize translation hook
+  const { user } = useAuth();
   const isSeller = user?.role === 'seller';
   const isAdmin = user?.role === 'admin';
   const isDriver = user?.role === 'driver';
@@ -81,7 +83,7 @@ const OrderDetail = () => {
       }
     } catch (err) {
       console.error('Error fetching order details:', err);
-      setError('Failed to load order details. Please try again.');
+      setError(t('orders.error_loading'));
     } finally {
       setLoading(false);
     }
@@ -95,11 +97,11 @@ const OrderDetail = () => {
     try {
       const updatedOrder = await updateOrderStatus(order.id, newStatus);
       setOrder(updatedOrder);
-      setSuccess(`Order status updated to: ${getStatusLabel(updatedOrder.status)}`);
+      setSuccess(t('orders.status_updated', { status: getStatusLabel(updatedOrder.status) }));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error updating order status:', err);
-      setError('Failed to update order status. Please try again.');
+      setError(t('orders.error_updating_status'));
     } finally {
       setStatusDialogOpen(false);
     }
@@ -112,13 +114,13 @@ const OrderDetail = () => {
   const handleDeleteOrder = async () => {
     try {
       await deleteOrder(order.id);
-      setSuccess('Order deleted successfully!');
+      setSuccess(t('orders.deleted_successfully'));
       setTimeout(() => {
         navigate(-1);
       }, 1000);
     } catch (err) {
       console.error('Error deleting order:', err);
-      setError('Failed to delete order. Please try again.');
+      setError(t('orders.error_deleting'));
     } finally {
       setDeleteDialogOpen(false);
     }
@@ -135,7 +137,7 @@ const OrderDetail = () => {
       setAvailableDrivers(drivers);
     } catch (err) {
       console.error('Error fetching drivers:', err);
-      setError('Failed to load available drivers. Please try again.');
+      setError(t('orders.error_loading_drivers'));
     } finally {
       setDriverLoading(false);
       setAssignDialogOpen(true);
@@ -148,11 +150,11 @@ const OrderDetail = () => {
     try {
       const updatedOrder = await assignDriver(order.id, selectedDriverId);
       setOrder(updatedOrder);
-      setSuccess('Driver assigned successfully!');
+      setSuccess(t('orders.driver_assigned_success'));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error assigning driver:', err);
-      setError('Failed to assign driver. Please try again.');
+      setError(t('orders.error_assigning_driver'));
     } finally {
       setAssignDialogOpen(false);
       setSelectedDriverId('');
@@ -160,45 +162,32 @@ const OrderDetail = () => {
   };
 
   const getStatusChip = (status) => {
+    const getStatusTranslation = (status) => {
+      return t(`orders.status.${status}`);
+    };
+    
     switch (status) {
       case 'pending':
-        return <Chip label="Pending" color="warning" />;
+        return <Chip label={getStatusTranslation('pending')} color="warning" />;
       case 'assigned':
-        return <Chip label="Assigned" color="primary" />;
+        return <Chip label={getStatusTranslation('assigned')} color="primary" />;
       case 'in_transit':
-        return <Chip label="In Transit" color="info" />;
+        return <Chip label={getStatusTranslation('in_transit')} color="info" />;
       case 'delivered':
-        return <Chip label="Delivered" color="success" />;
+        return <Chip label={getStatusTranslation('delivered')} color="success" />;
       case 'canceled':
-        return <Chip label="Canceled" color="error" />;
+        return <Chip label={getStatusTranslation('canceled')} color="error" />;
       case 'no_answer':
-        return <Chip label="No Answer" color="default" />;
+        return <Chip label={getStatusTranslation('no_answer')} color="default" />;
       case 'postponed':
-        return <Chip label="Postponed" color="secondary" />;
+        return <Chip label={getStatusTranslation('postponed')} color="secondary" />;
       default:
         return <Chip label={status} />;
     }
   };
 
   const getStatusLabel = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'assigned':
-        return 'Assigned';
-      case 'in_transit':
-        return 'In Transit';
-      case 'delivered':
-        return 'Delivered';
-      case 'canceled':
-        return 'Canceled';
-      case 'no_answer':
-        return 'No Answer';
-      case 'postponed':
-        return 'Postponed';
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    }
+    return t(`orders.status.${status}`);
   };
 
   // Get valid status transitions
@@ -234,7 +223,7 @@ const OrderDetail = () => {
     return (
       <Box>
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-          Back
+          {t('common.back')}
         </Button>
         <Alert severity="error">{error}</Alert>
       </Box>
@@ -245,9 +234,9 @@ const OrderDetail = () => {
     return (
       <Box>
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-          Back
+          {t('common.back')}
         </Button>
-        <Alert severity="warning">Order not found</Alert>
+        <Alert severity="warning">{t('orders.not_found')}</Alert>
       </Box>
     );
   }
@@ -256,7 +245,7 @@ const OrderDetail = () => {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)}>
-          Back to Orders
+          {t('orders.back_to_orders')}
         </Button>
         {/* Only show action buttons for admins and drivers */}
         {!isSeller && (
@@ -266,6 +255,7 @@ const OrderDetail = () => {
               onClick={handleStatusDialogOpen}
               disabled={['delivered', 'canceled'].includes(order.status)}
               sx={{ mr: 1 }}
+              aria-label={t('orders.update_status')}
             >
               <EditIcon />
             </IconButton>
@@ -274,12 +264,13 @@ const OrderDetail = () => {
                 color="success" 
                 onClick={handleAssignDialogOpen}
                 sx={{ mr: 1 }}
+                aria-label={t('orders.assign_driver')}
               >
                 <AssignIcon />
               </IconButton>
             )}
             {isAdmin && (
-              <IconButton color="error" onClick={handleDeleteDialogOpen}>
+              <IconButton color="error" onClick={handleDeleteDialogOpen} aria-label={t('common.delete')}>
                 <DeleteIcon />
               </IconButton>
             )}
@@ -294,14 +285,14 @@ const OrderDetail = () => {
       )}
 
       <Typography variant="h4" gutterBottom>
-        Order #{order.id}
+        {t('orders.order_number', { id: order.id })}
       </Typography>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 3, mb: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="h6">Order Information</Typography>
+              <Typography variant="h6">{t('orders.order_information')}</Typography>
               {getStatusChip(order.status)}
             </Box>
             
@@ -309,43 +300,63 @@ const OrderDetail = () => {
             
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Created</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('common.created')}</Typography>
                 <Typography variant="body1">
                   {new Date(order.created_at).toLocaleString()}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Last Updated</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('common.last_updated')}</Typography>
                 <Typography variant="body1">
                   {new Date(order.updated_at).toLocaleString()}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Item</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('orders.item')}</Typography>
                 <Typography variant="body1">{order.item}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Quantity</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('orders.quantity')}</Typography>
                 <Typography variant="body1">{order.quantity}</Typography>
               </Grid>
+              
+              {/* Comment/Notes Section */}
+              {order.comment && (
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" color="textSecondary">{t('orders.comments_notes')}</Typography>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      mt: 1,
+                      backgroundColor: '#f9f9f9',
+                      borderRadius: 1
+                    }}
+                  >
+                    <Typography variant="body1" style={{ whiteSpace: 'pre-wrap' }}>
+                      {order.comment}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              )}
             </Grid>
           </Paper>
 
           <Paper sx={{ p: 3, mb: 3 }}>
             <Box display="flex" alignItems="center" mb={2}>
               <CustomerIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="h6">Customer Information</Typography>
+              <Typography variant="h6">{t('customer.information')}</Typography>
             </Box>
             
             <Divider sx={{ mb: 2 }} />
             
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Name</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('customer.name')}</Typography>
                 <Typography variant="body1">{order.customer_name}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Phone</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('customer.phone')}</Typography>
                 <Typography variant="body1">
                   <a href={`tel:${order.customer_phone}`}>{order.customer_phone}</a>
                 </Typography>
@@ -356,23 +367,23 @@ const OrderDetail = () => {
           <Paper sx={{ p: 3 }}>
             <Box display="flex" alignItems="center" mb={2}>
               <LocationIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="h6">Delivery Address</Typography>
+              <Typography variant="h6">{t('delivery.address')}</Typography>
             </Box>
             
             <Divider sx={{ mb: 2 }} />
             
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Typography variant="subtitle2" color="textSecondary">Street</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('delivery.street')}</Typography>
                 <Typography variant="body1">{order.delivery_street}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">City</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('delivery.city')}</Typography>
                 <Typography variant="body1">{order.delivery_city}</Typography>
               </Grid>
               {order.delivery_location && (
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="textSecondary">Location</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('delivery.location')}</Typography>
                   <Box mt={1}>
                     <Button 
                       variant="outlined" 
@@ -383,64 +394,13 @@ const OrderDetail = () => {
                       rel="noopener noreferrer"
                       startIcon={<LocationIcon />}
                     >
-                      Open in Google Maps
+                      {t('delivery.open_in_maps')}
                     </Button>
                   </Box>
                 </Grid>
               )}
             </Grid>
           </Paper>
-          <Paper sx={{ p: 3, mb: 3 }}>
-  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-    <Typography variant="h6">Order Information</Typography>
-    {getStatusChip(order.status)}
-  </Box>
-  
-  <Divider sx={{ mb: 2 }} />
-  
-  <Grid container spacing={2}>
-    <Grid item xs={12} sm={6}>
-      <Typography variant="subtitle2" color="textSecondary">Created</Typography>
-      <Typography variant="body1">
-        {new Date(order.created_at).toLocaleString()}
-      </Typography>
-    </Grid>
-    <Grid item xs={12} sm={6}>
-      <Typography variant="subtitle2" color="textSecondary">Last Updated</Typography>
-      <Typography variant="body1">
-        {new Date(order.updated_at).toLocaleString()}
-      </Typography>
-    </Grid>
-    <Grid item xs={12} sm={6}>
-      <Typography variant="subtitle2" color="textSecondary">Item</Typography>
-      <Typography variant="body1">{order.item}</Typography>
-    </Grid>
-    <Grid item xs={12} sm={6}>
-      <Typography variant="subtitle2" color="textSecondary">Quantity</Typography>
-      <Typography variant="body1">{order.quantity}</Typography>
-    </Grid>
-    
-    {/* Comment/Notes Section */}
-    {order.comment && (
-      <Grid item xs={12}>
-        <Typography variant="subtitle2" color="textSecondary">Comments/Notes</Typography>
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            mt: 1,
-            backgroundColor: '#f9f9f9',
-            borderRadius: 1
-          }}
-        >
-          <Typography variant="body1" style={{ whiteSpace: 'pre-wrap' }}>
-            {order.comment}
-          </Typography>
-        </Paper>
-      </Grid>
-    )}
-  </Grid>
-</Paper>
         </Grid>
 
         <Grid item xs={12} md={4}>
@@ -448,36 +408,36 @@ const OrderDetail = () => {
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <SellerIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Seller</Typography>
+                <Typography variant="h6">{t('seller.title')}</Typography>
               </Box>
               
               <Divider sx={{ mb: 2 }} />
               
               {order.seller ? (
                 <>
-                  <Typography variant="subtitle2" color="textSecondary">Name</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('common.name')}</Typography>
                   <Typography variant="body1" gutterBottom>
                     {order.seller.first_name} {order.seller.last_name}
                   </Typography>
                   
-                  <Typography variant="subtitle2" color="textSecondary">Username</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('common.username')}</Typography>
                   <Typography variant="body1" gutterBottom>
                     {order.seller.username}
                   </Typography>
                   
-                  <Typography variant="subtitle2" color="textSecondary">Email</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('common.email')}</Typography>
                   <Typography variant="body1" gutterBottom>
                     {order.seller.email}
                   </Typography>
                   
-                  <Typography variant="subtitle2" color="textSecondary">Phone</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('common.phone')}</Typography>
                   <Typography variant="body1">
                     {order.seller.phone}
                   </Typography>
                 </>
               ) : (
                 <Typography variant="body1" color="textSecondary">
-                  No seller information available
+                  {t('seller.no_information')}
                 </Typography>
               )}
             </CardContent>
@@ -489,29 +449,29 @@ const OrderDetail = () => {
               <CardContent>
                 <Box display="flex" alignItems="center" mb={2}>
                   <DriverIcon sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="h6">Driver</Typography>
+                  <Typography variant="h6">{t('driver.title')}</Typography>
                 </Box>
                 
                 <Divider sx={{ mb: 2 }} />
                 
                 {order.driver ? (
                   <>
-                    <Typography variant="subtitle2" color="textSecondary">Name</Typography>
+                    <Typography variant="subtitle2" color="textSecondary">{t('common.name')}</Typography>
                     <Typography variant="body1" gutterBottom>
                       {order.driver.first_name} {order.driver.last_name}
                     </Typography>
                     
-                    <Typography variant="subtitle2" color="textSecondary">Username</Typography>
+                    <Typography variant="subtitle2" color="textSecondary">{t('common.username')}</Typography>
                     <Typography variant="body1" gutterBottom>
                       {order.driver.username}
                     </Typography>
                     
-                    <Typography variant="subtitle2" color="textSecondary">Email</Typography>
+                    <Typography variant="subtitle2" color="textSecondary">{t('common.email')}</Typography>
                     <Typography variant="body1" gutterBottom>
                       {order.driver.email}
                     </Typography>
                     
-                    <Typography variant="subtitle2" color="textSecondary">Phone</Typography>
+                    <Typography variant="subtitle2" color="textSecondary">{t('common.phone')}</Typography>
                     <Typography variant="body1">
                       <a href={`tel:${order.driver.phone}`}>{order.driver.phone}</a>
                     </Typography>
@@ -519,7 +479,7 @@ const OrderDetail = () => {
                 ) : (
                   <>
                     <Typography variant="body1" color="textSecondary" gutterBottom>
-                      No driver assigned
+                      {t('driver.no_driver_assigned')}
                     </Typography>
                     {isAdmin && order.status === 'pending' && (
                       <Button
@@ -530,7 +490,7 @@ const OrderDetail = () => {
                         fullWidth
                         sx={{ mt: 1 }}
                       >
-                        Assign Driver
+                        {t('driver.assign_driver')}
                       </Button>
                     )}
                   </>
@@ -545,24 +505,18 @@ const OrderDetail = () => {
               <CardContent>
                 <Box display="flex" alignItems="center" mb={2}>
                   <DriverIcon sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="h6">Delivery Status</Typography>
+                  <Typography variant="h6">{t('delivery.status')}</Typography>
                 </Box>
                 
                 <Divider sx={{ mb: 2 }} />
                 
-                <Typography variant="subtitle2" color="textSecondary">Current Status</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('delivery.current_status')}</Typography>
                 <Box sx={{ mt: 1, mb: 2 }}>
                   {getStatusChip(order.status)}
                 </Box>
                 
                 <Typography variant="body2" color="textSecondary">
-                  {order.status === 'pending' && 'Your order is being processed. A driver will be assigned soon.'}
-                  {order.status === 'assigned' && 'A driver has been assigned to your order and will pick it up soon.'}
-                  {order.status === 'in_transit' && 'Your order is on the way to the customer.'}
-                  {order.status === 'delivered' && 'Your order has been successfully delivered.'}
-                  {order.status === 'canceled' && 'This order has been canceled.'}
-                  {order.status === 'no_answer' && 'The driver was unable to reach the customer.'}
-                  {order.status === 'postponed' && 'The delivery has been postponed.'}
+                  {t(`delivery.status_message.${order.status}`)}
                 </Typography>
               </CardContent>
             </Card>
@@ -580,18 +534,18 @@ const OrderDetail = () => {
             fullWidth
             maxWidth="sm"
           >
-            <DialogTitle>Update Order Status</DialogTitle>
+            <DialogTitle>{t('orders.update_status_title')}</DialogTitle>
             <DialogContent>
               <DialogContentText sx={{ mb: 2 }}>
-                Change the status for Order #{order.id}
+                {t('orders.update_status_description', { id: order.id })}
               </DialogContentText>
               
               <FormControl fullWidth sx={{ mt: 1 }}>
-                <InputLabel>New Status</InputLabel>
+                <InputLabel>{t('orders.new_status')}</InputLabel>
                 <Select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  label="New Status"
+                  label={t('orders.new_status')}
                 >
                   {getValidStatuses(order.status).map(status => (
                     <MenuItem key={status} value={status}>
@@ -602,13 +556,13 @@ const OrderDetail = () => {
               </FormControl>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setStatusDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => setStatusDialogOpen(false)}>{t('common.cancel')}</Button>
               <Button 
                 onClick={handleUpdateStatus} 
                 color="primary"
                 disabled={!newStatus || newStatus === order.status}
               >
-                Update
+                {t('common.update')}
               </Button>
             </DialogActions>
           </Dialog>
@@ -618,16 +572,16 @@ const OrderDetail = () => {
             open={deleteDialogOpen}
             onClose={() => setDeleteDialogOpen(false)}
           >
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle>{t('orders.delete_confirmation_title')}</DialogTitle>
             <DialogContent>
               <DialogContentText>
-                Are you sure you want to delete order #{order.id}? This action cannot be undone.
+                {t('orders.delete_confirmation_message', { id: order.id })}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
               <Button onClick={handleDeleteOrder} color="error">
-                Delete
+                {t('common.delete')}
               </Button>
             </DialogActions>
           </Dialog>
@@ -639,7 +593,7 @@ const OrderDetail = () => {
             fullWidth
             maxWidth="sm"
           >
-            <DialogTitle>Assign Driver to Order #{order.id}</DialogTitle>
+            <DialogTitle>{t('orders.assign_driver_title', { id: order.id })}</DialogTitle>
             <DialogContent>
               {driverLoading ? (
                 <Box display="flex" justifyContent="center" p={3}>
@@ -647,19 +601,19 @@ const OrderDetail = () => {
                 </Box>
               ) : availableDrivers.length === 0 ? (
                 <DialogContentText>
-                  No approved drivers are available. Please approve drivers first.
+                  {t('orders.no_available_drivers')}
                 </DialogContentText>
               ) : (
                 <>
                   <DialogContentText sx={{ mb: 2 }}>
-                    Select a driver to assign to this order:
+                    {t('orders.select_driver')}
                   </DialogContentText>
                   <FormControl fullWidth sx={{ mt: 1 }}>
-                    <InputLabel>Driver</InputLabel>
+                    <InputLabel>{t('driver.title')}</InputLabel>
                     <Select
                       value={selectedDriverId}
                       onChange={(e) => setSelectedDriverId(e.target.value)}
-                      label="Driver"
+                      label={t('driver.title')}
                     >
                       {availableDrivers.map(driver => (
                         <MenuItem key={driver.id} value={driver.id}>
@@ -672,13 +626,13 @@ const OrderDetail = () => {
               )}
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => setAssignDialogOpen(false)}>{t('common.cancel')}</Button>
               <Button 
                 onClick={handleAssignDriver} 
                 color="primary"
                 disabled={driverLoading || !selectedDriverId}
               >
-                Assign
+                {t('driver.assign')}
               </Button>
             </DialogActions>
           </Dialog>
