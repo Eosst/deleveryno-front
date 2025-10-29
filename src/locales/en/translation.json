@@ -4,10 +4,120 @@
     "french": "Français",
     "arabic": "العربية"
   },
-
+  "common": {
+    "created": "Created",
+    "last_updated": "Last Updated",
+    "name": "Name",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "update": "Update",
+    "notAvailable": "N/A",
+    "offlineNotice": "You are currently offline. Some features may be limited.",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "close": "Close",
+    "add": "Add",
+    "save": "Save",
+    "understood": "Understood"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "User Management",
+    "orders": "All Orders",
+    "stock": "Stock Management",
+    "messages": "Messages",
+    "profile": "Profile",
+    "logout": "Logout",
+    "create_order": "Create Order",
+    "my_orders": "My Orders"
+  },
   "orders": {
     "back_to_orders": "Back to Orders",
-    "create_new_order": "Create New Order"
+    "create_new_order": "Create New Order",
+    "order_number": "Order #{{id}}",
+    "order_information": "Order Information",
+    "item": "Item",
+    "quantity": "Quantity",
+    "comments_notes": "Comments / Notes",
+    "not_found": "Order not found.",
+    "update_status": "Update status",
+    "assign_driver": "Assign driver",
+    "errors": {
+      "failedLoadOrders": "Failed to load orders. Please try again.",
+      "failedDeleteOrder": "Failed to delete order. Please try again.",
+      "failedLoadDrivers": "Failed to load drivers. Please try again.",
+      "failedAssignDriver": "Failed to assign driver. Please try again.",
+      "failedUpdateStatus": "Failed to update order status. Please try again."
+    },
+    "messages": {
+      "orderDeleted": "Order deleted successfully!",
+      "driverAssigned": "Driver assigned successfully!",
+      "statusUpdated": "Order status updated to: {{status}}"
+    },
+    "columns": {
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "item": "Item",
+      "quantity": "Quantity",
+      "deliveryCity": "Delivery City",
+      "seller": "Seller",
+      "driver": "Driver",
+      "status": "Status",
+      "assign": "Assign",
+      "created": "Created"
+    },
+    "actions": {
+      "viewDetails": "View details",
+      "updateStatus": "Update status",
+      "assignDriver": "Assign driver",
+      "deleteOrder": "Delete order"
+    },
+    "orderManagement": "Order Management",
+    "createNewOrder": "Create New Order",
+    "searchPlaceholder": "Search by customer name...",
+    "searchButton": "Search",
+    "hideFilters": "Hide Filters",
+    "showFilters": "Show Filters",
+    "filterStatus": "Filter by status",
+    "allStatuses": "All statuses",
+    "filterCity": "Filter by city",
+    "resetFilters": "Reset Filters",
+    "noOrdersFound": "No orders found",
+    "assignDialog": {
+      "title": "Assign Driver - Order #{{id}}",
+      "noDrivers": "No available drivers.",
+      "selectDriver": "Select a driver",
+      "driverLabel": "Driver",
+      "assignButton": "Assign",
+      "driverDisplay": "{{firstName}} {{lastName}} ({{username}})"
+    },
+    "statusDialog": {
+      "title": "Update Order Status",
+      "content": "Select the new status for order #{{id}}",
+      "newStatusLabel": "New Status"
+    },
+    "notAssigned": "Not assigned",
+    "error_loading": "Failed to load order details. Please try again.",
+    "status_updated": "Order status updated to: {{status}}",
+    "error_updating_status": "Failed to update order status. Please try again.",
+    "deleted_successfully": "Order deleted successfully!",
+    "error_deleting": "Failed to delete order. Please try again.",
+    "error_loading_drivers": "Failed to load drivers. Please try again.",
+    "driver_assigned_success": "Driver assigned successfully!",
+    "error_assigning_driver": "Failed to assign driver. Please try again.",
+    "update_status_title": "Update Order Status",
+    "update_status_description": "Select the new status for order #{{id}}",
+    "new_status": "New Status",
+    "delete_confirmation_title": "Delete Order",
+    "delete_confirmation_message": "Are you sure you want to delete order #{{id}}?",
+    "no_available_drivers": "No available drivers",
+    "select_driver": "Select a driver",
+    "assign_driver_title": "Assign Driver - Order #{{id}}"
   },
   "dashboard": {
   "title": "Admin Dashboard",
@@ -26,17 +136,6 @@
   "total_stock": "Total Stock Items",
   "create_order": "Create New Order",
   "manage_approvals": "Manage User Approvals"
-},
-"nav": {
-  "dashboard": "Dashboard",
-  "users": "User Management",
-  "orders": "All Orders",
-  "stock": "Stock Management",
-  "messages": "Messages",
-  "profile": "Profile",
-  "logout": "Logout",
-  "create_order": "Create Order",
-  "my_orders": "My Orders"
 },
   "order_detail": {
     "title": "Order #{{id}}",
@@ -58,47 +157,124 @@
     "no_answer": "No Answer",
     "postponed": "Postponed"
   },
-  
-  "orders": {
-    "back_to_orders": "Back to Orders",
-    "create_new_order": "Create New Order",
-    "order_number": "Order #{{id}}",
-    "order_information": "Order Information",
-    "status": {
-      "pending": "Pending",
-      "assigned": "Assigned",
-      "in_transit": "In Transit",
-      "delivered": "Delivered",
-      "canceled": "Canceled",
-      "no_answer": "No Answer",
-      "postponed": "Postponed"
-    },
-    "item": "Item",
-    "quantity": "Quantity"
-  },
-  "common": {
-    "created": "Created",
-    "last_updated": "Last Updated",
-    "name": "Name",
-    "username": "Username",
-    "email": "Email",
-    "phone": "Phone"
-  },
+  "orders_status": {},
   "customer": {
     "information": "Customer Information",
     "name": "Customer Name",
     "phone": "Customer Phone"
   },
-  "seller": {
-    "title": "Seller",
-    "no_information": "No seller information available"
-  },
+  
   "driver": {
+    "dashboard": {
+      "title": "Driver Dashboard",
+      "subtitle": "Welcome back, {{name}}!",
+      "activeDeliveries": "Active Deliveries",
+      "statistics": "Statistics",
+      "actions": {
+        "accept": "Accept Order",
+        "markDelivered": "Mark Delivered",
+        "postpone": "Postpone",
+        "viewDetails": "View Details",
+        "viewFullDetails": "View Full Details"
+      },
+      "confirm": {
+        "title": "Confirm Action",
+        "accept": "Are you sure you want to accept this order and mark it as 'In Transit'?",
+        "delivered": "Confirm that this order has been delivered successfully?",
+        "no_answer": "Confirm that the customer didn't answer?",
+        "postponed": "Confirm that this delivery should be postponed?",
+        "generic": "Are you sure you want to update this order's status?"
+      },
+      "errors": {
+        "failedUpdate": "Failed to update order status. Please try again.",
+        "failedLoad": "Failed to load dashboard data. Please try again."
+      }
+    },
+    "orders": {
+      "title": "My Delivery Orders",
+      "errors": {
+        "failedLoad": "Failed to load orders. Please try again.",
+        "failedUpdate": "Failed to update order status. Please try again."
+      },
+      "messages": {
+        "statusUpdated": "Order #{{id}} status updated to: {{status}}"
+      },
+      "filters": {
+        "all": "All Orders",
+        "showAll": "Show All"
+      },
+      "update": "Update",
+      "updateStatus": "Update Status",
+      "emptyWithStatus": "You don't have any orders with status: {{status}}",
+      "emptyAssigned": "You don't have any assigned orders yet.",
+      "callCustomer": "Call Customer",
+      "confirm": {
+        "title": "Confirm Status Change",
+        "message": "Are you sure you want to change the status of Order #{{id}} to \"{{status}}\"?"
+      }
+    },
     "title": "Driver",
     "no_driver_assigned": "No driver assigned",
     "assign_driver": "Assign Driver",
     "assign": "Assign"
   },
+  "messages": {
+    "common": {
+      "administration": "Administration",
+      "unknown": "Unknown",
+      "backToMessages": "Back to Messages"
+    },
+    "status": {
+      "unread": "Unread",
+      "read": "Read",
+      "archived": "Archived"
+    },
+    "list": {
+      "title": "Messages",
+      "newMessage": "New Message",
+      "noneFound": "No messages found",
+      "errors": {
+        "failedLoad": "Failed to load messages. Please try again."
+      }
+    },
+    "detail": {
+      "errors": {
+        "failedLoad": "Failed to load message. Please try again."
+      },
+      "notFound": "Message not found",
+      "from": "From",
+      "to": "To",
+      "reply": "Reply",
+      "archive": "Archive",
+      "confirmArchive": {
+        "title": "Archive Message?",
+        "message": "Are you sure you want to archive this message? This will move it out of your main inbox."
+      }
+    },
+    "compose": {
+      "newTitle": "New Message",
+      "replyTitle": "Reply to Message",
+      "recipient": "Recipient",
+      "loadingUsers": "Loading users...",
+      "noUsers": "No users available",
+      "subject": "Subject",
+      "messageLabel": "Message *",
+      "messagePlaceholder": "Type your message here...",
+      "send": "Send Message",
+      "errorDetails": "Error Details",
+      "errors": {
+        "failedLoadReply": "Failed to load reply message details.",
+        "failedLoadUsers": "Failed to load user list.",
+        "required": "Subject and message content are required",
+        "failedSend": "Failed to send message. Please try again."
+      },
+      "info": {
+        "toAdmin": "You are sending a message to the Administration team.",
+        "replyingTo": "You are replying to"
+      }
+    }
+  },
+  
   "delivery": {
     "address": "Delivery Address",
     "street": "Street",
@@ -116,10 +292,256 @@
       "no_answer": "The driver was unable to reach the customer.",
       "postponed": "The delivery has been postponed."
     }
+  },
+  "seller": {
+    "dashboard": {
+      "title": "Seller Dashboard",
+      "subtitle": "Welcome back, {{name}}!",
+      "recentOrders": "Recent Orders",
+      "viewAllOrders": "View All Orders",
+      "lowStock": {
+        "title": "Low Stock Alert",
+        "none": "No low stock items",
+        "outOfStockStrong": "Out of Stock!",
+        "onlyLeft": "Only {{count}} left in stock",
+        "chip": {
+          "outOfStock": "Out of Stock",
+          "lowStock": "Low Stock"
+        }
+      },
+      "manageInventory": "Manage Inventory",
+      "orderStats": {
+        "title": "Order Statistics",
+        "totalOrders": "Total Orders"
+      },
+      "qty": "Qty",
+      "errors": {
+        "failedLoad": "Failed to load dashboard data. Please try again."
+      }
+    },
+    "title": "Seller",
+    "no_information": "No seller information available"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for doesn't exist or has been moved.",
+    "backToHome": "Back to Home"
+  },
+  "app": {
+    "title": "Deleveryno - {{role}} Panel"
+  },
+  "profile": {
+    "username": "Username",
+    "role": "Role",
+    "updateSuccess": "Profile updated successfully!",
+    "editProfile": "Edit Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "city": "City",
+    "rib": "Bank Account Information (RIB)",
+    "ribHelper": "Your bank account information for payment processing",
+    "updateButton": "Update Profile"
   }
-
-
-
-
-
+  ,
+  "auth": {
+    "common": {
+      "emailAddress": "Email Address",
+      "password": "Password",
+      "phoneNumber": "Phone Number",
+      "emailRequired": "Email is required",
+      "seller": "Seller",
+      "driver": "Driver"
+    },
+    "login": {
+      "title": "DeliveryNo",
+      "subtitle": "Enter your credentials to access the platform",
+      "requiredError": "Email and password are required",
+      "signIn": "Sign In",
+      "forgotPassword": "Forgot password?",
+      "registerPrompt": "Don't have an account? Register as:",
+      "togglePassword": "Toggle password visibility"
+    },
+    "reset": {
+      "title": "Reset Password",
+      "success": "If your email is registered with us, we've sent you instructions to reset your password.",
+      "returnToLogin": "Return to Login",
+      "sendLink": "Send Reset Link",
+      "backToLogin": "Back to Login",
+      "failed": "Failed to process your request. Please try again."
+    },
+    "register": {
+      "failed": "Registration failed. Please try again.",
+      "successTitle": "Registration Successful!",
+      "successMessage": "Your account has been created. An administrator will review and approve your account. You will be redirected to the login page shortly.",
+      "steps": {
+        "accountInfo": "Account Information",
+        "personalInfo": "Personal Information",
+        "contactDetails": "Contact Details",
+        "paymentInfo": "Payment Information"
+      },
+      "passwordHint": "Password must be at least 8 characters",
+      "sellerTitle": "Seller Registration",
+      "sellerSubtitle": "Join the DeliveryNo platform as a seller",
+      "ribPlaceholder": "Enter your bank account details",
+      "register": "Register",
+      "alreadyHaveAccount": "Already have an account? Sign in"
+    }
+  },
+  "stock": {
+    "management": {
+      "title": "Inventory Management",
+      "about_approval": "About Approval",
+      "add_new_item": "Add New Item",
+      "search_placeholder": "Search inventory items...",
+      "empty_message": "No inventory items found",
+      "status": {
+        "approved": "Approved",
+        "pending": "Pending Approval",
+        "out_of_stock": "Out of Stock",
+        "low_stock": "Low Stock",
+        "in_stock": "In Stock"
+      },
+      "table": {
+        "item_name": "Item Name",
+        "quantity": "Quantity",
+        "stock_status": "Stock Status",
+        "approval_status": "Approval Status",
+        "approve": "Approve"
+      },
+      "actions": {
+        "edit": "Edit Item",
+        "delete": "Delete Item"
+      },
+      "dialog": {
+        "add_title": "Add New Inventory Item",
+        "edit_title": "Edit Inventory Item",
+        "add_text": "New items require admin approval before they can be used for creating orders.",
+        "edit_quantity_warning": "when you change the quantity of an item you will need to wait for it to be approved again",
+        "delete_title": "Confirm Delete",
+        "delete_confirm": "Are you sure you want to delete \"{{itemName}}\" from inventory? This action cannot be undone.",
+        "info_title": "About Stock Approval",
+        "info_subtitle": "Stock Approval System:",
+        "info_p1": "When sellers add new items to their inventory, they need approval from an administrator before they can use them for orders.",
+        "info_p2": "As an administrator, you can:",
+        "info_li1": "Items created by admins are automatically approved",
+        "info_li2": "Approve pending items by clicking the \"Approve\" button",
+        "info_li3": "Edit any item details including approval status",
+        "info_li4": "Delete items that don't meet your standards",
+        "info_note_title": "Note:",
+        "info_note_text": "Sellers cannot use pending items for orders until they are approved."
+      },
+      "form": {
+        "item_name": "Item Name",
+        "quantity": "Quantity",
+        "seller": "Seller",
+        "no_seller": "No specific seller",
+        "approved_label": "Item is approved and ready for use",
+        "sellerDisplay": "{{firstName}} {{lastName}} ({{username}})"
+      },
+      "tooltips": {
+        "pending_approval": "This item is pending approval and cannot be used for orders yet"
+      },
+      "errors": {
+        "load_failed": "Failed to load inventory items. Please try again.",
+        "save_failed": "Failed to save inventory item. Please try again.",
+        "delete_failed": "Failed to delete inventory item. Please try again.",
+        "approve_failed": "Failed to approve item. Please try again."
+      },
+      "success": {
+        "item_added": "Item added successfully!",
+        "item_updated": "Item updated successfully!",
+        "item_deleted": "Item deleted successfully!",
+        "item_approved": "Item approved successfully!"
+      }
+    }
+  },
+  "create_order": {
+    "title": "Create New Order",
+    "customer_information": "Customer Information",
+    "delivery_address": "Delivery Address",
+    "order_details": "Order Details",
+    "create_button": "Create Order",
+    "form": {
+        "customer_name": "Customer Name",
+        "customer_phone": "Customer Phone",
+        "phone_placeholder": "e.g. +1234567890",
+        "street_address": "Street Address",
+        "city": "City",
+        "maps_link": "Google Maps Link (optional)",
+        "maps_placeholder": "e.g. https://goo.gl/maps/...",
+        "item": "Item",
+        "loading_inventory": "Loading inventory...",
+        "no_items": "No items in inventory",
+        "out_of_stock": "(Out of Stock)",
+        "quantity_available": "({{quantity}} available)",
+        "quantity": "Quantity",
+        "comments": "Comments/Notes",
+        "comments_placeholder": "Add any special instructions or notes about this order",
+        "comments_helper": "Optional: Include any additional information relevant to this order"
+    },
+    "errors": {
+        "load_failed": "Failed to load inventory items. Please try again.",
+        "invalid_maps_link": "Please provide a valid Google Maps link",
+        "required_fields": "Please fill in all required fields",
+        "invalid_quantity": "Quantity must be greater than 0",
+        "invalid_item": "Please select a valid item from your inventory",
+        "not_enough_stock": "Not enough {{itemName}} in stock. Available: {{quantity}}",
+        "create_failed": "Failed to create order. Please try again."
+    },
+    "success": {
+        "order_created": "Order created successfully!"
+    }
+  },
+    "user_management": {
+    "title": "User Management",
+    "empty_message": "No users found",
+    "table": {
+      "username": "Username",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "phone": "Phone",
+      "city": "City",
+      "status": "Status"
+    },
+    "status": {
+      "approved": "Approved",
+      "pending": "Pending",
+      "pending_approval": "Pending Approval"
+    },
+    "actions": {
+      "view_details": "View User Details",
+      "approve_user": "Approve User",
+      "delete_user": "Delete User"
+    },
+    "filters": {
+      "show": "Show",
+      "hide": "Hide",
+      "title": "Filters",
+      "role": "Role",
+      "all_roles": "All Roles",
+      "approval_status": "Approval Status",
+      "all": "All"
+    },
+    "roles": {
+      "admin": "Admin",
+      "seller": "Seller",
+      "driver": "Driver"
+    },
+    "dialog": {
+      "delete_title": "Confirm Delete",
+      "delete_confirm": "Are you sure you want to delete user \"{{username}}\"? This action cannot be undone."
+    },
+    "errors": {
+      "load_failed": "Failed to load users. Please try again.",
+      "delete_failed": "Failed to delete user: {{message}}",
+      "approve_failed": "Failed to approve user: {{message}}"
+    },
+    "success": {
+      "user_deleted": "User {{username}} has been deleted.",
+      "user_approved": "User has been approved successfully."
+    }
+  }
 }

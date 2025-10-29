@@ -4,9 +4,120 @@
     "french": "الفرنسية",
     "arabic": "العربية"
   },
+  "common": {
+    "created": "تاريخ الإنشاء",
+    "last_updated": "آخر تحديث",
+    "name": "الاسم",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "delete": "حذف",
+    "update": "تحديث",
+    "notAvailable": "غير متوفر",
+    "offlineNotice": "أنت غير متصل الآن. قد تكون بعض الميزات محدودة.",
+    "actions": "إجراءات",
+    "loading": "جارٍ التحميل...",
+    "close": "إغلاق",
+    "add": "إضافة",
+    "save": "حفظ",
+    "understood": "حسناً"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "users": "إدارة المستخدمين",
+    "orders": "كل الطلبات",
+    "stock": "إدارة المخزون",
+    "messages": "الرسائل",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج",
+    "create_order": "إنشاء طلب",
+    "my_orders": "طلباتي"
+  },
   "orders": {
     "back_to_orders": "العودة إلى الطلبات",
-    "create_new_order": "إنشاء طلب جديد"
+    "create_new_order": "إنشاء طلب جديد",
+    "order_number": "طلب رقم {{id}}",
+    "order_information": "معلومات الطلب",
+    "item": "المنتج",
+    "quantity": "الكمية",
+    "comments_notes": "ملاحظات / تعليقات",
+    "not_found": "الطلب غير موجود.",
+    "update_status": "تحديث الحالة",
+    "assign_driver": "تعيين سائق",
+    "errors": {
+      "failedLoadOrders": "فشل في تحميل الطلبات. حاول مرة أخرى.",
+      "failedDeleteOrder": "فشل في حذف الطلب. حاول مرة أخرى.",
+      "failedLoadDrivers": "فشل في تحميل السائقين. حاول مرة أخرى.",
+      "failedAssignDriver": "فشل في تعيين السائق. حاول مرة أخرى.",
+      "failedUpdateStatus": "فشل في تحديث حالة الطلب. حاول مرة أخرى."
+    },
+    "messages": {
+      "orderDeleted": "تم حذف الطلب بنجاح!",
+      "driverAssigned": "تم تعيين السائق بنجاح!",
+      "statusUpdated": "تم تحديث حالة الطلب إلى: {{status}}"
+    },
+    "columns": {
+      "orderId": "رقم الطلب",
+      "customer": "الزبون",
+      "item": "المنتج",
+      "quantity": "الكمية",
+      "deliveryCity": "مدينة التسليم",
+      "seller": "البائع",
+      "driver": "السائق",
+      "status": "الحالة",
+      "assign": "تعيين",
+      "created": "تاريخ الإنشاء"
+    },
+    "actions": {
+      "viewDetails": "عرض التفاصيل",
+      "updateStatus": "تحديث الحالة",
+      "assignDriver": "تعيين سائق",
+      "deleteOrder": "حذف الطلب"
+    },
+    "orderManagement": "إدارة الطلبات",
+    "createNewOrder": "إنشاء طلب جديد",
+    "searchPlaceholder": "ابحث باسم الزبون...",
+    "searchButton": "بحث",
+    "hideFilters": "إخفاء المرشحات",
+    "showFilters": "إظهار المرشحات",
+    "filterStatus": "تصفية حسب الحالة",
+    "allStatuses": "كل الحالات",
+    "filterCity": "تصفية حسب المدينة",
+    "resetFilters": "إعادة تعيين المرشحات",
+    "noOrdersFound": "لا توجد طلبات",
+    "assignDialog": {
+      "title": "تعيين سائق - طلب رقم {{id}}",
+      "noDrivers": "لا يوجد سائقون متاحون.",
+      "selectDriver": "اختر سائقًا",
+      "driverLabel": "السائق",
+      "assignButton": "تعيين",
+      "driverDisplay": "{{firstName}} {{lastName}} ({{username}})"
+    },
+    "statusDialog": {
+      "title": "تحديث حالة الطلب",
+      "content": "اختر الحالة الجديدة للطلب رقم {{id}}",
+      "newStatusLabel": "الحالة الجديدة"
+    },
+    "notAssigned": "غير معين",
+    "error_loading": "فشل في تحميل تفاصيل الطلب. حاول مرة أخرى.",
+    "status_updated": "تم تحديث حالة الطلب إلى: {{status}}",
+    "error_updating_status": "فشل في تحديث حالة الطلب. حاول مرة أخرى.",
+    "deleted_successfully": "تم حذف الطلب بنجاح!",
+    "error_deleting": "فشل في حذف الطلب. حاول مرة أخرى.",
+    "error_loading_drivers": "فشل في تحميل السائقين. حاول مرة أخرى.",
+    "driver_assigned_success": "تم تعيين السائق بنجاح!",
+    "error_assigning_driver": "فشل في تعيين السائق. حاول مرة أخرى.",
+    "update_status_title": "تحديث حالة الطلب",
+    "update_status_description": "اختر الحالة الجديدة للطلب رقم {{id}}",
+    "new_status": "الحالة الجديدة",
+    "delete_confirmation_title": "حذف الطلب",
+    "delete_confirmation_message": "هل أنت متأكد أنك تريد حذف الطلب رقم {{id}}؟",
+    "no_available_drivers": "لا يوجد سائقون متاحون",
+    "select_driver": "اختر سائقًا",
+    "assign_driver_title": "تعيين سائق - طلب رقم {{id}}"
   },
   "dashboard": {
   "title": "لوحة تحكم المسؤول",
@@ -25,17 +136,6 @@
   "total_stock": "إجمالي العناصر المخزنة",
   "create_order": "إنشاء طلب جديد",
   "manage_approvals": "إدارة الموافقات"
-},
-"nav": {
-  "dashboard": "لوحة التحكم",
-  "users": "إدارة المستخدمين",
-  "orders": "كل الطلبات",
-  "stock": "إدارة المخزون",
-  "messages": "الرسائل",
-  "profile": "الملف الشخصي",
-  "logout": "تسجيل الخروج",
-  "create_order": "إنشاء طلب",
-  "my_orders": "طلباتي"
 },
   "order_detail": {
     "title": "الطلب رقم {{id}}",
@@ -57,61 +157,123 @@
     "no_answer": "لا يوجد رد",
     "postponed": "مؤجل"
   },
-  
-  "orders": {
-    "back_to_orders": "العودة إلى الطلبات",
-    "create_new_order": "إنشاء طلب جديد",
-    "order_number": "طلب رقم {{id}}",
-    "order_information": "معلومات الطلب",
-    "status": {
-      "pending": "قيد الانتظار",
-      "assigned": "تم التعيين",
-      "in_transit": "قيد التوصيل",
-      "delivered": "تم التسليم",
-      "canceled": "تم الإلغاء",
-      "no_answer": "لا يوجد رد",
-      "postponed": "تم التأجيل"
-    },
-    "item": "المنتج",
-    "quantity": "الكمية",
-    "columns": {
-        "orderId": "رقم الطلب",
-        "customer" : "الزبون",
-        "item": "المنتج",
-        "quantity": "الكمية",
-        "deliveryCity": "مدينة التسليم",
-      "seller": "البائع",
-      "driver": "السائق",
-      "status": "الحالة",
-      "assign": "تعيين",
-      "created": "تاريخ الإنشاء"
-
-    },
-    "assigndriver" : "تعيين سائق"
-  },
-  "common": {
-    "created": "تاريخ الإنشاء",
-    "last_updated": "آخر تحديث",
-    "name": "الاسم",
-    "username": "اسم المستخدم",
-    "email": "البريد الإلكتروني",
-    "phone": "رقم الهاتف"
-  },
   "customer": {
     "information": "معلومات العميل",
     "name": "اسم العميل",
     "phone": "هاتف العميل"
   },
-  "seller": {
-    "title": "البائع",
-    "no_information": "لا توجد معلومات عن البائع"
-  },
+  
   "driver": {
+    "dashboard": {
+      "title": "لوحة تحكم السائق",
+      "subtitle": "مرحبًا بعودتك، {{name}}!",
+      "activeDeliveries": "التسليمات النشطة",
+      "statistics": "الإحصائيات",
+      "actions": {
+        "accept": "قبول الطلب",
+        "markDelivered": "تحديد كمُسلَّم",
+        "postpone": "تأجيل",
+        "viewDetails": "عرض التفاصيل",
+        "viewFullDetails": "عرض جميع التفاصيل"
+      },
+      "confirm": {
+        "title": "تأكيد الإجراء",
+        "accept": "هل أنت متأكد من قبول هذا الطلب وتحديد حالته كـ \"قيد التوصيل\"؟",
+        "delivered": "أكد أن هذا الطلب قد تم تسليمه بنجاح؟",
+        "no_answer": "أكد أن العميل لم يرد؟",
+        "postponed": "أكد أن هذه التسليم يجب تأجيله؟",
+        "generic": "هل أنت متأكد أنك تريد تحديث حالة هذا الطلب؟"
+      },
+      "errors": {
+        "failedUpdate": "فشل في تحديث حالة الطلب. حاول مرة أخرى.",
+        "failedLoad": "فشل في تحميل البيانات. حاول مرة أخرى."
+      }
+    },
+    "orders": {
+      "title": "طلبات التسليم الخاصة بي",
+      "errors": {
+        "failedLoad": "فشل في تحميل الطلبات. حاول مرة أخرى.",
+        "failedUpdate": "فشل في تحديث حالة الطلب. حاول مرة أخرى."
+      },
+      "messages": {
+        "statusUpdated": "تم تحديث حالة الطلب رقم {{id}} إلى: {{status}}"
+      },
+      "filters": {
+        "all": "جميع الطلبات",
+        "showAll": "عرض الكل"
+      },
+      "update": "تحديث",
+      "updateStatus": "تحديث الحالة",
+      "emptyWithStatus": "ليس لديك أي طلبات بالحالة: {{status}}",
+      "emptyAssigned": "ليس لديك أي طلبات معينة بعد.",
+      "callCustomer": "الاتصال بالعميل",
+      "confirm": {
+        "title": "تأكيد تغيير الحالة",
+        "message": "هل أنت متأكد أنك تريد تغيير حالة الطلب رقم {{id}} إلى \"{{status}}\"؟"
+      }
+    },
     "title": "السائق",
     "no_driver_assigned": "لم يتم تعيين سائق",
     "assign_driver": "تعيين سائق",
     "assign": "تعيين"
   },
+  "messages": {
+    "common": {
+      "administration": "الإدارة",
+      "unknown": "غير معروف",
+      "backToMessages": "العودة إلى الرسائل"
+    },
+    "status": {
+      "unread": "غير مقروء",
+      "read": "مقروء",
+      "archived": "مؤرشف"
+    },
+    "list": {
+      "title": "الرسائل",
+      "newMessage": "رسالة جديدة",
+      "noneFound": "لا توجد رسائل",
+      "errors": {
+        "failedLoad": "فشل في تحميل الرسائل. حاول مرة أخرى."
+      }
+    },
+    "detail": {
+      "errors": {
+        "failedLoad": "فشل في تحميل الرسالة. حاول مرة أخرى."
+      },
+      "notFound": "الرسالة غير موجودة",
+      "from": "من",
+      "to": "إلى",
+      "reply": "رد",
+      "archive": "أرشف",
+      "confirmArchive": {
+        "title": "أرشفة الرسالة؟",
+        "message": "هل أنت متأكد أنك تريد أرشفة هذه الرسالة؟ سيتم نقلها من صندوق الوارد الرئيسي الخاص بك."
+      }
+    },
+    "compose": {
+      "newTitle": "رسالة جديدة",
+      "replyTitle": "الرد على الرسالة",
+      "recipient": "المستلم",
+      "loadingUsers": "جارٍ تحميل المستخدمين...",
+      "noUsers": "لا يوجد مستخدمون متاحون",
+      "subject": "الموضوع",
+      "messageLabel": "الرسالة *",
+      "messagePlaceholder": "اكتب رسالتك هنا...",
+      "send": "إرسال الرسالة",
+      "errorDetails": "تفاصيل الخطأ",
+      "errors": {
+        "failedLoadReply": "فشل في تحميل تفاصيل رسالة الرد.",
+        "failedLoadUsers": "فشل في تحميل قائمة المستخدمين.",
+        "required": "الموضوع ومحتوى الرسالة مطلوبان",
+        "failedSend": "فشل في إرسال الرسالة. حاول مرة أخرى."
+      },
+      "info": {
+        "toAdmin": "أنت ترسل رسالة إلى فريق الإدارة.",
+        "replyingTo": "أنت ترد على"
+      }
+    }
+  },
+  
   "delivery": {
     "address": "عنوان التوصيل",
     "street": "الشارع",
@@ -128,6 +290,257 @@
       "canceled": "تم إلغاء هذا الطلب.",
       "no_answer": "تعذر على السائق التواصل مع العميل.",
       "postponed": "تم تأجيل التوصيل."
+    }
+  },
+  "seller": {
+    "dashboard": {
+      "title": "لوحة تحكم البائع",
+      "subtitle": "مرحبًا بعودتك، {{name}}!",
+      "recentOrders": "الطلبات الأخيرة",
+      "viewAllOrders": "عرض جميع الطلبات",
+      "lowStock": {
+        "title": "تنبيه انخفاض المخزون",
+        "none": "لا توجد عناصر منخفضة المخزون",
+        "outOfStockStrong": "نفد المخزون!",
+        "onlyLeft": "متبقٍ {{count}} في المخزون",
+        "chip": {
+          "outOfStock": "نفد المخزون",
+          "lowStock": "مخزون منخفض"
+        }
+      },
+      "manageInventory": "إدارة المخزون",
+      "orderStats": {
+        "title": "إحصائيات الطلبات",
+        "totalOrders": "إجمالي الطلبات"
+      },
+      "qty": "الكمية",
+      "errors": {
+        "failedLoad": "فشل في تحميل بيانات لوحة التحكم. حاول مرة أخرى."
+      }
+    },
+    "title": "البائع",
+    "no_information": "لا توجد معلومات عن البائع"
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "backToHome": "العودة إلى الصفحة الرئيسية"
+  },
+  "app": {
+    "title": "ديليفرينو - لوحة {{role}}"
+  },
+  "profile": {
+    "username": "اسم المستخدم",
+    "role": "الدور",
+    "updateSuccess": "تم تحديث الملف الشخصي بنجاح!",
+    "editProfile": "تعديل الملف الشخصي",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "city": "المدينة",
+    "rib": "معلومات الحساب البنكي (RIB)",
+    "ribHelper": "معلومات حسابك البنكي لمعالجة الدفعات",
+    "updateButton": "تحديث الملف الشخصي"
+  }
+  ,
+  "auth": {
+    "common": {
+      "emailAddress": "عنوان البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "phoneNumber": "رقم الهاتف",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "seller": "بائع",
+      "driver": "سائق"
+    },
+    "login": {
+      "title": "ديليفرينو",
+      "subtitle": "أدخل بياناتك للوصول إلى المنصة",
+      "requiredError": "البريد الإلكتروني وكلمة المرور مطلوبة",
+      "signIn": "تسجيل الدخول",
+      "forgotPassword": "هل نسيت كلمة المرور؟",
+      "registerPrompt": "ليس لديك حساب؟ سجّل كـ:",
+      "togglePassword": "إظهار/إخفاء كلمة المرور"
+    },
+    "reset": {
+      "title": "إعادة تعيين كلمة المرور",
+      "success": "إذا كان بريدك مسجلاً لدينا، فقد أرسلنا تعليمات لإعادة تعيين كلمة المرور.",
+      "returnToLogin": "العودة لتسجيل الدخول",
+      "sendLink": "إرسال رابط إعادة التعيين",
+      "backToLogin": "العودة لتسجيل الدخول",
+      "failed": "فشل في معالجة طلبك. حاول مرة أخرى."
+    },
+    "register": {
+      "failed": "فشلت عملية التسجيل. حاول مرة أخرى.",
+      "successTitle": "تم التسجيل بنجاح!",
+      "successMessage": "تم إنشاء حسابك. سيقوم المسؤول بمراجعته والموافقة عليه. سيتم تحويلك إلى صفحة تسجيل الدخول قريبًا.",
+      "steps": {
+        "accountInfo": "معلومات الحساب",
+        "personalInfo": "المعلومات الشخصية",
+        "contactDetails": "بيانات الاتصال",
+        "paymentInfo": "معلومات الدفع"
+      },
+      "passwordHint": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+      "sellerTitle": "تسجيل البائع",
+      "sellerSubtitle": "انضم إلى منصة ديليفرينو كبائع",
+      "ribPlaceholder": "أدخل تفاصيل حسابك البنكي",
+      "register": "تسجيل",
+      "alreadyHaveAccount": "لديك حساب بالفعل؟ سجل الدخول"
+    }
+  },
+  "stock": {
+    "management": {
+      "title": "إدارة المخزون",
+      "about_approval": "حول الموافقة",
+      "add_new_item": "إضافة عنصر جديد",
+      "search_placeholder": "البحث في عناصر المخزون...",
+      "empty_message": "لم يتم العثور على عناصر في المخزون",
+      "status": {
+        "approved": "تمت الموافقة",
+        "pending": "في انتظار الموافقة",
+        "out_of_stock": "نفد من المخزون",
+        "low_stock": "مخزون منخفض",
+        "in_stock": "في المخزون"
+      },
+      "table": {
+        "item_name": "اسم العنصر",
+        "quantity": "الكمية",
+        "stock_status": "حالة المخزون",
+        "approval_status": "حالة الموافقة",
+        "approve": "موافقة"
+      },
+      "actions": {
+        "edit": "تعديل العنصر",
+        "delete": "حذف العنصر"
+      },
+      "dialog": {
+        "add_title": "إضافة عنصر جديد في المخزون",
+        "edit_title": "تعديل عنصر في المخزون",
+        "add_text": "تتطلب العناصر الجديدة موافقة المسؤول قبل أن يمكن استخدامها لإنشاء الطلبات.",
+        "edit_quantity_warning": "عندما تقوم بتغيير كمية عنصر ما، ستحتاج إلى الانتظار حتى تتم الموافقة عليه مرة أخرى",
+        "delete_title": "تأكيد الحذف",
+        "delete_confirm": "هل أنت متأكد أنك تريد حذف \"{{itemName}}\" من المخزون؟ لا يمكن التراجع عن هذا الإجراء.",
+        "info_title": "حول الموافقة على المخزون",
+        "info_subtitle": "نظام الموافقة على المخزون:",
+        "info_p1": "عندما يضيف البائعون عناصر جديدة إلى مخزونهم، فإنهم يحتاجون إلى موافقة من المسؤول قبل أن يتمكنوا من استخدامها للطلبات.",
+        "info_p2": "كمسؤول، يمكنك:",
+        "info_li1": "العناصر التي أنشأها المسؤولون تتم الموافقة عليها تلقائيًا",
+        "info_li2": "الموافقة على العناصر المعلقة عن طريق النقر على زر \"موافقة\"",
+        "info_li3": "تعديل أي تفاصيل للعنصر بما في ذلك حالة الموافقة",
+        "info_li4": "حذف العناصر التي لا تفي بمعاييرك",
+        "info_note_title": "ملاحظة:",
+        "info_note_text": "لا يمكن للبائعين استخدام العناصر المعلقة للطلبات حتى تتم الموافقة عليها."
+      },
+      "form": {
+        "item_name": "اسم العنصر",
+        "quantity": "الكمية",
+        "seller": "البائع",
+        "no_seller": "لا يوجد بائع محدد",
+        "approved_label": "تمت الموافقة على العنصر وهو جاهز للاستخدام",
+        "sellerDisplay": "{{firstName}} {{lastName}} ({{username}})"
+      },
+      "tooltips": {
+        "pending_approval": "هذا العنصر في انتظار الموافقة ولا يمكن استخدامه للطلبات بعد"
+      },
+      "errors": {
+        "load_failed": "فشل تحميل عناصر المخزون. يرجى المحاولة مرة أخرى.",
+        "save_failed": "فشل حفظ عنصر المخزون. يرجى المحاولة مرة أخرى.",
+        "delete_failed": "فشل حذف عنصر المخزون. يرجى المحاولة مرة أخرى.",
+        "approve_failed": "فشل الموافقة على العنصر. يرجى المحاولة مرة أخرى."
+      },
+      "success": {
+        "item_added": "تمت إضافة العنصر بنجاح!",
+        "item_updated": "تم تحديث العنصر بنجاح!",
+        "item_deleted": "تم حذف العنصر بنجاح!",
+        "item_approved": "تمت الموافقة على العنصر بنجاح!"
+      }
+    }
+  },
+  "create_order": {
+    "title": "إنشاء طلب جديد",
+    "customer_information": "معلومات العميل",
+    "delivery_address": "عنوان التسليم",
+    "order_details": "تفاصيل الطلب",
+    "create_button": "إنشاء الطلب",
+    "form": {
+        "customer_name": "اسم العميل",
+        "customer_phone": "هاتف العميل",
+        "phone_placeholder": "مثال: +966123456789",
+        "street_address": "عنوان الشارع",
+        "city": "المدينة",
+        "maps_link": "رابط خرائط جوجل (اختياري)",
+        "maps_placeholder": "مثال: https://goo.gl/maps/...",
+        "item": "المنتج",
+        "loading_inventory": "جار تحميل المخزون...",
+        "no_items": "لا توجد منتجات في المخزون",
+        "out_of_stock": "(نفد من المخزون)",
+        "quantity_available": "({{quantity}} متوفر)",
+        "quantity": "الكمية",
+        "comments": "تعليقات/ملاحظات",
+        "comments_placeholder": "أضف أي تعليمات خاصة أو ملاحظات حول هذا الطلب",
+        "comments_helper": "اختياري: قم بتضمين أي معلومات إضافية ذات صلة بهذا الطلب"
+    },
+    "errors": {
+        "load_failed": "فشل تحميل منتجات المخزون. يرجى المحاولة مرة أخرى.",
+        "invalid_maps_link": "يرجى تقديم رابط خرائط جوجل صالح",
+        "required_fields": "يرجى ملء جميع الحقول المطلوبة",
+        "invalid_quantity": "يجب أن تكون الكمية أكبر من 0",
+        "invalid_item": "يرجى تحديد منتج صالح من مخزونك",
+        "not_enough_stock": "لا يوجد ما يكفي من {{itemName}} في المخزون. المتوفر: {{quantity}}",
+        "create_failed": "فشل إنشاء الطلب. يرجى المحاولة مرة أخرى."
+    },
+    "success": {
+        "order_created": "تم إنشاء الطلب بنجاح!"
+    }
+  },
+  "user_management": {
+    "title": "إدارة المستخدمين",
+    "empty_message": "لم يتم العثور على مستخدمين",
+    "table": {
+      "username": "اسم المستخدم",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "phone": "الهاتف",
+      "city": "المدينة",
+      "status": "الحالة"
+    },
+    "status": {
+      "approved": "تمت الموافقة",
+      "pending": "في الانتظار",
+      "pending_approval": "في انتظار الموافقة"
+    },
+    "actions": {
+      "view_details": "عرض تفاصيل المستخدم",
+      "approve_user": "الموافقة على المستخدم",
+      "delete_user": "حذف المستخدم"
+    },
+    "filters": {
+      "show": "إظهار",
+      "hide": "إخفاء",
+      "title": "المرشحات",
+      "role": "الدور",
+      "all_roles": "كل الأدوار",
+      "approval_status": "حالة الموافقة",
+      "all": "الكل"
+    },
+    "roles": {
+      "admin": "مسؤول",
+      "seller": "بائع",
+      "driver": "سائق"
+    },
+    "dialog": {
+      "delete_title": "تأكيد الحذف",
+      "delete_confirm": "هل أنت متأكد أنك تريد حذف المستخدم \"{{username}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "errors": {
+      "load_failed": "فشل تحميل المستخدمين. يرجى المحاولة مرة أخرى.",
+      "delete_failed": "فشل حذف المستخدم: {{message}}",
+      "approve_failed": "فشل الموافقة على المستخدم: {{message}}"
+    },
+    "success": {
+      "user_deleted": "تم حذف المستخدم {{username}}.",
+      "user_approved": "تمت الموافقة على المستخدم بنجاح."
     }
   }
 }

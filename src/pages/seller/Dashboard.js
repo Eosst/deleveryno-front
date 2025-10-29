@@ -40,6 +40,7 @@ import {
   Visibility as ViewIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
   const theme = useTheme();
@@ -99,7 +100,8 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
             variant="contained"
             color="primary"
           >
-            View Details
+            {/* Intentionally keep label external to allow caller to pass translated title */}
+            {title}
           </Button>
         </CardActions>
       )}
@@ -112,6 +114,7 @@ const SellerDashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const [orders, setOrders] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
@@ -159,7 +162,7 @@ const SellerDashboard = () => {
         setLowStockItems(lowStock);
       } catch (err) {
         console.error('Error fetching seller dashboard data:', err);
-        setError('Failed to load dashboard data. Please try again.');
+        setError(t('seller.dashboard.errors.failedLoad'));
       } finally {
         setLoading(false);
       }
@@ -171,19 +174,19 @@ const SellerDashboard = () => {
   const getOrderStatusChip = (status) => {
     switch (status) {
       case 'pending':
-        return <Chip label="Pending" color="warning" size="small" />;
+        return <Chip label={t('statuses.pending')} color="warning" size="small" />;
       case 'assigned':
-        return <Chip label="Driver Assigned" color="info" size="small" />;
+        return <Chip label={t('statuses.assigned')} color="info" size="small" />;
       case 'in_transit':
-        return <Chip label="In Transit" color="primary" size="small" />;
+        return <Chip label={t('statuses.in_transit')} color="primary" size="small" />;
       case 'delivered':
-        return <Chip label="Delivered" color="success" size="small" />;
+        return <Chip label={t('statuses.delivered')} color="success" size="small" />;
       case 'canceled':
-        return <Chip label="Canceled" color="error" size="small" />;
+        return <Chip label={t('statuses.canceled')} color="error" size="small" />;
       case 'no_answer':
-        return <Chip label="No Answer" color="default" size="small" />;
+        return <Chip label={t('statuses.no_answer')} color="default" size="small" />;
       case 'postponed':
-        return <Chip label="Postponed" color="secondary" size="small" />;
+        return <Chip label={t('statuses.postponed')} color="secondary" size="small" />;
       default:
         return <Chip label={status} size="small" />;
     }
@@ -200,10 +203,10 @@ const SellerDashboard = () => {
       >
         <Box mb={isMobile ? 2 : 0}>
           <Typography variant="h4" gutterBottom>
-            Seller Dashboard
+            {t('seller.dashboard.title')}
           </Typography>
           <Typography variant="subtitle1" color="textSecondary">
-            Welcome back, {user?.first_name || user?.username}!
+            {t('seller.dashboard.subtitle', { name: user?.first_name || user?.username })}
           </Typography>
         </Box>
         <Button
@@ -214,7 +217,7 @@ const SellerDashboard = () => {
           startIcon={<AddIcon />}
           fullWidth={isMobile}
         >
-          Create New Order
+          {t('orders.createNewOrder')}
         </Button>
       </Box>
 
@@ -223,7 +226,7 @@ const SellerDashboard = () => {
         <Grid item xs={12} md={7}>
           <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom sx={{ p: 1 }}>
-              Recent Orders
+              {t('seller.dashboard.recentOrders')}
             </Typography>
             <Divider sx={{ mb: 2 }} />
             
@@ -233,7 +236,7 @@ const SellerDashboard = () => {
               </Box>
             ) : recentOrders.length === 0 ? (
               <Typography variant="body1" color="textSecondary" align="center" py={3}>
-                No orders found
+                {t('orders.noOrdersFound')}
               </Typography>
             ) : isMobile ? (
               // Mobile list view
@@ -280,11 +283,11 @@ const SellerDashboard = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Customer</TableCell>
-                      <TableCell>Item</TableCell>
-                      <TableCell>Qty</TableCell>
-                      <TableCell>City</TableCell>
-                      <TableCell>Status</TableCell>
+                      <TableCell>{t('orders.columns.customer')}</TableCell>
+                      <TableCell>{t('orders.columns.item')}</TableCell>
+                      <TableCell>{t('seller.dashboard.qty')}</TableCell>
+                      <TableCell>{t('delivery.city')}</TableCell>
+                      <TableCell>{t('orders.columns.status')}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -314,7 +317,7 @@ const SellerDashboard = () => {
                 color="primary"
                 endIcon={<ViewIcon />}
               >
-                View All Orders
+                {t('seller.dashboard.viewAllOrders')}
               </Button>
             </Box>
           </Paper>
@@ -326,7 +329,7 @@ const SellerDashboard = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1 }}>
               <WarningIcon color="warning" sx={{ mr: 1 }} />
               <Typography variant="h6">
-                Low Stock Alert
+                {t('seller.dashboard.lowStock.title')}
               </Typography>
             </Box>
             <Divider sx={{ mb: 2 }} />
@@ -337,7 +340,7 @@ const SellerDashboard = () => {
               </Box>
             ) : lowStockItems.length === 0 ? (
               <Typography variant="body1" color="textSecondary" align="center" py={3}>
-                No low stock items
+                {t('seller.dashboard.lowStock.none')}
               </Typography>
             ) : (
               <List sx={{ width: '100%' }}>
@@ -352,12 +355,14 @@ const SellerDashboard = () => {
                             variant="body2"
                             color={item.quantity < 5 ? "error" : "warning.main"}
                           >
-                            {item.quantity === 0 ? "Out of Stock!" : `Only ${item.quantity} left in stock`}
+                            {item.quantity === 0 
+                              ? t('seller.dashboard.lowStock.outOfStockStrong') 
+                              : t('seller.dashboard.lowStock.onlyLeft', { count: item.quantity })}
                           </Typography>
                         }
                       />
                       <Chip 
-                        label={item.quantity === 0 ? "Out of Stock" : "Low Stock"} 
+                        label={item.quantity === 0 ? t('seller.dashboard.lowStock.chip.outOfStock') : t('seller.dashboard.lowStock.chip.lowStock')} 
                         color={item.quantity === 0 ? "error" : "warning"} 
                         size="small"
                       />
@@ -375,7 +380,7 @@ const SellerDashboard = () => {
                 color="primary"
                 endIcon={<StockIcon />}
               >
-                Manage Inventory
+                {t('seller.dashboard.manageInventory')}
               </Button>
             </Box>
           </Paper>
@@ -384,12 +389,12 @@ const SellerDashboard = () => {
 
       {/* RESTRUCTURED: Stats cards moved below the other sections */}
       <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 3 }}>
-        Order Statistics
+        {t('seller.dashboard.orderStats.title')}
       </Typography>
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
-            title="Total Orders" 
+            title={t('seller.dashboard.orderStats.totalOrders')} 
             value={orderStats.total} 
             icon={<OrderIcon fontSize="large" />} 
             color={theme.palette.primary.main} 
@@ -399,7 +404,7 @@ const SellerDashboard = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
-            title="Pending" 
+            title={t('statuses.pending')} 
             value={orderStats.pending} 
             icon={<PendingIcon fontSize="large" />} 
             color={theme.palette.warning.main} 
@@ -409,7 +414,7 @@ const SellerDashboard = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
-            title="In Transit" 
+            title={t('statuses.in_transit')} 
             value={orderStats.inTransit} 
             icon={<InTransitIcon fontSize="large" />} 
             color={theme.palette.info.main} 
@@ -419,7 +424,7 @@ const SellerDashboard = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
-            title="Delivered" 
+            title={t('statuses.delivered')} 
             value={orderStats.delivered} 
             icon={<DeliveredIcon fontSize="large" />} 
             color={theme.palette.success.main} 

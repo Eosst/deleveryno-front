@@ -1,6 +1,7 @@
 // src/pages/driver/OrderDetail.js - Fixed maps link and layout
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Typography,
@@ -36,6 +37,7 @@ import {
 import { getOrder, updateOrderStatus } from '../../api/orders';
 
 const OrderDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -63,7 +65,7 @@ const OrderDetail = () => {
       setNewStatus(orderData.status);
     } catch (err) {
       console.error('Error fetching order details:', err);
-      setError('Failed to load order details. Please try again.');
+      setError(t('order_detail.load_error'));
     } finally {
       setLoading(false);
     }
@@ -92,11 +94,11 @@ const OrderDetail = () => {
     try {
       const updatedOrder = await updateOrderStatus(order.id, newStatus);
       setOrder(updatedOrder);
-      setSuccess(`Order status updated to: ${getStatusLabel(updatedOrder.status)}`);
+      setSuccess(t('order_detail.status_updated', { status: getStatusLabel(updatedOrder.status) }));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error updating order status:', err);
-      setError('Failed to update order status. Please try again.');
+      setError(t('order_detail.status_update_error'));
       // Reset status to original
       setNewStatus(order.status);
     } finally {
@@ -108,24 +110,24 @@ const OrderDetail = () => {
   const getStatusChip = (status) => {
     switch (status) {
       case 'assigned':
-        return <Chip label="Assigned" color="primary" />;
+        return <Chip label={t('statuses.assigned')} color="primary" />;
       case 'in_transit':
-        return <Chip label="In Transit" color="info" />;
+        return <Chip label={t('statuses.in_transit')} color="info" />;
       case 'delivered':
-        return <Chip label="Delivered" color="success" />;
+        return <Chip label={t('statuses.delivered')} color="success" />;
       case 'no_answer':
-        return <Chip label="No Answer" color="warning" />;
+        return <Chip label={t('statuses.no_answer')} color="warning" />;
       case 'postponed':
-        return <Chip label="Postponed" color="secondary" />;
+        return <Chip label={t('statuses.postponed')} color="secondary" />;
       case 'canceled':
-        return <Chip label="Canceled" color="error" />;
+        return <Chip label={t('statuses.canceled')} color="error" />;
       default:
-        return <Chip label={status} />;
+        return <Chip label={t(`statuses.${status}`, status)} />;
     }
   };
 
   const getStatusLabel = (status) => {
-    return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+    return t(`statuses.${status}`);
   };
 
   // Get allowed next statuses based on current status
@@ -172,7 +174,7 @@ const OrderDetail = () => {
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)} sx={{ mb: 2 }}>
           Back
         </Button>
-        <Alert severity="warning">Order not found</Alert>
+        <Alert severity="warning">{t('orders.not_found')}</Alert>
       </Box>
     );
   }
@@ -181,7 +183,7 @@ const OrderDetail = () => {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)}>
-          Back to Orders
+          {t('orders.back_to_orders')}
         </Button>
       </Box>
 
@@ -192,7 +194,7 @@ const OrderDetail = () => {
       )}
 
       <Typography variant="h4" gutterBottom>
-        Order #{order.id}
+        {t('orders.order_number', { id: order.id })}
       </Typography>
       
       {/* Status Update Section - FIXED FOR BOTH MOBILE & DESKTOP */}
@@ -218,7 +220,7 @@ const OrderDetail = () => {
                         value="default"
                         onChange={(e) => e.target.value !== 'default' && handleDirectStatusUpdate(e.target.value)}
                         displayEmpty
-                        renderValue={() => "Update Status"}
+                        renderValue={() => t('orders.update_status')}
                         disabled={updateLoading}
                       >
                         <MenuItem value="default" disabled>Update Status</MenuItem>
@@ -248,7 +250,7 @@ const OrderDetail = () => {
                   onClick={() => handleDirectStatusUpdate('in_transit')}
                   disabled={updateLoading}
                 >
-                  Accept Order
+                  {t('driver.dashboard.actions.accept')}
                 </Button>
               </Grid>
             </Grid>
@@ -262,7 +264,7 @@ const OrderDetail = () => {
                   onClick={() => handleDirectStatusUpdate('delivered')}
                   disabled={updateLoading}
                 >
-                  Mark Delivered
+                  {t('driver.dashboard.actions.markDelivered')}
                 </Button>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -275,7 +277,7 @@ const OrderDetail = () => {
                       onClick={() => handleDirectStatusUpdate('no_answer')}
                       disabled={updateLoading}
                     >
-                      No Answer
+                      {t('statuses.no_answer')}
                     </Button>
                   </Grid>
                   <Grid item xs={4}>
@@ -286,7 +288,7 @@ const OrderDetail = () => {
                       onClick={() => handleDirectStatusUpdate('postponed')}
                       disabled={updateLoading}
                     >
-                      Postpone
+                      {t('driver.dashboard.actions.postpone')}
                     </Button>
                   </Grid>
                   <Grid item xs={4}>
@@ -297,7 +299,7 @@ const OrderDetail = () => {
                       onClick={() => handleDirectStatusUpdate('canceled')}
                       disabled={updateLoading}
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                   </Grid>
                 </Grid>
@@ -313,18 +315,18 @@ const OrderDetail = () => {
           <Paper sx={{ p: 3, mb: 3 }}>
             <Box display="flex" alignItems="center" mb={2}>
               <CustomerIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="h6">Customer Information</Typography>
+              <Typography variant="h6">{t('customer.information')}</Typography>
             </Box>
             
             <Divider sx={{ mb: 2 }} />
             
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Name</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('customer.name')}</Typography>
                 <Typography variant="body1">{order.customer_name}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">Phone</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('common.phone')}</Typography>
                 <Typography variant="body1">
                   <Button 
                     startIcon={<PhoneIcon />} 
@@ -343,23 +345,23 @@ const OrderDetail = () => {
           <Paper sx={{ p: 3 }}>
             <Box display="flex" alignItems="center" mb={2}>
               <LocationIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="h6">Delivery Address</Typography>
+              <Typography variant="h6">{t('delivery.address')}</Typography>
             </Box>
             
             <Divider sx={{ mb: 2 }} />
             
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Typography variant="subtitle2" color="textSecondary">Street</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('delivery.street')}</Typography>
                 <Typography variant="body1">{order.delivery_street}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="textSecondary">City</Typography>
+                <Typography variant="subtitle2" color="textSecondary">{t('delivery.city')}</Typography>
                 <Typography variant="body1">{order.delivery_city}</Typography>
               </Grid>
               {order.delivery_location && (
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="textSecondary">Location</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('delivery.location')}</Typography>
                   <Box mt={1}>
                     <Button 
                       variant="contained" 
@@ -371,7 +373,7 @@ const OrderDetail = () => {
                       startIcon={<LocationIcon />}
                       size={isMobile ? "small" : "medium"}
                     >
-                      Open in Google Maps
+                      {t('delivery.open_in_maps')}
                     </Button>
                   </Box>
                 </Grid>
@@ -385,24 +387,24 @@ const OrderDetail = () => {
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <SellerIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Seller</Typography>
+                <Typography variant="h6">{t('seller.title')}</Typography>
               </Box>
               
               <Divider sx={{ mb: 2 }} />
               
               {order.seller ? (
                 <>
-                  <Typography variant="subtitle2" color="textSecondary">Name</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('common.name')}</Typography>
                   <Typography variant="body1" gutterBottom>
                     {order.seller.first_name} {order.seller.last_name}
                   </Typography>
                   
-                  <Typography variant="subtitle2" color="textSecondary">Email</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('common.email')}</Typography>
                   <Typography variant="body1" gutterBottom>
                     {order.seller.email}
                   </Typography>
                   
-                  <Typography variant="subtitle2" color="textSecondary">Phone</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">{t('common.phone')}</Typography>
                   <Typography variant="body1">
                     <Button 
                       startIcon={<PhoneIcon />} 
@@ -417,7 +419,7 @@ const OrderDetail = () => {
                 </>
               ) : (
                 <Typography variant="body1" color="textSecondary">
-                  No seller information available
+                  {t('seller.no_information')}
                 </Typography>
               )}
             </CardContent>
@@ -425,25 +427,25 @@ const OrderDetail = () => {
 
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Order Details</Typography>
+              <Typography variant="h6" gutterBottom>{t('orders.order_information')}</Typography>
               <Divider sx={{ mb: 2 }} />
               
-              <Typography variant="subtitle2" color="textSecondary">Item</Typography>
+              <Typography variant="subtitle2" color="textSecondary">{t('orders.columns.item')}</Typography>
               <Typography variant="body1" gutterBottom>
                 {order.item}
               </Typography>
               
-              <Typography variant="subtitle2" color="textSecondary">Quantity</Typography>
+              <Typography variant="subtitle2" color="textSecondary">{t('orders.columns.quantity')}</Typography>
               <Typography variant="body1" gutterBottom>
                 {order.quantity}
               </Typography>
               
-              <Typography variant="subtitle2" color="textSecondary">Created</Typography>
+              <Typography variant="subtitle2" color="textSecondary">{t('common.created')}</Typography>
               <Typography variant="body1" gutterBottom>
                 {new Date(order.created_at).toLocaleString()}
               </Typography>
               
-              <Typography variant="subtitle2" color="textSecondary">Last Updated</Typography>
+              <Typography variant="subtitle2" color="textSecondary">{t('common.last_updated')}</Typography>
               <Typography variant="body1">
                 {new Date(order.updated_at).toLocaleString()}
               </Typography>
@@ -459,21 +461,23 @@ const OrderDetail = () => {
         fullWidth={isMobile}
         maxWidth="sm"
       >
-        <DialogTitle>Confirm Status Change</DialogTitle>
+        <DialogTitle>{t('driver.orders.confirm.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to change the status of Order #{order.id} 
-            from "{getStatusLabel(order.status)}" to "{getStatusLabel(newStatus)}"?
+            {t('driver.orders.confirm.message', {
+              id: order.id,
+              status: getStatusLabel(newStatus)
+            })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setConfirmDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button 
             onClick={handleConfirmUpdate} 
             color="primary"
             disabled={updateLoading}
           >
-            {updateLoading ? <CircularProgress size={24} /> : 'Confirm'}
+            {updateLoading ? <CircularProgress size={24} /> : t('common.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

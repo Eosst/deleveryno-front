@@ -35,6 +35,7 @@ import {
   ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
   return (
@@ -62,7 +63,7 @@ const StatCard = ({ title, value, icon, color, loading, linkTo }) => {
             variant="contained"
             color="primary"
           >
-            View Details
+            {title}
           </Button>
         </CardActions>
       )}
@@ -77,6 +78,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
   const [actionType, setActionType] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { t } = useTranslation();
 
   const handleUpdateStatus = async (newStatus) => {
     setLoading(true);
@@ -92,7 +94,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
       }
     } catch (err) {
       console.error('Error updating order status:', err);
-      setError('Failed to update order status. Please try again.');
+      setError(t('driver.dashboard.errors.failedUpdate'));
     } finally {
       setLoading(false);
       setStatusDialogOpen(false);
@@ -127,15 +129,15 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
   const getStatusChip = (status) => {
     switch (status) {
       case 'assigned':
-        return <Chip label="Assigned" color="primary" size="small" />;
+        return <Chip label={t('statuses.assigned')} color="primary" size="small" />;
       case 'in_transit':
-        return <Chip label="In Transit" color="info" size="small" />;
+        return <Chip label={t('statuses.in_transit')} color="info" size="small" />;
       case 'delivered':
-        return <Chip label="Delivered" color="success" size="small" />;
+        return <Chip label={t('statuses.delivered')} color="success" size="small" />;
       case 'no_answer':
-        return <Chip label="No Answer" color="warning" size="small" />;
+        return <Chip label={t('statuses.no_answer')} color="warning" size="small" />;
       case 'postponed':
-        return <Chip label="Postponed" color="secondary" size="small" />;
+        return <Chip label={t('statuses.postponed')} color="secondary" size="small" />;
       default:
         return <Chip label={status} size="small" />;
     }
@@ -144,15 +146,15 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
   const getStatusActionMessage = () => {
     switch (actionType) {
       case 'accept':
-        return "Are you sure you want to accept this order and mark it as 'In Transit'?";
+        return t('driver.dashboard.confirm.accept');
       case 'delivered':
-        return "Confirm that this order has been delivered successfully?";
+        return t('driver.dashboard.confirm.delivered');
       case 'no_answer':
-        return "Confirm that the customer didn't answer?";
+        return t('driver.dashboard.confirm.no_answer');
       case 'postponed':
-        return "Confirm that this delivery should be postponed?";
+        return t('driver.dashboard.confirm.postponed');
       default:
-        return "Are you sure you want to update this order's status?";
+        return t('driver.dashboard.confirm.generic');
     }
   };
 
@@ -166,7 +168,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
           onClick={() => prepareAction('accept')}
           disabled={loading}
         >
-          Accept Order
+          {t('driver.dashboard.actions.accept')}
         </Button>
       );
     } else if (order.status === 'in_transit') {
@@ -179,7 +181,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
             disabled={loading}
             fullWidth
           >
-            Mark Delivered
+            {t('driver.dashboard.actions.markDelivered')}
           </Button>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button 
@@ -189,7 +191,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
               disabled={loading}
               sx={{ flex: 1 }}
             >
-              No Answer
+              {t('statuses.no_answer')}
             </Button>
             <Button 
               variant="outlined" 
@@ -198,7 +200,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
               disabled={loading}
               sx={{ flex: 1 }}
             >
-              Postpone
+              {t('driver.dashboard.actions.postpone')}
             </Button>
           </Box>
         </Box>
@@ -212,7 +214,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
         color="primary"
         fullWidth
       >
-        View Details
+        {t('driver.dashboard.actions.viewDetails')}
       </Button>
     );
   };
@@ -222,7 +224,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">
-            Order #{order.id}
+            {t('orders.order_number', { id: order.id })}
           </Typography>
           {getStatusChip(order.status)}
         </Box>
@@ -261,7 +263,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
           <Box mt={2}>
             <Divider sx={{ mb: 2 }} />
             {order.delivery_location && (
-              <Button 
+          <Button 
                 variant="outlined" 
                 size="small"
                 component="a"
@@ -272,7 +274,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
                 sx={{ mb: 2 }}
                 fullWidth
               >
-                Open in Maps
+            {t('delivery.open_in_maps')}
               </Button>
             )}
             <Button 
@@ -283,7 +285,7 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
               size="small"
               fullWidth
             >
-              View Full Details
+              {t('driver.dashboard.actions.viewFullDetails')}
             </Button>
           </Box>
         </Collapse>
@@ -298,20 +300,20 @@ const OrderCard = ({ order, onStatusUpdate, onRefresh }) => {
         open={confirmDialogOpen}
         onClose={() => setConfirmDialogOpen(false)}
       >
-        <DialogTitle>Confirm Action</DialogTitle>
+        <DialogTitle>{t('driver.dashboard.confirm.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {getStatusActionMessage()}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setConfirmDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button 
             onClick={handleConfirmAction} 
             color="primary"
             autoFocus
           >
-            Confirm
+            {t('common.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

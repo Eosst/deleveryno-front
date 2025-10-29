@@ -21,6 +21,7 @@ import {
   TablePagination
 } from '@mui/material';
 import { Visibility as ViewIcon } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 /**
  * ResponsiveTable - Renders data in either table or card format based on screen size
@@ -57,6 +58,7 @@ const ResponsiveTable = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
 
   // Handle loading state
   if (loading) {
@@ -157,7 +159,7 @@ const ResponsiveTable = ({
                   </TableCell>
                 )
               ))}
-              {actions && <TableCell align="center">Actions</TableCell>}
+              {actions && <TableCell align="center">{t('common.actions') || 'Actions'}</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>

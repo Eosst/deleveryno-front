@@ -28,6 +28,7 @@ import {
 } from '@mui/icons-material';
 import { getMessage, updateMessage } from '../../api/messages';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const MessageDetail = () => {
   const { id } = useParams();
@@ -35,6 +36,7 @@ const MessageDetail = () => {
   const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
   
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -62,7 +64,7 @@ const MessageDetail = () => {
       }
     } catch (err) {
       console.error('Error fetching message:', err);
-      setError('Failed to load message. Please try again.');
+      setError(t('messages.detail.errors.failedLoad'));
     } finally {
       setLoading(false);
     }
@@ -70,23 +72,23 @@ const MessageDetail = () => {
 
   // Format user name based on role
   const formatUserName = (messageUser, userRole) => {
-    if (!messageUser) return "Unknown";
+    if (!messageUser) return t('messages.common.unknown');
     
     // If the user is not an admin and the message user is an admin, show as "Administration"
     if (!isAdmin && userRole === 'admin') {
-      return "Administration";
+      return t('messages.common.administration');
     }
     
     // Otherwise show the actual user name
     return messageUser.first_name && messageUser.last_name
       ? `${messageUser.first_name} ${messageUser.last_name}`
-      : messageUser.username || "Unknown";
+      : messageUser.username || t('messages.common.unknown');
   };
   
   // Get initials for avatar
   const getInitials = (name) => {
-    if (!name || name === "Administration") return "A";
-    if (name === "Unknown") return "?";
+    if (!name || name === t('messages.common.administration')) return "A";
+    if (name === t('messages.common.unknown')) return "?";
     
     const parts = name.split(" ");
     if (parts.length === 1) return name.charAt(0).toUpperCase();
@@ -137,7 +139,7 @@ const MessageDetail = () => {
     return (
       <Box>
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-          Back
+          {t('common.back')}
         </Button>
         <Alert severity="error">{error}</Alert>
       </Box>
@@ -148,9 +150,9 @@ const MessageDetail = () => {
     return (
       <Box>
         <Button startIcon={<BackIcon />} onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-          Back
+          {t('common.back')}
         </Button>
-        <Alert severity="warning">Message not found</Alert>
+        <Alert severity="warning">{t('messages.detail.notFound')}</Alert>
       </Box>
     );
   }
@@ -164,7 +166,7 @@ const MessageDetail = () => {
         variant={isMobile ? "outlined" : "text"}
         fullWidth={isMobile}
       >
-        Back to Messages
+        {t('messages.common.backToMessages')}
       </Button>
 
       <Paper 
@@ -212,10 +214,10 @@ const MessageDetail = () => {
               </Avatar>
               <Box>
                 <Typography variant="subtitle1">
-                  From: {formatUserName(message.sender, message.sender?.role)}
+                  {t('messages.detail.from')}: {formatUserName(message.sender, message.sender?.role)}
                 </Typography>
                 <Typography variant="caption" color="textSecondary">
-                  {message.sender?.role ? (message.sender.role.charAt(0).toUpperCase() + message.sender.role.slice(1)) : 'Unknown'}
+                  {message.sender?.role ? (message.sender.role.charAt(0).toUpperCase() + message.sender.role.slice(1)) : t('messages.common.unknown')}
                 </Typography>
               </Box>
             </Box>
@@ -236,10 +238,10 @@ const MessageDetail = () => {
               </Avatar>
               <Box>
                 <Typography variant="subtitle1">
-                  To: {formatUserName(message.recipient, message.recipient?.role)}
+                  {t('messages.detail.to')}: {formatUserName(message.recipient, message.recipient?.role)}
                 </Typography>
                 <Typography variant="caption" color="textSecondary">
-                  {message.recipient?.role ? (message.recipient.role.charAt(0).toUpperCase() + message.recipient.role.slice(1)) : 'Unknown'}
+                  {message.recipient?.role ? (message.recipient.role.charAt(0).toUpperCase() + message.recipient.role.slice(1)) : t('messages.common.unknown')}
                 </Typography>
               </Box>
             </Box>
@@ -288,7 +290,7 @@ const MessageDetail = () => {
               startIcon={<ReplyIcon />}
               fullWidth={isMobile}
             >
-              Reply
+              {t('messages.detail.reply')}
             </Button>
             
             {message.recipient?.id === user?.id && message.status !== 'archived' && (
@@ -299,7 +301,7 @@ const MessageDetail = () => {
                 startIcon={<ArchiveIcon />}
                 fullWidth={isMobile}
               >
-                Archive
+                {t('messages.detail.archive')}
               </Button>
             )}
           </Box>
@@ -311,20 +313,20 @@ const MessageDetail = () => {
         open={confirmDialogOpen}
         onClose={() => setConfirmDialogOpen(false)}
       >
-        <DialogTitle>Archive Message?</DialogTitle>
+        <DialogTitle>{t('messages.detail.confirmArchive.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to archive this message? This will move it out of your main inbox.
+            {t('messages.detail.confirmArchive.message')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setConfirmDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button 
             onClick={handleArchive} 
             color="primary"
             disabled={archiveLoading}
           >
-            {archiveLoading ? <CircularProgress size={24} /> : "Archive"}
+            {archiveLoading ? <CircularProgress size={24} /> : t('messages.detail.archive')}
           </Button>
         </DialogActions>
       </Dialog>

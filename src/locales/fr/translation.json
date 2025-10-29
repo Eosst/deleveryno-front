@@ -4,9 +4,120 @@
     "french": "Français",
     "arabic": "Arabe"
   },
+  "common": {
+    "created": "Créée",
+    "last_updated": "Dernière mise à jour",
+    "name": "Nom",
+    "username": "Nom d'utilisateur",
+    "email": "Email",
+    "phone": "Téléphone",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "delete": "Supprimer",
+    "update": "Mettre à jour",
+    "notAvailable": "N/D",
+    "offlineNotice": "Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.",
+    "actions": "Actions",
+    "loading": "Chargement...",
+    "close": "Fermer",
+    "add": "Ajouter",
+    "save": "Enregistrer",
+    "understood": "Compris"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "users": "Gestion des utilisateurs",
+    "orders": "Toutes les commandes",
+    "stock": "Gestion du stock",
+    "messages": "Messages",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "create_order": "Créer une commande",
+    "my_orders": "Mes commandes"
+  },
   "orders": {
     "back_to_orders": "Retour aux commandes",
-    "create_new_order": "Créer une nouvelle commande"
+    "create_new_order": "Créer une nouvelle commande",
+    "order_number": "Commande n°{{id}}",
+    "order_information": "Informations sur la commande",
+    "item": "Article",
+    "quantity": "Quantité",
+    "comments_notes": "Commentaires / Notes",
+    "not_found": "Commande introuvable.",
+    "update_status": "Mettre à jour le statut",
+    "assign_driver": "Assigner un livreur",
+    "errors": {
+      "failedLoadOrders": "Échec du chargement des commandes. Veuillez réessayer.",
+      "failedDeleteOrder": "Échec de la suppression de la commande. Veuillez réessayer.",
+      "failedLoadDrivers": "Échec du chargement des livreurs. Veuillez réessayer.",
+      "failedAssignDriver": "Échec de l'assignation du livreur. Veuillez réessayer.",
+      "failedUpdateStatus": "Échec de la mise à jour du statut. Veuillez réessayer."
+    },
+    "messages": {
+      "orderDeleted": "Commande supprimée avec succès !",
+      "driverAssigned": "Livreur assigné avec succès !",
+      "statusUpdated": "Statut de la commande mis à jour vers : {{status}}"
+    },
+    "columns": {
+      "orderId": "ID commande",
+      "customer": "Client",
+      "item": "Article",
+      "quantity": "Quantité",
+      "deliveryCity": "Ville de livraison",
+      "seller": "Vendeur",
+      "driver": "Livreur",
+      "status": "Statut",
+      "assign": "Assigner",
+      "created": "Créée"
+    },
+    "actions": {
+      "viewDetails": "Voir les détails",
+      "updateStatus": "Mettre à jour le statut",
+      "assignDriver": "Assigner un livreur",
+      "deleteOrder": "Supprimer la commande"
+    },
+    "orderManagement": "Gestion des commandes",
+    "createNewOrder": "Créer une nouvelle commande",
+    "searchPlaceholder": "Rechercher par nom du client...",
+    "searchButton": "Rechercher",
+    "hideFilters": "Masquer les filtres",
+    "showFilters": "Afficher les filtres",
+    "filterStatus": "Filtrer par statut",
+    "allStatuses": "Tous les statuts",
+    "filterCity": "Filtrer par ville",
+    "resetFilters": "Réinitialiser les filtres",
+    "noOrdersFound": "Aucune commande trouvée",
+    "assignDialog": {
+      "title": "Assigner un livreur - Commande n°{{id}}",
+      "noDrivers": "Aucun livreur disponible.",
+      "selectDriver": "Sélectionner un livreur",
+      "driverLabel": "Livreur",
+      "assignButton": "Assigner",
+      "driverDisplay": "{{firstName}} {{lastName}} ({{username}})"
+    },
+    "statusDialog": {
+      "title": "Mettre à jour le statut",
+      "content": "Sélectionnez le nouveau statut pour la commande n°{{id}}",
+      "newStatusLabel": "Nouveau statut"
+    },
+    "notAssigned": "Non assigné",
+    "error_loading": "Échec du chargement des détails de la commande. Veuillez réessayer.",
+    "status_updated": "Statut de la commande mis à jour vers : {{status}}",
+    "error_updating_status": "Échec de la mise à jour du statut de la commande. Veuillez réessayer.",
+    "deleted_successfully": "Commande supprimée avec succès !",
+    "error_deleting": "Échec de la suppression de la commande. Veuillez réessayer.",
+    "error_loading_drivers": "Échec du chargement des livreurs. Veuillez réessayer.",
+    "driver_assigned_success": "Livreur assigné avec succès !",
+    "error_assigning_driver": "Échec de l'assignation du livreur. Veuillez réessayer.",
+    "update_status_title": "Mettre à jour le statut de la commande",
+    "update_status_description": "Sélectionnez le nouveau statut pour la commande n°{{id}}",
+    "new_status": "Nouveau statut",
+    "delete_confirmation_title": "Supprimer la commande",
+    "delete_confirmation_message": "Êtes-vous sûr de vouloir supprimer la commande n°{{id}} ?",
+    "no_available_drivers": "Aucun livreur disponible",
+    "select_driver": "Sélectionner un livreur",
+    "assign_driver_title": "Assigner un livreur - Commande n°{{id}}"
   },
   "dashboard": {
   "title": "Tableau de bord administrateur",
@@ -25,17 +136,6 @@
   "total_stock": "Articles en stock",
   "create_order": "Créer une commande",
   "manage_approvals": "Gérer les approbations"
-},
-"nav": {
-  "dashboard": "Tableau de bord",
-  "users": "Gestion des utilisateurs",
-  "orders": "Toutes les commandes",
-  "stock": "Gestion du stock",
-  "messages": "Messages",
-  "profile": "Profil",
-  "logout": "Déconnexion",
-  "create_order": "Créer une commande",
-  "my_orders": "Mes commandes"
 },
   "order_detail": {
     "title": "Commande n°{{id}}",
@@ -57,50 +157,123 @@
     "no_answer": "Pas de réponse",
     "postponed": "Reportée"
   },
-  
-  "orders": {
-    "assign_driver_title": "Assigner un livreur",
-    "select_driver": "Sélectionner un livreur",
-    "back_to_orders": "Retour aux commandes",
-    "order_number": "Commande n°{{id}}",
-    "order_information": "Informations sur la commande",
-    "status": {
-      "pending": "En attente",
-      "assigned": "Assignée",
-      "in_transit": "En cours de livraison",
-      "delivered": "Livrée",
-      "canceled": "Annulée",
-      "no_answer": "Pas de réponse",
-      "postponed": "Reportée"
-    },
-    "item": "Article",
-    "quantity": "Quantité"
-  },
-  "common": {
-    "created": "Créée",
-    "last_updated": "Dernière mise à jour",
-    "name": "Nom",
-    "username": "Nom d'utilisateur",
-    "email": "Email",
-    "phone": "Téléphone",
-    "cancel": "Annuler",
-    "confirm": "Confirmer"
-  },
   "customer": {
     "information": "Informations du client",
     "name": "Nom du client",
     "phone": "Téléphone du client"
   },
-  "seller": {
-    "title": "Vendeur",
-    "no_information": "Aucune information sur le vendeur"
-  },
+  
   "driver": {
+    "dashboard": {
+      "title": "Tableau de bord livreur",
+      "subtitle": "Bon retour, {{name}} !",
+      "activeDeliveries": "Livraisons actives",
+      "statistics": "Statistiques",
+      "actions": {
+        "accept": "Accepter la commande",
+        "markDelivered": "Marquer comme livrée",
+        "postpone": "Reporter",
+        "viewDetails": "Voir les détails",
+        "viewFullDetails": "Voir tous les détails"
+      },
+      "confirm": {
+        "title": "Confirmer l'action",
+        "accept": "Êtes-vous sûr de vouloir accepter cette commande et la marquer \"En cours de livraison\" ?",
+        "delivered": "Confirmez que cette commande a été livrée avec succès ?",
+        "no_answer": "Confirmez que le client n'a pas répondu ?",
+        "postponed": "Confirmez que cette livraison doit être reportée ?",
+        "generic": "Êtes-vous sûr de vouloir mettre à jour le statut de cette commande ?"
+      },
+      "errors": {
+        "failedUpdate": "Échec de la mise à jour du statut de la commande. Veuillez réessayer.",
+        "failedLoad": "Échec du chargement des données. Veuillez réessayer."
+      }
+    },
+    "orders": {
+      "title": "Mes commandes de livraison",
+      "errors": {
+        "failedLoad": "Échec du chargement des commandes. Veuillez réessayer.",
+        "failedUpdate": "Échec de la mise à jour du statut de la commande. Veuillez réessayer."
+      },
+      "messages": {
+        "statusUpdated": "Statut de la commande n°{{id}} mis à jour : {{status}}"
+      },
+      "filters": {
+        "all": "Toutes les commandes",
+        "showAll": "Tout afficher"
+      },
+      "update": "Mettre à jour",
+      "updateStatus": "Mettre à jour le statut",
+      "emptyWithStatus": "Vous n'avez aucune commande avec le statut : {{status}}",
+      "emptyAssigned": "Vous n'avez pas encore de commandes assignées.",
+      "callCustomer": "Appeler le client",
+      "confirm": {
+        "title": "Confirmer le changement de statut",
+        "message": "Êtes-vous sûr de vouloir changer le statut de la commande n°{{id}} en \"{{status}}\" ?"
+      }
+    },
     "title": "Livreur",
     "no_driver_assigned": "Aucun livreur assigné",
     "assign_driver": "Assigner un livreur",
     "assign": "Assigner"
   },
+  "messages": {
+    "common": {
+      "administration": "Administration",
+      "unknown": "Inconnu",
+      "backToMessages": "Retour aux messages"
+    },
+    "status": {
+      "unread": "Non lu",
+      "read": "Lu",
+      "archived": "Archivé"
+    },
+    "list": {
+      "title": "Messages",
+      "newMessage": "Nouveau message",
+      "noneFound": "Aucun message trouvé",
+      "errors": {
+        "failedLoad": "Échec du chargement des messages. Veuillez réessayer."
+      }
+    },
+    "detail": {
+      "errors": {
+        "failedLoad": "Échec du chargement du message. Veuillez réessayer."
+      },
+      "notFound": "Message introuvable",
+      "from": "De",
+      "to": "À",
+      "reply": "Répondre",
+      "archive": "Archiver",
+      "confirmArchive": {
+        "title": "Archiver le message ?",
+        "message": "Êtes-vous sûr de vouloir archiver ce message ? Il sera retiré de votre boîte de réception principale."
+      }
+    },
+    "compose": {
+      "newTitle": "Nouveau message",
+      "replyTitle": "Répondre au message",
+      "recipient": "Destinataire",
+      "loadingUsers": "Chargement des utilisateurs...",
+      "noUsers": "Aucun utilisateur disponible",
+      "subject": "Objet",
+      "messageLabel": "Message *",
+      "messagePlaceholder": "Tapez votre message ici...",
+      "send": "Envoyer le message",
+      "errorDetails": "Détails de l'erreur",
+      "errors": {
+        "failedLoadReply": "Échec du chargement du message à répondre.",
+        "failedLoadUsers": "Échec du chargement de la liste des utilisateurs.",
+        "required": "L'objet et le contenu du message sont requis",
+        "failedSend": "Échec de l'envoi du message. Veuillez réessayer."
+      },
+      "info": {
+        "toAdmin": "Vous envoyez un message à l'équipe Administration.",
+        "replyingTo": "Vous répondez à"
+      }
+    }
+  },
+  
   "delivery": {
     "address": "Adresse de livraison",
     "street": "Rue",
@@ -117,6 +290,257 @@
       "canceled": "Cette commande a été annulée.",
       "no_answer": "Le livreur n’a pas pu contacter le client.",
       "postponed": "La livraison a été reportée."
+    }
+  },
+  "seller": {
+    "dashboard": {
+      "title": "Tableau de bord vendeur",
+      "subtitle": "Bon retour, {{name}} !",
+      "recentOrders": "Commandes récentes",
+      "viewAllOrders": "Voir toutes les commandes",
+      "lowStock": {
+        "title": "Alerte stock faible",
+        "none": "Aucun article en stock faible",
+        "outOfStockStrong": "Rupture de stock !",
+        "onlyLeft": "Plus que {{count}} en stock",
+        "chip": {
+          "outOfStock": "Rupture",
+          "lowStock": "Stock faible"
+        }
+      },
+      "manageInventory": "Gérer l'inventaire",
+      "orderStats": {
+        "title": "Statistiques des commandes",
+        "totalOrders": "Total des commandes"
+      },
+      "qty": "Qté",
+      "errors": {
+        "failedLoad": "Échec du chargement des données du tableau de bord. Veuillez réessayer."
+      }
+    },
+    "title": "Vendeur",
+    "no_information": "Aucune information sur le vendeur"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backToHome": "Retour à l'accueil"
+  },
+  "app": {
+    "title": "Deleveryno - Panneau {{role}}"
+  },
+  "profile": {
+    "username": "Nom d'utilisateur",
+    "role": "Rôle",
+    "updateSuccess": "Profil mis à jour avec succès !",
+    "editProfile": "Modifier le profil",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "city": "Ville",
+    "rib": "Informations bancaires (RIB)",
+    "ribHelper": "Vos informations bancaires pour le traitement des paiements",
+    "updateButton": "Mettre à jour le profil"
+  }
+  ,
+  "auth": {
+    "common": {
+      "emailAddress": "Adresse e-mail",
+      "password": "Mot de passe",
+      "phoneNumber": "Numéro de téléphone",
+      "emailRequired": "L'e-mail est requis",
+      "seller": "Vendeur",
+      "driver": "Livreur"
+    },
+    "login": {
+      "title": "DeliveryNo",
+      "subtitle": "Entrez vos identifiants pour accéder à la plateforme",
+      "requiredError": "L'e-mail et le mot de passe sont requis",
+      "signIn": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "registerPrompt": "Pas de compte ? Inscrivez-vous en tant que :",
+      "togglePassword": "Afficher/masquer le mot de passe"
+    },
+    "reset": {
+      "title": "Réinitialiser le mot de passe",
+      "success": "Si votre e-mail est enregistré, nous vous avons envoyé les instructions pour réinitialiser votre mot de passe.",
+      "returnToLogin": "Retour à la connexion",
+      "sendLink": "Envoyer le lien de réinitialisation",
+      "backToLogin": "Retour à la connexion",
+      "failed": "Échec du traitement de votre demande. Veuillez réessayer."
+    },
+    "register": {
+      "failed": "Échec de l'inscription. Veuillez réessayer.",
+      "successTitle": "Inscription réussie !",
+      "successMessage": "Votre compte a été créé. Un administrateur examinera et approuvera votre demande. Vous serez redirigé vers la page de connexion sous peu.",
+      "steps": {
+        "accountInfo": "Informations du compte",
+        "personalInfo": "Informations personnelles",
+        "contactDetails": "Coordonnées",
+        "paymentInfo": "Informations de paiement"
+      },
+      "passwordHint": "Le mot de passe doit contenir au moins 8 caractères",
+      "sellerTitle": "Inscription vendeur",
+      "sellerSubtitle": "Rejoignez la plateforme DeliveryNo en tant que vendeur",
+      "ribPlaceholder": "Saisissez vos coordonnées bancaires",
+      "register": "S'inscrire",
+      "alreadyHaveAccount": "Vous avez déjà un compte ? Connectez-vous"
+    }
+  },
+  "stock": {
+    "management": {
+      "title": "Gestion de l'inventaire",
+      "about_approval": "À propos de l'approbation",
+      "add_new_item": "Ajouter un nouvel article",
+      "search_placeholder": "Rechercher dans l'inventaire...",
+      "empty_message": "Aucun article trouvé dans l'inventaire",
+      "status": {
+        "approved": "Approuvé",
+        "pending": "En attente d'approbation",
+        "out_of_stock": "En rupture de stock",
+        "low_stock": "Stock faible",
+        "in_stock": "En stock"
+      },
+      "table": {
+        "item_name": "Nom de l'article",
+        "quantity": "Quantité",
+        "stock_status": "État du stock",
+        "approval_status": "Statut d'approbation",
+        "approve": "Approuver"
+      },
+      "actions": {
+        "edit": "Modifier l'article",
+        "delete": "Supprimer l'article"
+      },
+      "dialog": {
+        "add_title": "Ajouter un nouvel article à l'inventaire",
+        "edit_title": "Modifier l'article de l'inventaire",
+        "add_text": "Les nouveaux articles nécessitent l'approbation de l'administrateur avant de pouvoir être utilisés pour créer des commandes.",
+        "edit_quantity_warning": "lorsque vous modifiez la quantité d'un article, vous devrez attendre qu'il soit à nouveau approuvé",
+        "delete_title": "Confirmer la suppression",
+        "delete_confirm": "Êtes-vous sûr de vouloir supprimer \"{{itemName}}\" de l'inventaire ? Cette action est irréversible.",
+        "info_title": "À propos de l'approbation des stocks",
+        "info_subtitle": "Système d'approbation des stocks :",
+        "info_p1": "Lorsque les vendeurs ajoutent de nouveaux articles à leur inventaire, ils ont besoin de l'approbation d'un administrateur avant de pouvoir les utiliser pour les commandes.",
+        "info_p2": "En tant qu'administrateur, vous pouvez :",
+        "info_li1": "Les articles créés par les administrateurs sont automatiquement approuvés",
+        "info_li2": "Approuver les articles en attente en cliquant sur le bouton \"Approuver\"",
+        "info_li3": "Modifier les détails de n'importe quel article, y compris le statut d'approbation",
+        "info_li4": "Supprimer les articles qui ne répondent pas à vos normes",
+        "info_note_title": "Remarque :",
+        "info_note_text": "Les vendeurs ne peuvent pas utiliser les articles en attente pour les commandes tant qu'ils ne sont pas approuvés."
+      },
+      "form": {
+        "item_name": "Nom de l'article",
+        "quantity": "Quantité",
+        "seller": "Vendeur",
+        "no_seller": "Aucun vendeur spécifique",
+        "approved_label": "L'article est approuvé et prêt à l'emploi",
+        "sellerDisplay": "{{firstName}} {{lastName}} ({{username}})"
+      },
+      "tooltips": {
+        "pending_approval": "Cet article est en attente d'approbation et ne peut pas encore être utilisé pour les commandes"
+      },
+      "errors": {
+        "load_failed": "Échec du chargement des articles de l'inventaire. Veuillez réessayer.",
+        "save_failed": "Échec de l'enregistrement de l'article de l'inventaire. Veuillez réessayer.",
+        "delete_failed": "Échec de la suppression de l'article de l'inventaire. Veuillez réessayer.",
+        "approve_failed": "Échec de l'approbation de l'article. Veuillez réessayer."
+      },
+      "success": {
+        "item_added": "Article ajouté avec succès !",
+        "item_updated": "Article mis à jour avec succès !",
+        "item_deleted": "Article supprimé avec succès !",
+        "item_approved": "Article approuvé avec succès !"
+      }
+    }
+  },
+  "create_order": {
+    "title": "Créer une nouvelle commande",
+    "customer_information": "Informations sur le client",
+    "delivery_address": "Adresse de livraison",
+    "order_details": "Détails de la commande",
+    "create_button": "Créer la commande",
+    "form": {
+        "customer_name": "Nom du client",
+        "customer_phone": "Téléphone du client",
+        "phone_placeholder": "ex. +33123456789",
+        "street_address": "Adresse",
+        "city": "Ville",
+        "maps_link": "Lien Google Maps (optionnel)",
+        "maps_placeholder": "ex. https://goo.gl/maps/...",
+        "item": "Article",
+        "loading_inventory": "Chargement de l'inventaire...",
+        "no_items": "Aucun article en inventaire",
+        "out_of_stock": "(En rupture de stock)",
+        "quantity_available": "({{quantity}} disponible(s))",
+        "quantity": "Quantité",
+        "comments": "Commentaires/Notes",
+        "comments_placeholder": "Ajoutez des instructions spéciales ou des notes concernant cette commande",
+        "comments_helper": "Optionnel : Incluez toute information supplémentaire pertinente pour cette commande"
+    },
+    "errors": {
+        "load_failed": "Échec du chargement des articles de l'inventaire. Veuillez réessayer.",
+        "invalid_maps_link": "Veuillez fournir un lien Google Maps valide",
+        "required_fields": "Veuillez remplir tous les champs obligatoires",
+        "invalid_quantity": "La quantité doit être supérieure à 0",
+        "invalid_item": "Veuillez sélectionner un article valide de votre inventaire",
+        "not_enough_stock": "Pas assez de {{itemName}} en stock. Disponible : {{quantity}}",
+        "create_failed": "Échec de la création de la commande. Veuillez réessayer."
+    },
+    "success": {
+        "order_created": "Commande créée avec succès !"
+    }
+  },
+  "user_management": {
+    "title": "Gestion des utilisateurs",
+    "empty_message": "Aucun utilisateur trouvé",
+    "table": {
+      "username": "Nom d'utilisateur",
+      "name": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "phone": "Téléphone",
+      "city": "Ville",
+      "status": "Statut"
+    },
+    "status": {
+      "approved": "Approuvé",
+      "pending": "En attente",
+      "pending_approval": "En attente d'approbation"
+    },
+    "actions": {
+      "view_details": "Voir les détails de l'utilisateur",
+      "approve_user": "Approuver l'utilisateur",
+      "delete_user": "Supprimer l'utilisateur"
+    },
+    "filters": {
+      "show": "Afficher",
+      "hide": "Masquer",
+      "title": "Filtres",
+      "role": "Rôle",
+      "all_roles": "Tous les rôles",
+      "approval_status": "Statut d'approbation",
+      "all": "Tous"
+    },
+    "roles": {
+      "admin": "Admin",
+      "seller": "Vendeur",
+      "driver": "Livreur"
+    },
+    "dialog": {
+      "delete_title": "Confirmer la suppression",
+      "delete_confirm": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{username}}\" ? Cette action est irréversible."
+    },
+    "errors": {
+      "load_failed": "Échec du chargement des utilisateurs. Veuillez réessayer.",
+      "delete_failed": "Échec de la suppression de l'utilisateur : {{message}}",
+      "approve_failed": "Échec de l'approbation de l'utilisateur : {{message}}"
+    },
+    "success": {
+      "user_deleted": "L'utilisateur {{username}} a été supprimé.",
+      "user_approved": "L'utilisateur a été approuvé avec succès."
     }
   }
   }

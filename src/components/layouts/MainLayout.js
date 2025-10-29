@@ -181,7 +181,7 @@ const MainLayout = () => {
               </IconButton>
             )}
             <Typography variant="h6" component="div" noWrap>
-              Deleveryno - {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)} Panel
+              {t('app.title', { role: user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1) })}
             </Typography>
           </Box>
 

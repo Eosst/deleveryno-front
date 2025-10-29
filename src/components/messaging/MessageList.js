@@ -29,11 +29,13 @@ import {
   Archive as ArchiveIcon, 
   ChevronRight as RightIcon
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 const MessageList = () => {
   const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
   
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ const MessageList = () => {
       setMessages(response.results || response || []);
     } catch (err) {
       console.error('Error fetching messages:', err);
-      setError('Failed to load messages. Please try again.');
+      setError(t('messages.list.errors.failedLoad'));
     } finally {
       setLoading(false);
     }
@@ -63,35 +65,35 @@ const MessageList = () => {
   const getStatusChip = (status) => {
     switch (status) {
       case 'unread':
-        return <Chip icon={<UnreadIcon fontSize="small" />} label="Unread" color="error" size="small" />;
+        return <Chip icon={<UnreadIcon fontSize="small" />} label={t('messages.status.unread')} color="error" size="small" />;
       case 'read':
-        return <Chip icon={<ReadIcon fontSize="small" />} label="Read" color="primary" size="small" />;
+        return <Chip icon={<ReadIcon fontSize="small" />} label={t('messages.status.read')} color="primary" size="small" />;
       case 'archived':
-        return <Chip icon={<ArchiveIcon fontSize="small" />} label="Archived" color="default" size="small" />;
+        return <Chip icon={<ArchiveIcon fontSize="small" />} label={t('messages.status.archived')} color="default" size="small" />;
       default:
-        return <Chip label={status || "Unknown"} size="small" />;
+        return <Chip label={status || t('messages.common.unknown')} size="small" />;
     }
   };
 
   // Format sender/recipient name
   const formatUserName = (messageUser, userRole) => {
-    if (!messageUser) return "Unknown";
+    if (!messageUser) return t('messages.common.unknown');
     
     // If the user is not an admin and the message user is an admin, show as "Administration"
     if (!isAdmin && userRole === 'admin') {
-      return "Administration";
+      return t('messages.common.administration');
     }
     
     // Otherwise show the actual user name
     return messageUser.first_name && messageUser.last_name
       ? `${messageUser.first_name} ${messageUser.last_name}`
-      : messageUser.username || "Unknown";
+      : messageUser.username || t('messages.common.unknown');
   };
 
   // Get initials for avatar
   const getInitials = (name) => {
-    if (!name || name === "Administration") return "A";
-    if (name === "Unknown") return "?";
+    if (!name || name === t('messages.common.administration')) return "A";
+    if (name === t('messages.common.unknown')) return "?";
     
     const parts = name.split(" ");
     if (parts.length === 1) return name.charAt(0).toUpperCase();
@@ -133,7 +135,7 @@ const MessageList = () => {
         mb={3}
         flexDirection={isMobile ? "column" : "row"}
       >
-        <Typography variant="h4" sx={{ mb: isMobile ? 2 : 0 }}>Messages</Typography>
+        <Typography variant="h4" sx={{ mb: isMobile ? 2 : 0 }}>{t('messages.list.title')}</Typography>
         <Button
           component={Link}
           to="/messages/new"
@@ -142,7 +144,7 @@ const MessageList = () => {
           startIcon={<AddIcon />}
           fullWidth={isMobile}
         >
-          New Message
+          {t('messages.list.newMessage')}
         </Button>
       </Box>
 
@@ -150,7 +152,7 @@ const MessageList = () => {
         {messages.length === 0 ? (
           <Box p={3} textAlign="center">
             <Typography variant="body1" color="textSecondary">
-              No messages found
+              {t('messages.list.noneFound')}
             </Typography>
           </Box>
         ) : isMobile ? (

@@ -2,8 +2,10 @@
 import React from 'react';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const NotFound = () => {
+  const { t } = useTranslation();
   return (
     <Box
       display="flex"
@@ -17,10 +19,10 @@ const NotFound = () => {
           404
         </Typography>
         <Typography variant="h5" gutterBottom>
-          Page Not Found
+          {t('notFound.title')}
         </Typography>
         <Typography variant="body1" color="textSecondary" paragraph>
-          The page you are looking for doesn't exist or has been moved.
+          {t('notFound.description')}
         </Typography>
         <Button 
           component={Link} 
@@ -29,7 +31,7 @@ const NotFound = () => {
           color="primary"
           sx={{ mt: 2 }}
         >
-          Back to Home
+          {t('notFound.backToHome')}
         </Button>
       </Paper>
     </Box>

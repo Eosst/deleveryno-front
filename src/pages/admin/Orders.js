@@ -544,7 +544,11 @@ const AdminOrders = () => {
                 >
                   {availableDrivers.map(driver => (
                     <MenuItem key={driver.id} value={driver.id}>
-                      {driver.first_name} {driver.last_name} ({driver.username})
+                      {t('orders.assignDialog.driverDisplay', {
+                        firstName: driver.first_name,
+                        lastName: driver.last_name,
+                        username: driver.username
+                      })}
                     </MenuItem>
                   ))}
                 </Select>

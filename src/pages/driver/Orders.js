@@ -32,11 +32,13 @@ import { getDriverOrders, updateOrderStatus } from '../../api/orders';
 import { Link, useNavigate } from 'react-router-dom';
 import ResponsiveTable from '../../components/common/ResponsiveTable';
 import { usePagination } from '../../hooks/usePerformanceOptimization';
+import { useTranslation } from 'react-i18next';
 
 const DriverOrders = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -83,7 +85,7 @@ const DriverOrders = () => {
       setFilteredOrders(ordersList);
     } catch (err) {
       console.error('Error fetching driver orders:', err);
-      setError('Failed to load orders. Please try again.');
+      setError(t('driver.orders.errors.failedLoad'));
     } finally {
       setLoading(false);
     }
@@ -120,11 +122,11 @@ const DriverOrders = () => {
       }
       
       // Show success message
-      setSuccess(`Order #${selectedOrder.id} status updated to: ${getStatusLabel(newStatus)}`);
+      setSuccess(t('driver.orders.messages.statusUpdated', { id: selectedOrder.id, status: getStatusLabel(newStatus) }));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error updating order status:', err);
-      setError('Failed to update order status. Please try again.');
+      setError(t('driver.orders.errors.failedUpdate'));
     } finally {
       setUpdateLoading(false);
       setConfirmDialogOpen(false);
@@ -136,25 +138,23 @@ const DriverOrders = () => {
   const getStatusChip = (status) => {
     switch (status) {
       case 'assigned':
-        return <Chip label="Assigned" color="primary" size="small" />;
+        return <Chip label={t('statuses.assigned')} color="primary" size="small" />;
       case 'in_transit':
-        return <Chip label="In Transit" color="info" size="small" />;
+        return <Chip label={t('statuses.in_transit')} color="info" size="small" />;
       case 'delivered':
-        return <Chip label="Delivered" color="success" size="small" />;
+        return <Chip label={t('statuses.delivered')} color="success" size="small" />;
       case 'no_answer':
-        return <Chip label="No Answer" color="warning" size="small" />;
+        return <Chip label={t('statuses.no_answer')} color="warning" size="small" />;
       case 'postponed':
-        return <Chip label="Postponed" color="secondary" size="small" />;
+        return <Chip label={t('statuses.postponed')} color="secondary" size="small" />;
       case 'canceled':
-        return <Chip label="Canceled" color="error" size="small" />;
+        return <Chip label={t('statuses.canceled')} color="error" size="small" />;
       default:
         return <Chip label={status} size="small" />;
     }
   };
 
-  const getStatusLabel = (status) => {
-    return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
-  };
+  const getStatusLabel = (status) => t(`statuses.${status}`);
 
   // Get allowed next statuses based on current status
   const getAllowedStatuses = (currentStatus) => {
@@ -164,9 +164,9 @@ const DriverOrders = () => {
       case 'in_transit':
         return ['delivered', 'no_answer', 'postponed', 'canceled'];
       case 'no_answer':
-        return ['in_transit', 'canceled', 'postponed'];
+        return ['in_transit', 'canceled', 'postponed','delivered'];
       case 'postponed':
-        return ['in_transit', 'canceled'];
+        return ['in_transit', 'delivered', 'canceled','no_answer'];
       case 'delivered':
       case 'canceled':
         return []; // Terminal states
@@ -199,8 +199,8 @@ const DriverOrders = () => {
         <Paper sx={{ p: 3, textAlign: 'center' }}>
           <Typography variant="body1" color="textSecondary">
             {statusFilter !== 'all'
-              ? `You don't have any orders with status: ${getStatusLabel(statusFilter)}`
-              : "You don't have any assigned orders yet."}
+              ? t('driver.orders.emptyWithStatus', { status: getStatusLabel(statusFilter) })
+              : t('driver.orders.emptyAssigned')}
           </Typography>
         </Paper>
       );
@@ -299,15 +299,15 @@ const DriverOrders = () => {
 
   // Define columns for the responsive table
   const columns = [
-    { key: 'id', label: 'Order ID', render: (value) => `#${value}` },
+    { key: 'id', label: t('orders.columns.orderId'), render: (value) => `#${value}` },
     { 
       key: 'customer_name', 
-      label: 'Customer',
+      label: t('orders.columns.customer'),
       render: (value, row) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {value}
           {!isMobile && (
-            <Tooltip title="Call Customer">
+            <Tooltip title={t('driver.orders.callCustomer')}>
               <IconButton 
                 size="small" 
                 color="primary" 
@@ -325,18 +325,18 @@ const DriverOrders = () => {
     },
     { 
       key: 'item_info', 
-      label: 'Item',
+      label: t('orders.columns.item'),
       hidden: isMobile,
       render: (value, row) => `${row.item} (x${row.quantity})`
     },
     { 
       key: 'location', 
-      label: 'Location',
+      label: t('delivery.location'),
       render: (value, row) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {row.delivery_city}
           {row.delivery_location && (
-            <Tooltip title="Open in Maps">
+            <Tooltip title={t('delivery.open_in_maps')}>
               <IconButton 
                 size="small" 
                 color="primary" 
@@ -356,7 +356,7 @@ const DriverOrders = () => {
     },
     { 
       key: 'status', 
-      label: 'Status',
+      label: t('orders.columns.status'),
       render: (value) => getStatusChip(value)
     }
   ];
@@ -365,7 +365,7 @@ const DriverOrders = () => {
   if (!isMobile) {
     columns.push({
       key: 'update_status',
-      label: 'Update',
+      label: t('driver.orders.update'),
       render: (value, row) => (
         <FormControl sx={{ minWidth: 150 }}>
           <Select
@@ -378,11 +378,11 @@ const DriverOrders = () => {
             }}
             onClick={(e) => e.stopPropagation()} // Prevent row click
             displayEmpty
-            renderValue={() => "Update Status"}
+            renderValue={() => t('driver.orders.updateStatus')}
             disabled={['delivered', 'canceled'].includes(row.status) || updateLoading}
             size="small"
           >
-            <MenuItem value="default" disabled>Update Status</MenuItem>
+            <MenuItem value="default" disabled>{t('driver.orders.updateStatus')}</MenuItem>
             {getAllowedStatuses(row.status).map(status => (
               <MenuItem key={status} value={status}>
                 {getStatusLabel(status)}
@@ -397,7 +397,7 @@ const DriverOrders = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        My Delivery Orders
+        {t('driver.orders.title')}
       </Typography>
       
       {error && (
@@ -421,13 +421,13 @@ const DriverOrders = () => {
           }}
           displayEmpty
         >
-          <MenuItem value="all">All Orders</MenuItem>
-          <MenuItem value="assigned">Assigned</MenuItem>
-          <MenuItem value="in_transit">In Transit</MenuItem>
-          <MenuItem value="delivered">Delivered</MenuItem>
-          <MenuItem value="no_answer">No Answer</MenuItem>
-          <MenuItem value="postponed">Postponed</MenuItem>
-          <MenuItem value="canceled">Canceled</MenuItem>
+          <MenuItem value="all">{t('driver.orders.filters.all')}</MenuItem>
+          <MenuItem value="assigned">{t('statuses.assigned')}</MenuItem>
+          <MenuItem value="in_transit">{t('statuses.in_transit')}</MenuItem>
+          <MenuItem value="delivered">{t('statuses.delivered')}</MenuItem>
+          <MenuItem value="no_answer">{t('statuses.no_answer')}</MenuItem>
+          <MenuItem value="postponed">{t('statuses.postponed')}</MenuItem>
+          <MenuItem value="canceled">{t('statuses.canceled')}</MenuItem>
         </Select>
       </FormControl>
       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
@@ -437,7 +437,7 @@ const DriverOrders = () => {
           onClick={() => setStatusFilter('assigned')}
           size="small"
         >
-          Assigned ({assignedCount})
+          {t('statuses.assigned')} ({assignedCount})
         </Button>
         <Button
           variant={statusFilter === 'in_transit' ? 'contained' : 'outlined'}
@@ -445,7 +445,7 @@ const DriverOrders = () => {
           onClick={() => setStatusFilter('in_transit')}
           size="small"
         >
-          In Transit ({inTransitCount})
+          {t('statuses.in_transit')} ({inTransitCount})
         </Button>
         <Button
           variant={statusFilter === 'all' ? 'contained' : 'outlined'}
@@ -453,7 +453,7 @@ const DriverOrders = () => {
           onClick={() => setStatusFilter('all')}
           size="small"
         >
-          Show All
+          {t('driver.orders.filters.showAll')}
         </Button>
       </Box>
       
@@ -466,8 +466,8 @@ const DriverOrders = () => {
           loading={loading}
           emptyMessage={
             statusFilter !== 'all'
-              ? `You don't have any orders with status: ${getStatusLabel(statusFilter)}`
-              : "You don't have any assigned orders yet."
+              ? t('driver.orders.emptyWithStatus', { status: getStatusLabel(statusFilter) })
+              : t('driver.orders.emptyAssigned')
           }
           onRowClick={(row) => navigate(`/driver/orders/${row.id}`)}
           primaryKey="id"
@@ -481,21 +481,20 @@ const DriverOrders = () => {
         fullWidth={isMobile}
         maxWidth="sm"
       >
-        <DialogTitle>Confirm Status Change</DialogTitle>
+        <DialogTitle>{t('driver.orders.confirm.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to change the status of Order #{selectedOrder?.id} 
-            to "{newStatus && getStatusLabel(newStatus)}"?
+            {t('driver.orders.confirm.message', { id: selectedOrder?.id, status: newStatus && getStatusLabel(newStatus) })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setConfirmDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button 
             onClick={handleConfirmUpdate} 
             color="primary"
             disabled={updateLoading}
           >
-            {updateLoading ? <CircularProgress size={24} /> : 'Confirm'}
+            {updateLoading ? <CircularProgress size={24} /> : t('common.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

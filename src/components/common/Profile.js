@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Person as PersonIcon,
   Email as EmailIcon,
@@ -31,6 +32,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
   
   const { user, updateProfile, error: authError, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -119,14 +121,14 @@ const Profile = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: isMobile ? 'center' : 'flex-start' }}>
                 <UsernameIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-                <Typography variant="body2" color="text.secondary">
-                  Username: {user.username}
+              <Typography variant="body2" color="text.secondary">
+                  {t('profile.username')}: {user.username}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                 <RoleIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
                 <Typography variant="body2" color="text.secondary">
-                  Role: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                  {t('profile.role')}: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </Typography>
               </Box>
             </Box>
@@ -147,7 +149,7 @@ const Profile = () => {
           
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
-              Profile updated successfully!
+              {t('profile.updateSuccess')}
             </Alert>
           )}
         </CardContent>
@@ -156,7 +158,7 @@ const Profile = () => {
       {/* Edit Profile form */}
       <Paper elevation={3} sx={{ p: isMobile ? 2 : 4, borderRadius: 2 }}>
         <Typography variant="h5" gutterBottom>
-          Edit Profile
+          {t('profile.editProfile')}
         </Typography>
         <Divider sx={{ mb: 3 }} />
         
@@ -165,7 +167,7 @@ const Profile = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="First Name"
+                label={t('profile.firstName')}
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleChange}
@@ -181,7 +183,7 @@ const Profile = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label={t('profile.lastName')}
                 name="last_name"
                 value={formData.last_name}
                 onChange={handleChange}
@@ -197,7 +199,7 @@ const Profile = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('profile.email')}
                 name="email"
                 type="email"
                 value={formData.email}
@@ -214,7 +216,7 @@ const Profile = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Phone"
+                label={t('profile.phone')}
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
@@ -230,7 +232,7 @@ const Profile = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="City"
+                label={t('profile.city')}
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
@@ -248,11 +250,11 @@ const Profile = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Bank Account Information (RIB)"
+                  label={t('profile.rib')}
                   name="rib"
                   value={formData.rib || ''}
                   onChange={handleChange}
-                  helperText="Your bank account information for payment processing"
+                  helperText={t('profile.ribHelper')}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -271,7 +273,7 @@ const Profile = () => {
               disabled={loading}
               sx={{ minWidth: isMobile ? '100%' : '200px' }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Update Profile'}
+              {loading ? <CircularProgress size={24} /> : t('profile.updateButton')}
             </Button>
           </Box>
         </Box>

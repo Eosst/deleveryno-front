@@ -30,8 +30,10 @@ import {
 import { getUsers, approveUser, deleteUser } from '../../api/users';
 import { Link, useNavigate } from 'react-router-dom';
 import ResponsiveTable from '../../components/common/ResponsiveTable';
+import { useTranslation } from 'react-i18next';
 
 const UserManagement = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -75,7 +77,7 @@ const UserManagement = () => {
       setTotalCount(response.count || 0);
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Failed to load users. Please try again.');
+      setError(t('user_management.errors.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -112,10 +114,10 @@ const UserManagement = () => {
     try {
       await deleteUser(userToDelete.id);
       setUsers(users.filter(u => u.id !== userToDelete.id));
-      setActionSuccess(`User ${userToDelete.username} has been deleted.`);
+      setActionSuccess(t('user_management.success.user_deleted', { username: userToDelete.username }));
       setTimeout(() => setActionSuccess(null), 3000);
     } catch (err) {
-      setError(`Failed to delete user: ${err.message}`);
+      setError(t('user_management.errors.delete_failed', { message: err.message }));
     } finally {
       setDeleteDialogOpen(false);
       setUserToDelete(null);
@@ -128,10 +130,10 @@ const UserManagement = () => {
       setUsers(users.map(user => 
         user.id === userId ? { ...user, approved: updatedUser.approved } : user
       ));
-      setActionSuccess('User has been approved successfully.');
+      setActionSuccess(t('user_management.success.user_approved'));
       setTimeout(() => setActionSuccess(null), 3000);
     } catch (err) {
-      setError(`Failed to approve user: ${err.message}`);
+      setError(t('user_management.errors.approve_failed', { message: err.message }));
     }
   };
   
@@ -146,16 +148,16 @@ const UserManagement = () => {
 
   // Define columns for the responsive table
   const columns = [
-    { key: 'username', label: 'Username' },
+    { key: 'username', label: t('user_management.table.username') },
     { 
       key: 'name', 
-      label: 'Name',
+      label: t('user_management.table.name'),
       render: (value, row) => `${row.first_name || ''} ${row.last_name || ''}`.trim() || '-'
     },
-    { key: 'email', label: 'Email', hidden: isMobile },
+    { key: 'email', label: t('user_management.table.email'), hidden: isMobile },
     { 
       key: 'role', 
-      label: 'Role',
+      label: t('user_management.table.role'),
       render: (value, row) => (
         <Chip 
           label={row.role?.charAt(0).toUpperCase() + row.role?.slice(1) || ''} 
@@ -168,16 +170,16 @@ const UserManagement = () => {
         />
       )
     },
-    { key: 'phone', label: 'Phone', hidden: isMobile },
-    { key: 'city', label: 'City', hidden: isMobile },
+    { key: 'phone', label: t('user_management.table.phone'), hidden: isMobile },
+    { key: 'city', label: t('user_management.table.city'), hidden: isMobile },
     { 
       key: 'approved', 
-      label: 'Status',
+      label: t('user_management.table.status'),
       render: (value, row) => (
         row.approved ? (
-          <Chip label="Approved" color="success" size="small" />
+          <Chip label={t('user_management.status.approved')} color="success" size="small" />
         ) : (
-          <Chip label="Pending" color="warning" size="small" />
+          <Chip label={t('user_management.status.pending')} color="warning" size="small" />
         )
       )
     }
@@ -190,7 +192,7 @@ const UserManagement = () => {
         color="primary" 
         component={Link}
         to={`/admin/users/${row.id}`}
-        title="View User Details"
+        title={t('user_management.actions.view_details')}
         size="small"
         onClick={(e) => e.stopPropagation()}
       >
@@ -203,7 +205,7 @@ const UserManagement = () => {
             e.stopPropagation();
             handleApproveUser(row.id);
           }}
-          title="Approve User"
+          title={t('user_management.actions.approve_user')}
           size="small"
         >
           <ApproveIcon />
@@ -215,7 +217,7 @@ const UserManagement = () => {
           e.stopPropagation();
           handleDeleteClick(row);
         }}
-        title="Delete User"
+        title={t('user_management.actions.delete_user')}
         size="small"
       >
         <DeleteIcon />
@@ -226,7 +228,7 @@ const UserManagement = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        User Management
+        {t('user_management.title')}
       </Typography>
       
       {error && (
@@ -248,7 +250,7 @@ const UserManagement = () => {
           variant="outlined"
           fullWidth={isMobile}
         >
-          {showFilters ? 'Hide' : 'Show'} Filters
+          {showFilters ? t('user_management.filters.hide') : t('user_management.filters.show')} {t('user_management.filters.title')}
         </Button>
       </Box>
       
@@ -256,31 +258,31 @@ const UserManagement = () => {
         <Paper sx={{ p: 2, mb: 2 }}>
           <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap={2}>
             <FormControl sx={{ minWidth: 200, flexGrow: 1 }}>
-              <InputLabel>Role</InputLabel>
+              <InputLabel>{t('user_management.filters.role')}</InputLabel>
               <Select
                 name="role"
                 value={filters.role}
                 onChange={handleFilterChange}
-                label="Role"
+                label={t('user_management.filters.role')}
               >
-                <MenuItem value="">All Roles</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-                <MenuItem value="seller">Seller</MenuItem>
-                <MenuItem value="driver">Driver</MenuItem>
+                <MenuItem value="">{t('user_management.filters.all_roles')}</MenuItem>
+                <MenuItem value="admin">{t('user_management.roles.admin')}</MenuItem>
+                <MenuItem value="seller">{t('user_management.roles.seller')}</MenuItem>
+                <MenuItem value="driver">{t('user_management.roles.driver')}</MenuItem>
               </Select>
             </FormControl>
             
             <FormControl sx={{ minWidth: 200, flexGrow: 1 }}>
-              <InputLabel>Approval Status</InputLabel>
+              <InputLabel>{t('user_management.filters.approval_status')}</InputLabel>
               <Select
                 name="approved"
                 value={filters.approved}
                 onChange={handleFilterChange}
-                label="Approval Status"
+                label={t('user_management.filters.approval_status')}
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="true">Approved</MenuItem>
-                <MenuItem value="false">Pending Approval</MenuItem>
+                <MenuItem value="">{t('user_management.filters.all')}</MenuItem>
+                <MenuItem value="true">{t('user_management.status.approved')}</MenuItem>
+                <MenuItem value="false">{t('user_management.status.pending_approval')}</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -291,7 +293,7 @@ const UserManagement = () => {
         columns={columns}
         data={users}
         loading={loading}
-        emptyMessage="No users found"
+        emptyMessage={t('user_management.empty_message')}
         onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
         actions={renderActions}
         primaryKey="id"
@@ -309,16 +311,16 @@ const UserManagement = () => {
         onClose={() => setDeleteDialogOpen(false)}
         fullWidth={isMobile}
       >
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>{t('user_management.dialog.delete_title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete user "{userToDelete?.username}"? This action cannot be undone.
+            {t('user_management.dialog.delete_confirm', { username: userToDelete?.username })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>

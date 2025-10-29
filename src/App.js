@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Snackbar, Alert } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { WifiOff as OfflineIcon } from '@mui/icons-material';
 import theme from './theme';
 import useNetworkStatus from './hooks/useNetworkStatus';
@@ -15,6 +16,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 
 function App() {
   const { isOnline } = useNetworkStatus();
+  const { t } = useTranslation();
   
   // Use useMemo to prevent unnecessary re-renders
   const appContent = useMemo(() => (
@@ -34,7 +36,7 @@ function App() {
             sx={{ width: '100%' }}
             className="offline-notification"
           >
-            You are currently offline. Some features may be limited.
+            {t('common.offlineNotice')}
           </Alert>
         </Snackbar>
       </AuthProvider>

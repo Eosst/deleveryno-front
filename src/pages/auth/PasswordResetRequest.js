@@ -13,8 +13,10 @@ import {
 } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
 import { requestPasswordReset } from '../../api/auth';
+import { useTranslation } from 'react-i18next';
 
 const PasswordResetRequest = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,7 +29,7 @@ const PasswordResetRequest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) {
-      setError('Email is required');
+      setError(t('auth.common.emailRequired'));
       return;
     }
 
@@ -39,7 +41,7 @@ const PasswordResetRequest = () => {
       setSuccess(true);
     } catch (err) {
       console.error('Error requesting password reset:', err);
-      setError('Failed to process your request. Please try again.');
+      setError(t('auth.reset.failed'));
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,7 @@ const PasswordResetRequest = () => {
           >
             <LockOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
             <Typography component="h1" variant="h5">
-              Reset Password
+              {t('auth.reset.title')}
             </Typography>
           </Box>
 
@@ -79,7 +81,7 @@ const PasswordResetRequest = () => {
           {success ? (
             <Box>
               <Alert severity="success" sx={{ mb: 2 }}>
-                If your email is registered with us, we've sent you instructions to reset your password.
+                {t('auth.reset.success')}
               </Alert>
               <Button
                 component={Link}
@@ -87,7 +89,7 @@ const PasswordResetRequest = () => {
                 fullWidth
                 variant="contained"
               >
-                Return to Login
+                {t('auth.reset.returnToLogin')}
               </Button>
             </Box>
           ) : (
@@ -97,7 +99,7 @@ const PasswordResetRequest = () => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('auth.common.emailAddress')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -111,12 +113,12 @@ const PasswordResetRequest = () => {
                 sx={{ mt: 3, mb: 2 }}
                 disabled={loading}
               >
-                {loading ? <CircularProgress size={24} /> : 'Send Reset Link'}
+                {loading ? <CircularProgress size={24} /> : t('auth.reset.sendLink')}
               </Button>
               <Box textAlign="center">
                 <Link to="/login" style={{ textDecoration: 'none' }}>
                   <Typography variant="body2" color="primary">
-                    Back to Login
+                    {t('auth.reset.backToLogin')}
                   </Typography>
                 </Link>
               </Box>

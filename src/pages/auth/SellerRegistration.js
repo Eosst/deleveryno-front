@@ -34,11 +34,13 @@ import {
   ArrowBack,
   ArrowForward
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 const SellerRegistration = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -115,7 +117,7 @@ const SellerRegistration = () => {
         });
         setError(errorMessages.join('\n'));
       } else {
-        setError('Registration failed. Please try again.');
+        setError(t('auth.register.failed'));
       }
     } finally {
       setLoading(false);
@@ -127,10 +129,9 @@ const SellerRegistration = () => {
       <Container component="main" maxWidth="sm">
         <Box sx={{ mt: isMobile ? 4 : 8 }}>
           <Alert severity="success">
-            <Typography variant="h6">Registration Successful!</Typography>
+            <Typography variant="h6">{t('auth.register.successTitle')}</Typography>
             <Typography>
-              Your account has been created. An administrator will review and approve your account.
-              You will be redirected to the login page shortly.
+              {t('auth.register.successMessage')}
             </Typography>
           </Alert>
         </Box>
@@ -141,14 +142,14 @@ const SellerRegistration = () => {
   // Steps content
   const steps = [
     {
-      label: 'Account Information',
+      label: t('auth.register.steps.accountInfo'),
       content: (
         <>
           <TextField
             margin="normal"
             required
             fullWidth
-            label="Email Address"
+            label={t('auth.common.emailAddress')}
             name="email"
             type="email"
             value={formData.email}
@@ -165,12 +166,12 @@ const SellerRegistration = () => {
             margin="normal"
             required
             fullWidth
-            label="Password"
+            label={t('auth.common.password')}
             name="password"
             type={showPassword ? "text" : "password"}
             value={formData.password}
             onChange={handleChange}
-            helperText="Password must be at least 8 characters"
+            helperText={t('auth.register.passwordHint')}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -180,7 +181,7 @@ const SellerRegistration = () => {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    aria-label="toggle password visibility"
+                    aria-label={t('auth.login.togglePassword')}
                     onClick={handleClickShowPassword}
                     onMouseDown={handleMouseDownPassword}
                     edge="end"
@@ -195,14 +196,14 @@ const SellerRegistration = () => {
       )
     },
     {
-      label: 'Personal Information',
+      label: t('auth.register.steps.personalInfo'),
       content: (
         <>
           <TextField
             margin="normal"
             required
             fullWidth
-            label="First Name"
+            label={t('profile.firstName')}
             name="first_name"
             value={formData.first_name}
             onChange={handleChange}
@@ -218,7 +219,7 @@ const SellerRegistration = () => {
             margin="normal"
             required
             fullWidth
-            label="Last Name"
+            label={t('profile.lastName')}
             name="last_name"
             value={formData.last_name}
             onChange={handleChange}
@@ -234,14 +235,14 @@ const SellerRegistration = () => {
       )
     },
     {
-      label: 'Contact Details',
+      label: t('auth.register.steps.contactDetails'),
       content: (
         <>
           <TextField
             margin="normal"
             required
             fullWidth
-            label="Phone Number"
+            label={t('auth.common.phoneNumber')}
             name="phone"
             value={formData.phone}
             onChange={handleChange}
@@ -257,7 +258,7 @@ const SellerRegistration = () => {
             margin="normal"
             required
             fullWidth
-            label="City"
+            label={t('profile.city')}
             name="city"
             value={formData.city}
             onChange={handleChange}
@@ -273,18 +274,18 @@ const SellerRegistration = () => {
       )
     },
     {
-      label: 'Payment Information',
+      label: t('auth.register.steps.paymentInfo'),
       content: (
         <>
           <TextField
             margin="normal"
             fullWidth
-            label="Bank Account Information (RIB)"
+            label={t('profile.rib')}
             name="rib"
             value={formData.rib}
             onChange={handleChange}
-            placeholder="Enter your bank account details"
-            helperText="This information will be used for payment processing"
+            placeholder={t('auth.register.ribPlaceholder')}
+            helperText={t('profile.ribHelper')}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -320,10 +321,10 @@ const SellerRegistration = () => {
           >
             <StoreIcon sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
             <Typography component="h1" variant={isMobile ? "h5" : "h4"} align="center">
-              Seller Registration
+              {t('auth.register.sellerTitle')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Join the DeliveryNo platform as a seller
+              {t('auth.register.sellerSubtitle')}
             </Typography>
           </Box>
 
@@ -352,7 +353,7 @@ const SellerRegistration = () => {
                           variant="outlined"
                           size="small"
                         >
-                          Back
+                          {t('common.back')}
                         </Button>
                         {index === steps.length - 1 ? (
                           <Button
@@ -361,7 +362,7 @@ const SellerRegistration = () => {
                             disabled={loading || !validateStep(index)}
                             size="small"
                           >
-                            {loading ? <CircularProgress size={24} /> : 'Register'}
+                            {loading ? <CircularProgress size={24} /> : t('auth.register.register')}
                           </Button>
                         ) : (
                           <Button
@@ -371,7 +372,7 @@ const SellerRegistration = () => {
                             endIcon={<ArrowForward />}
                             size="small"
                           >
-                            Next
+                            {t('common.next')}
                           </Button>
                         )}
                       </Box>
@@ -388,7 +389,7 @@ const SellerRegistration = () => {
                   <TextField
                     required
                     fullWidth
-                    label="First Name"
+                    label={t('profile.firstName')}
                     name="first_name"
                     value={formData.first_name}
                     onChange={handleChange}
@@ -405,7 +406,7 @@ const SellerRegistration = () => {
                   <TextField
                     required
                     fullWidth
-                    label="Last Name"
+                    label={t('profile.lastName')}
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleChange}
@@ -422,7 +423,7 @@ const SellerRegistration = () => {
                   <TextField
                     required
                     fullWidth
-                    label="Email Address"
+                    label={t('auth.common.emailAddress')}
                     name="email"
                     type="email"
                     value={formData.email}
@@ -440,7 +441,7 @@ const SellerRegistration = () => {
                   <TextField
                     required
                     fullWidth
-                    label="Password"
+                    label={t('auth.common.password')}
                     name="password"
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
@@ -454,7 +455,7 @@ const SellerRegistration = () => {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            aria-label="toggle password visibility"
+                          aria-label={t('auth.login.togglePassword')}
                             onClick={handleClickShowPassword}
                             onMouseDown={handleMouseDownPassword}
                             edge="end"
@@ -470,7 +471,7 @@ const SellerRegistration = () => {
                   <TextField
                     required
                     fullWidth
-                    label="Phone Number"
+                    label={t('auth.common.phoneNumber')}
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
@@ -487,7 +488,7 @@ const SellerRegistration = () => {
                   <TextField
                     required
                     fullWidth
-                    label="City"
+                    label={t('profile.city')}
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
@@ -503,12 +504,12 @@ const SellerRegistration = () => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Bank Account Information (RIB)"
+                    label={t('profile.rib')}
                     name="rib"
                     value={formData.rib}
                     onChange={handleChange}
-                    placeholder="Enter your bank account details"
-                    helperText="This information will be used for payment processing"
+                    placeholder={t('auth.register.ribPlaceholder')}
+                    helperText={t('profile.ribHelper')}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -527,7 +528,7 @@ const SellerRegistration = () => {
                 sx={{ mt: 3, mb: 2 }}
                 disabled={loading}
               >
-                {loading ? <CircularProgress size={24} /> : 'Register'}
+                {loading ? <CircularProgress size={24} /> : t('auth.register.register')}
               </Button>
             </Box>
           )}
@@ -536,7 +537,7 @@ const SellerRegistration = () => {
             <Grid item>
               <Link to="/login" style={{ textDecoration: 'none' }}>
                 <Typography variant="body2" color="primary">
-                  Already have an account? Sign in
+                  {t('auth.register.alreadyHaveAccount')}
                 </Typography>
               </Link>
             </Grid>

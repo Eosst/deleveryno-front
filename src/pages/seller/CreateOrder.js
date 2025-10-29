@@ -19,8 +19,10 @@ import {
 } from '@mui/material';
 import { createOrder } from '../../api/orders';
 import { getStockItems } from '../../api/stock';
+import { useTranslation } from 'react-i18next';
 
 const CreateOrder = ({ isAdmin }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [stockLoading, setStockLoading] = useState(true);
@@ -47,7 +49,7 @@ const CreateOrder = ({ isAdmin }) => {
         setStockItems(approvedItems);
       } catch (error) {
         console.error('Error fetching stock items:', error);
-        setError('Failed to load inventory items. Please try again.');
+        setError(t('create_order.errors.load_failed'));
       } finally {
         setStockLoading(false);
       }
@@ -68,10 +70,10 @@ const CreateOrder = ({ isAdmin }) => {
         value.startsWith('https://maps.google.com');
       
       if (!isValidMapsUrl && value.length > 0) {
-        setError('Please provide a valid Google Maps link');
+        setError(t('create_order.errors.invalid_maps_link'));
       } else {
         // Clear error if it was related to maps link
-        if (error === 'Please provide a valid Google Maps link') {
+        if (error === t('create_order.errors.invalid_maps_link')) {
           setError(null);
         }
       }
@@ -95,27 +97,27 @@ const CreateOrder = ({ isAdmin }) => {
     
     for (const field of requiredFields) {
       if (!formData[field]) {
-        setError(`Please fill in all required fields`);
+        setError(t('create_order.errors.required_fields'));
         return false;
       }
     }
     
     // Validate quantity is positive
     if (formData.quantity <= 0) {
-      setError('Quantity must be greater than 0');
+      setError(t('create_order.errors.invalid_quantity'));
       return false;
     }
     
     // Check if selected item exists in stock
     const selectedItem = stockItems.find(item => item.item_name === formData.item);
     if (!selectedItem) {
-      setError('Please select a valid item from your inventory');
+      setError(t('create_order.errors.invalid_item'));
       return false;
     }
     
     // Check if enough quantity is available
     if (selectedItem.quantity < formData.quantity) {
-      setError(`Not enough ${selectedItem.item_name} in stock. Available: ${selectedItem.quantity}`);
+      setError(t('create_order.errors.not_enough_stock', { itemName: selectedItem.item_name, quantity: selectedItem.quantity }));
       return false;
     }
     
@@ -132,7 +134,7 @@ const CreateOrder = ({ isAdmin }) => {
     
     try {
       await createOrder(formData);
-      navigate('/seller/orders', { state: { success: 'Order created successfully!' } });
+      navigate('/seller/orders', { state: { success: t('create_order.success.order_created') } });
     } catch (err) {
       console.error('Error creating order:', err);
       if (err.response && err.response.data) {
@@ -148,7 +150,7 @@ const CreateOrder = ({ isAdmin }) => {
         });
         setError(errorMessages.join('\n'));
       } else {
-        setError('Failed to create order. Please try again.');
+        setError(t('create_order.errors.create_failed'));
       }
     } finally {
       setLoading(false);
@@ -158,7 +160,7 @@ const CreateOrder = ({ isAdmin }) => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Create New Order
+        {t('create_order.title')}
       </Typography>
       
       <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
@@ -170,14 +172,14 @@ const CreateOrder = ({ isAdmin }) => {
         
         <form onSubmit={handleSubmit}>
           <Typography variant="h6" gutterBottom>
-            Customer Information
+            {t('create_order.customer_information')}
           </Typography>
           
           <Grid container spacing={2} mb={3}>
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Customer Name"
+                label={t('create_order.form.customer_name')}
                 name="customer_name"
                 value={formData.customer_name}
                 onChange={handleChange}
@@ -187,12 +189,12 @@ const CreateOrder = ({ isAdmin }) => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Customer Phone"
+                label={t('create_order.form.customer_phone')}
                 name="customer_phone"
                 value={formData.customer_phone}
                 onChange={handleChange}
                 required
-                placeholder="e.g. +1234567890"
+                placeholder={t('create_order.form.phone_placeholder')}
               />
             </Grid>
           </Grid>
@@ -200,14 +202,14 @@ const CreateOrder = ({ isAdmin }) => {
           <Divider sx={{ my: 3 }} />
           
           <Typography variant="h6" gutterBottom>
-            Delivery Address
+            {t('create_order.delivery_address')}
           </Typography>
           
           <Grid container spacing={2} mb={3}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Street Address"
+                label={t('create_order.form.street_address')}
                 name="delivery_street"
                 value={formData.delivery_street}
                 onChange={handleChange}
@@ -217,7 +219,7 @@ const CreateOrder = ({ isAdmin }) => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="City"
+                label={t('create_order.form.city')}
                 name="delivery_city"
                 value={formData.delivery_city}
                 onChange={handleChange}
@@ -227,11 +229,11 @@ const CreateOrder = ({ isAdmin }) => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Google Maps Link (optional)"
+                label={t('create_order.form.maps_link')}
                 name="delivery_location"
                 value={formData.delivery_location}
                 onChange={handleChange}
-                placeholder="e.g. https://goo.gl/maps/..."
+                placeholder={t('create_order.form.maps_placeholder')}
               />
             </Grid>
           </Grid>
@@ -239,23 +241,23 @@ const CreateOrder = ({ isAdmin }) => {
           <Divider sx={{ my: 3 }} />
           
           <Typography variant="h6" gutterBottom>
-            Order Details
+            {t('create_order.order_details')}
           </Typography>
           
           <Grid container spacing={2}>
             <Grid item xs={12} sm={8}>
               <FormControl fullWidth required>
-                <InputLabel>Item</InputLabel>
+                <InputLabel>{t('create_order.form.item')}</InputLabel>
                 <Select
                   name="item"
                   value={formData.item}
                   onChange={handleChange}
-                  label="Item"
+                  label={t('create_order.form.item')}
                 >
                   {stockLoading ? (
-                    <MenuItem disabled>Loading inventory...</MenuItem>
+                    <MenuItem disabled>{t('create_order.form.loading_inventory')}</MenuItem>
                   ) : stockItems.length === 0 ? (
-                    <MenuItem disabled>No items in inventory</MenuItem>
+                    <MenuItem disabled>{t('create_order.form.no_items')}</MenuItem>
                   ) : (
                     stockItems.map(item => (
                       <MenuItem 
@@ -263,7 +265,7 @@ const CreateOrder = ({ isAdmin }) => {
                         value={item.item_name}
                         disabled={item.quantity === 0}
                       >
-                        {item.item_name} {item.quantity === 0 ? '(Out of Stock)' : `(${item.quantity} available)`}
+                        {item.item_name} {item.quantity === 0 ? t('create_order.form.out_of_stock') : t('create_order.form.quantity_available', { quantity: item.quantity })}
                       </MenuItem>
                     ))
                   )}
@@ -273,7 +275,7 @@ const CreateOrder = ({ isAdmin }) => {
             <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
-                label="Quantity"
+                label={t('create_order.form.quantity')}
                 name="quantity"
                 type="number"
                 value={formData.quantity}
@@ -286,14 +288,14 @@ const CreateOrder = ({ isAdmin }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Comments/Notes"
+                label={t('create_order.form.comments')}
                 name="comment"
                 value={formData.comment}
                 onChange={handleChange}
                 multiline
                 rows={4}
-                placeholder="Add any special instructions or notes about this order"
-                helperText="Optional: Include any additional information relevant to this order"
+                placeholder={t('create_order.form.comments_placeholder')}
+                helperText={t('create_order.form.comments_helper')}
               />
             </Grid>
           </Grid>
@@ -305,7 +307,7 @@ const CreateOrder = ({ isAdmin }) => {
               sx={{ mr: 2 }}
               onClick={() => navigate(-1)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button 
               type="submit" 
@@ -313,7 +315,7 @@ const CreateOrder = ({ isAdmin }) => {
               color="primary"
               disabled={loading || stockLoading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Create Order'}
+              {loading ? <CircularProgress size={24} /> : t('create_order.create_button')}
             </Button>
           </Box>
         </form>

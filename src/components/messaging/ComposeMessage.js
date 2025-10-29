@@ -34,12 +34,14 @@ import {
 import { createMessage, getMessage } from '../../api/messages';
 import { getUsers } from '../../api/users';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const ComposeMessage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
   
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -86,7 +88,7 @@ const ComposeMessage = () => {
       });
     } catch (err) {
       console.error('Error fetching reply message:', err);
-      setError('Failed to load reply message details.');
+      setError(t('messages.compose.errors.failedLoadReply'));
     }
   };
 
@@ -104,7 +106,7 @@ const ComposeMessage = () => {
       setUsers(filteredUsers);
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Failed to load user list.');
+      setError(t('messages.compose.errors.failedLoadUsers'));
     } finally {
       setUsersLoading(false);
     }
@@ -122,7 +124,7 @@ const ComposeMessage = () => {
     e.preventDefault();
     
     if (!formData.subject.trim() || !formData.content.trim()) {
-      setError('Subject and message content are required');
+      setError(t('messages.compose.errors.required'));
       return;
     }
     
@@ -147,7 +149,7 @@ const ComposeMessage = () => {
         setShowErrorDialog(true);
       }
       
-      setError('Failed to send message. Please try again.');
+      setError(t('messages.compose.errors.failedSend'));
     } finally {
       setLoading(false);
     }
@@ -162,11 +164,11 @@ const ComposeMessage = () => {
         variant={isMobile ? "outlined" : "text"}
         fullWidth={isMobile}
       >
-        Back to Messages
+        {t('messages.common.backToMessages')}
       </Button>
 
       <Typography variant="h4" gutterBottom align={isMobile ? "center" : "left"}>
-        {replyToMessage ? 'Reply to Message' : 'New Message'}
+        {replyToMessage ? t('messages.compose.replyTitle') : t('messages.compose.newTitle')}
       </Typography>
 
       {error && (
@@ -180,19 +182,19 @@ const ComposeMessage = () => {
           {/* Only show recipient selection for admin users */}
           {isAdmin && (
             <FormControl fullWidth sx={{ mb: 3 }}>
-              <InputLabel>Recipient</InputLabel>
+              <InputLabel>{t('messages.compose.recipient')}</InputLabel>
               <Select
                 name="recipient_id"
                 value={formData.recipient_id}
                 onChange={handleChange}
-                label="Recipient"
+                label={t('messages.compose.recipient')}
                 required
                 disabled={usersLoading || replyToMessage}
               >
                 {usersLoading ? (
-                  <MenuItem disabled>Loading users...</MenuItem>
+                  <MenuItem disabled>{t('messages.compose.loadingUsers')}</MenuItem>
                 ) : users.length === 0 ? (
-                  <MenuItem disabled>No users available</MenuItem>
+                  <MenuItem disabled>{t('messages.compose.noUsers')}</MenuItem>
                 ) : (
                   users.map(u => (
                     <MenuItem key={u.id} value={u.id}>
@@ -209,22 +211,22 @@ const ComposeMessage = () => {
           {/* For non-admin users, show who they're messaging */}
           {!isAdmin && !replyToMessage && (
             <Alert severity="info" sx={{ mb: 3 }}>
-              You are sending a message to the Administration team.
+              {t('messages.compose.info.toAdmin')}
             </Alert>
           )}
 
           {/* Show who we're replying to */}
           {replyToMessage && (
             <Alert severity="info" sx={{ mb: 3 }}>
-              You are replying to: {replyToMessage.sender?.role === 'admin' 
-                ? "Administration" 
-                : `${replyToMessage.sender?.first_name || ''} ${replyToMessage.sender?.last_name || ''} (${replyToMessage.sender?.role || 'Unknown'})`}
+              {t('messages.compose.info.replyingTo')}: {replyToMessage.sender?.role === 'admin' 
+                ? t('messages.common.administration') 
+                : `${replyToMessage.sender?.first_name || ''} ${replyToMessage.sender?.last_name || ''} (${replyToMessage.sender?.role || t('messages.common.unknown')})`}
             </Alert>
           )}
 
           <TextField
             fullWidth
-            label="Subject"
+            label={t('messages.compose.subject')}
             name="subject"
             value={formData.subject}
             onChange={handleChange}
@@ -235,14 +237,14 @@ const ComposeMessage = () => {
           {/* COMPLETELY REDESIGNED MESSAGE INPUT AREA */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="subtitle1" gutterBottom sx={{ mb: 1 }}>
-              Message *
+              {t('messages.compose.messageLabel')}
             </Typography>
             <textarea 
               name="content"
               value={formData.content}
               onChange={handleChange}
               required
-              placeholder="Type your message here..."
+              placeholder={t('messages.compose.messagePlaceholder')}
               style={{ 
                 width: '100%',
                 minHeight: isMobile ? '250px' : '200px',
@@ -269,7 +271,7 @@ const ComposeMessage = () => {
               size={isMobile ? "large" : "medium"}
               sx={{ minWidth: isMobile ? '100%' : '120px' }}
             >
-              Send Message
+              {t('messages.compose.send')}
             </Button>
           </Box>
         </form>
@@ -282,14 +284,14 @@ const ComposeMessage = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>Error Details</DialogTitle>
+        <DialogTitle>{t('messages.compose.errorDetails')}</DialogTitle>
         <DialogContent>
           <DialogContentText component="pre" sx={{ whiteSpace: 'pre-wrap' }}>
             {errorDetails}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowErrorDialog(false)}>Close</Button>
+          <Button onClick={() => setShowErrorDialog(false)}>{t('common.close') || 'Close'}</Button>
         </DialogActions>
       </Dialog>
     </Box>

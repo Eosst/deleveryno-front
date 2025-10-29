@@ -24,6 +24,7 @@ import {
   Email as EmailIcon,
   Lock as LockIcon
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 const LoginPage = () => {
   const { login, error: authError } = useAuth();
@@ -31,6 +32,7 @@ const LoginPage = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
 
   const [credentials, setCredentials] = useState({
     email: '',
@@ -68,7 +70,7 @@ const LoginPage = () => {
     
     // Validate form
     if (!credentials.email || !credentials.password) {
-      setError('Email and password are required');
+      setError(t('auth.login.requiredError'));
       return;
     }
     
@@ -127,10 +129,10 @@ const LoginPage = () => {
               variant={isMobile ? "h5" : "h4"}
               sx={{ fontWeight: 'bold' }}
             >
-              DeliveryNo
+              {t('auth.login.title')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Enter your credentials to access the platform
+              {t('auth.login.subtitle')}
             </Typography>
           </Box>
 
@@ -146,7 +148,7 @@ const LoginPage = () => {
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label={t('auth.common.emailAddress')}
               name="email"
               autoComplete="email"
               autoFocus
@@ -167,7 +169,7 @@ const LoginPage = () => {
               required
               fullWidth
               name="password"
-              label="Password"
+              label={t('auth.common.password')}
               type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="current-password"
@@ -183,7 +185,7 @@ const LoginPage = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="toggle password visibility"
+                      aria-label={t('auth.login.togglePassword')}
                       onClick={handleClickShowPassword}
                       onMouseDown={handleMouseDownPassword}
                       edge="end"
@@ -210,7 +212,7 @@ const LoginPage = () => {
               }}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Sign In'}
+              {loading ? <CircularProgress size={24} /> : t('auth.login.signIn')}
             </Button>
 
             <Typography 
@@ -219,13 +221,13 @@ const LoginPage = () => {
               sx={{ mt: 2, color: 'primary.main' }}
             >
               <Link to="/password-reset" style={{ textDecoration: 'none', color: 'inherit' }}>
-                Forgot password?
+                {t('auth.login.forgotPassword')}
               </Link>
             </Typography>
 
             <Box sx={{ mt: 4, mb: 1 }}>
               <Typography variant="body2" align="center" color="text.secondary">
-                Don't have an account? Register as:
+                {t('auth.login.registerPrompt')}
               </Typography>
             </Box>
             
@@ -238,7 +240,7 @@ const LoginPage = () => {
                   fullWidth
                   sx={{ borderRadius: 1 }}
                 >
-                  Seller
+                  {t('auth.common.seller')}
                 </Button>
               </Grid>
               <Grid item xs={6}>
@@ -249,7 +251,7 @@ const LoginPage = () => {
                   fullWidth
                   sx={{ borderRadius: 1 }}
                 >
-                  Driver
+                  {t('auth.common.driver')}
                 </Button>
               </Grid>
             </Grid>
